@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronDown, Menu, X, Globe, PhoneCall } from 'lucide-react';
 
+export type PageType = 'home' | 'about' | 'media' | 'media-print' | 'media-digital';
+
 interface NavbarProps {
-  currentPage?: 'home' | 'about';
-  onNavigate?: (page: 'home' | 'about') => void;
+  currentPage?: PageType;
+  onNavigate?: (page: PageType) => void;
   onOpenAppointment: () => void;
 }
 
@@ -28,7 +30,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     setActiveDropdown(activeDropdown === name ? null : name);
   };
 
-  const handleLinkClick = (page: 'home' | 'about', hash?: string) => {
+  const handleLinkClick = (page: PageType, hash?: string) => {
     setMobileMenuOpen(false);
     setActiveDropdown(null);
     if (onNavigate) {
@@ -43,6 +45,11 @@ export const Navbar: React.FC<NavbarProps> = ({
       }, 100);
     }
   };
+
+  const isMediaActive =
+    currentPage === 'media' ||
+    currentPage === 'media-print' ||
+    currentPage === 'media-digital';
 
   return (
     <header
@@ -100,32 +107,36 @@ export const Navbar: React.FC<NavbarProps> = ({
               onMouseLeave={() => setActiveDropdown(null)}
             >
               <button
-                onClick={() => toggleDropdown('media')}
-                className="flex items-center gap-1 px-3 py-1.5 hover:text-[#a87932] transition-colors focus:outline-none cursor-pointer"
+                onClick={() => handleLinkClick('media')}
+                className={`flex items-center gap-1 px-3 py-1.5 transition-colors focus:outline-none cursor-pointer ${
+                  isMediaActive
+                    ? 'text-[#a87932] font-semibold border-b-2 border-[#a87932]'
+                    : 'hover:text-[#a87932]'
+                }`}
               >
                 <span>Media Coverage</span>
                 <ChevronDown className="w-3.5 h-3.5 opacity-70 transition-transform duration-200" />
               </button>
 
               {activeDropdown === 'media' && (
-                <div className="absolute top-full left-0 w-52 bg-white rounded-lg shadow-lg border border-[#ede5d8] py-2 z-50 animate-fadeIn">
+                <div className="absolute top-full left-0 w-56 bg-white rounded-lg shadow-lg border border-[#ede5d8] py-2 z-50 animate-fadeIn">
                   <button
-                    onClick={() => handleLinkClick('home', '#media')}
+                    onClick={() => handleLinkClick('media')}
+                    className="block w-full text-left px-4 py-2 text-xs text-[#334155] hover:bg-[#faf7f0] hover:text-[#a87932] transition-colors cursor-pointer font-medium"
+                  >
+                    Media Overview Hub
+                  </button>
+                  <button
+                    onClick={() => handleLinkClick('media-print')}
                     className="block w-full text-left px-4 py-2 text-xs text-[#334155] hover:bg-[#faf7f0] hover:text-[#a87932] transition-colors cursor-pointer"
                   >
                     Print Media (Newspapers)
                   </button>
                   <button
-                    onClick={() => handleLinkClick('home', '#media')}
+                    onClick={() => handleLinkClick('media-digital')}
                     className="block w-full text-left px-4 py-2 text-xs text-[#334155] hover:bg-[#faf7f0] hover:text-[#a87932] transition-colors cursor-pointer"
                   >
                     Digital &amp; TV Interviews
-                  </button>
-                  <button
-                    onClick={() => handleLinkClick('home', '#media')}
-                    className="block w-full text-left px-4 py-2 text-xs text-[#334155] hover:bg-[#faf7f0] hover:text-[#a87932] transition-colors cursor-pointer"
-                  >
-                    Press Releases &amp; Features
                   </button>
                 </div>
               )}
@@ -303,11 +314,27 @@ export const Navbar: React.FC<NavbarProps> = ({
             About Us
           </button>
           <button
-            onClick={() => handleLinkClick('home', '#media')}
-            className="block w-full text-left py-2 text-[#2d3748] font-medium hover:text-[#a87932] border-b border-gray-100"
+            onClick={() => handleLinkClick('media')}
+            className={`block w-full text-left py-2 font-semibold border-b border-gray-100 ${
+              isMediaActive ? 'text-[#a87932]' : 'text-[#2d3748]'
+            }`}
           >
             Media Coverage
           </button>
+          <div className="pl-4 space-y-1.5 border-b border-gray-100 pb-2">
+            <button
+              onClick={() => handleLinkClick('media-print')}
+              className="block w-full text-left py-1 text-xs text-[#64748b] hover:text-[#a87932]"
+            >
+              • Print Media (Newspapers)
+            </button>
+            <button
+              onClick={() => handleLinkClick('media-digital')}
+              className="block w-full text-left py-1 text-xs text-[#64748b] hover:text-[#a87932]"
+            >
+              • Digital &amp; TV Interviews
+            </button>
+          </div>
           <button
             onClick={() => handleLinkClick('home', '#gallery')}
             className="block w-full text-left py-2 text-[#2d3748] font-medium hover:text-[#a87932] border-b border-gray-100"

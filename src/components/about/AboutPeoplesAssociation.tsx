@@ -174,3 +174,4 @@ export const AboutPeoplesAssociation: React.FC<AboutPeoplesAssociationProps> = (
     </section>
   );
 };
+

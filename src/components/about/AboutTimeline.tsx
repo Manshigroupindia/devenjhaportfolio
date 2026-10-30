@@ -200,3 +200,4 @@ export const AboutTimeline: React.FC = () => {
     </section>
   );
 };
+

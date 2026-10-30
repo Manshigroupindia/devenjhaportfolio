@@ -129,3 +129,4 @@ export const AboutSocialProfiles: React.FC = () => {
     </section>
   );
 };
+

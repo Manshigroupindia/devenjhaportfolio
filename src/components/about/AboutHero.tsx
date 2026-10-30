@@ -131,3 +131,4 @@ export const AboutHero: React.FC<AboutHeroProps> = ({ onOpenAppointment }) => {
     </section>
   );
 };
+

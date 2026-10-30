@@ -6,9 +6,10 @@ import {
   Globe,
   ArrowUp,
 } from 'lucide-react';
+import { PageType } from './Navbar.tsx';
 
 interface FooterProps {
-  onNavigate?: (page: 'home' | 'about') => void;
+  onNavigate?: (page: PageType) => void;
 }
 
 export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
@@ -16,7 +17,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleLink = (page: 'home' | 'about', hash?: string) => {
+  const handleLink = (page: PageType, hash?: string) => {
     if (onNavigate) {
       onNavigate(page);
     }
@@ -125,7 +126,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               </li>
               <li>
                 <button
-                  onClick={() => handleLink('home', '#media')}
+                  onClick={() => handleLink('media')}
                   className="hover:text-[#b8863b] transition-colors cursor-pointer text-left"
                 >
                   Media Coverage
@@ -166,7 +167,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             <ul className="space-y-2 text-[11.5px] text-gray-400">
               <li>
                 <button
-                  onClick={() => handleLink('home', '#media')}
+                  onClick={() => handleLink('media-print')}
                   className="hover:text-[#b8863b] transition-colors cursor-pointer text-left"
                 >
                   Print Media
@@ -174,10 +175,18 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               </li>
               <li>
                 <button
-                  onClick={() => handleLink('home', '#media')}
+                  onClick={() => handleLink('media-digital')}
                   className="hover:text-[#b8863b] transition-colors cursor-pointer text-left"
                 >
                   Digital Media
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => handleLink('media')}
+                  className="hover:text-[#b8863b] transition-colors cursor-pointer text-left"
+                >
+                  Press Releases
                 </button>
               </li>
             </ul>

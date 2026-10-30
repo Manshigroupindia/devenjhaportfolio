@@ -163,3 +163,4 @@ export const AboutStory: React.FC = () => {
     </section>
   );
 };
+

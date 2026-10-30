@@ -127,3 +127,4 @@ export const AboutBusiness: React.FC = () => {
     </section>
   );
 };
+

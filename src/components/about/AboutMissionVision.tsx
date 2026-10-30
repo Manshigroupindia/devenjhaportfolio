@@ -118,3 +118,4 @@ export const AboutMissionVision: React.FC = () => {
     </section>
   );
 };
+
