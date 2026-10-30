@@ -75,7 +75,7 @@ export const DigitalMediaCMS: React.FC = () => {
 
     const autoThumb = (id && id !== 'live_stream')
       ? `https://img.youtube.com/vi/${id}/hqdefault.jpg`
-      : formData.thumbnail || '/images/media-aaj-tak.png';
+      : formData.thumbnail || '';
 
     setFormData((prev) => ({
       ...prev,

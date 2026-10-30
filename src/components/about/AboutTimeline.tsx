@@ -20,7 +20,6 @@ const defaultMilestones: Milestone[] = [
     description:
       'Moved to New Delhi with a vision of serving society and contributing towards a better, prosperous India. Began hands-on grassroots social welfare for needy communities.',
     icon: <Flag className="w-5 h-5 text-[#BD9256]" />,
-    image: '/images/hero-portrait.png',
     tagline: 'Migration & Purpose',
   },
   {
@@ -30,7 +29,6 @@ const defaultMilestones: Milestone[] = [
     description:
       "Established People's Association to formalize and structure social service as a lifelong institutional commitment, providing systematic assistance in education and relief.",
     icon: <Building2 className="w-5 h-5 text-[#BD9256]" />,
-    image: '/images/about-group.png',
     tagline: 'Non-Profit NGO Establishment',
   },
   {
@@ -40,7 +38,6 @@ const defaultMilestones: Milestone[] = [
     description:
       'Working across 15 states of India with a dedicated team to support underprivileged families through free education, food relief, clothing drives, and healthcare assistance.',
     icon: <Globe2 className="w-5 h-5 text-[#BD9256]" />,
-    image: '/images/about-portrait.png',
     tagline: 'Nationwide Footprint',
   },
 ];
@@ -58,7 +55,6 @@ export const AboutTimeline: React.FC<AboutTimelineProps> = ({ timeline }) => {
         title: t.title,
         description: t.description || t.subtitle,
         icon: idx === 0 ? <Flag className="w-5 h-5 text-[#BD9256]" /> : idx === 1 ? <Building2 className="w-5 h-5 text-[#BD9256]" /> : <Globe2 className="w-5 h-5 text-[#BD9256]" />,
-        image: idx === 0 ? '/images/hero-portrait.png' : idx === 1 ? '/images/about-group.png' : '/images/about-portrait.png',
         tagline: t.subtitle || 'Milestone Record',
       }));
     }

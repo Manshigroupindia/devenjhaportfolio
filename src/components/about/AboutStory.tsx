@@ -9,8 +9,8 @@ interface AboutStoryProps {
 export const AboutStory: React.FC<AboutStoryProps> = ({ content }) => {
   const eyebrow = content?.eyebrow || 'MY STORY';
   const heading = content?.heading || 'A Life Dedicated to Making a Difference.';
-  const portraitImg = content?.portraitImage || '/images/about-portrait.png';
-  const signatureImg = content?.signatureImage || '/images/signature.png';
+  const portraitImg = content?.portraitImage || '';
+  const signatureImg = content?.signatureImage || '';
 
   const defaultParagraphs = [
     'Hey! Myself Devendra Kumar Jha, popularly known as Deven Jha, born in Madhubani, Bihar, India.',
@@ -36,35 +36,47 @@ export const AboutStory: React.FC<AboutStoryProps> = ({ content }) => {
               <div className="absolute -inset-3 rounded-2xl bg-[#F8F6F0] border border-[#ebdcc9] -z-10 rotate-[-1.5deg]" />
 
               {/* Main Portrait of Deven Jha */}
-              <div className="relative rounded-xl overflow-hidden shadow-xl border-4 border-[#BD9256]/60 bg-white">
-                <img
-                  src={portraitImg}
-                  alt="Devendra Kumar Jha (Deven Jha) - Dedicated to Social Work"
-                  className="w-full h-auto object-cover"
-                />
-                
-                {/* Gold gradient edge */}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#14283B]/50 via-transparent to-transparent pointer-events-none" />
+              <div className="relative rounded-xl overflow-hidden shadow-xl border-4 border-[#BD9256]/60 bg-[#f7f2e8] min-h-[400px] flex items-center justify-center">
+                {portraitImg ? (
+                  <>
+                    <img
+                      src={portraitImg}
+                      alt="Devendra Kumar Jha (Deven Jha) - Dedicated to Social Work"
+                      className="w-full h-auto object-cover"
+                    />
+                    
+                    {/* Gold gradient edge */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#14283B]/50 via-transparent to-transparent pointer-events-none" />
 
-                {/* Subtitle tag overlay */}
-                <div className="absolute bottom-3 left-3 right-3 text-white">
-                  <p className="text-xs font-serif italic text-white/95">
-                    &ldquo;Serving humanity is not a task — it is a lifelong commitment.&rdquo;
-                  </p>
-                </div>
+                    {/* Subtitle tag overlay */}
+                    <div className="absolute bottom-3 left-3 right-3 text-white">
+                      <p className="text-xs font-serif italic text-white/95">
+                        &ldquo;Serving humanity is not a task — it is a lifelong commitment.&rdquo;
+                      </p>
+                    </div>
+                  </>
+                ) : (
+                  <div className="w-full aspect-[4/5] animate-pulse bg-gradient-to-tr from-[#ece1cf] via-[#f7f2e8] to-[#ece1cf] flex flex-col items-center justify-center p-6 text-center">
+                    <div className="w-20 h-20 rounded-full bg-[#dfd0b8]/60 mb-4" />
+                    <div className="h-4 w-40 bg-[#dfd0b8]/70 rounded mb-2" />
+                    <div className="h-3 w-28 bg-[#dfd0b8]/40 rounded" />
+                  </div>
+                )}
               </div>
 
               {/* Signature Overlay */}
-              <div className="absolute -bottom-8 -right-2 z-20 bg-white/95 backdrop-blur-xs px-4 py-2 rounded-lg border border-[#BD9256]/40 shadow-lg">
-                <img
-                  src={signatureImg}
-                  alt="Deven Jha Signature"
-                  className="h-9 sm:h-11 w-auto object-contain filter drop-shadow-xs"
-                />
-                <span className="text-[9px] font-bold tracking-widest text-[#777777] uppercase block text-center">
-                  Founder &amp; President
-                </span>
-              </div>
+              {signatureImg && (
+                <div className="absolute -bottom-8 -right-2 z-20 bg-white/95 backdrop-blur-xs px-4 py-2 rounded-lg border border-[#BD9256]/40 shadow-lg">
+                  <img
+                    src={signatureImg}
+                    alt="Deven Jha Signature"
+                    className="h-9 sm:h-11 w-auto object-contain filter drop-shadow-xs"
+                  />
+                  <span className="text-[9px] font-bold tracking-widest text-[#777777] uppercase block text-center">
+                    Founder &amp; President
+                  </span>
+                </div>
+              )}
 
               {/* Mini Highlights Pill */}
               <div className="mt-12 grid grid-cols-2 gap-3">

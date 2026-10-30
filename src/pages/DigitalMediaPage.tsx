@@ -14,87 +14,6 @@ import {
 import { VideoPlayerModal, DigitalMediaItem } from '../components/media/VideoPlayerModal.tsx';
 import { useDigitalMedia } from '../hooks/useCMSContent.ts';
 
-const digitalMediaData: DigitalMediaItem[] = [
-  {
-    id: 'aaj-tak-1',
-    youtubeId: 'live_stream',
-    embedUrl: 'https://www.youtube-nocookie.com/embed/live_stream?channel=jantalivenews',
-    thumbnail: '/images/media-aaj-tak.png',
-    title: 'Aaj Tak Special: Grassroots Social Leadership & Youth Empowerment',
-    channel: 'Aaj Tak Digital',
-    date: '14 Jun 2024',
-    category: 'Television Interview',
-    duration: '24:18',
-    description:
-      'Devendra Kumar Jha discusses two decades of community mobilization, youth motivation, and the importance of civic philanthropy in modern India.',
-  },
-  {
-    id: 'janta-live-1',
-    youtubeId: 'janta-live-report',
-    embedUrl: 'https://www.youtube-nocookie.com/embed/live_stream?channel=jantalivenews',
-    thumbnail: '/images/media-banner.png',
-    title: "Janta Live Broadcast: People's Association National Expansion",
-    channel: 'Janta Live News',
-    date: '28 Mar 2024',
-    category: 'Digital Broadcast',
-    duration: '18:45',
-    description:
-      'Live coverage of People\'s Association state coordinators meeting, reviewing free educational relief drives and rural health camps.',
-  },
-  {
-    id: 'janta-live-2',
-    youtubeId: 'janta-live-service',
-    embedUrl: 'https://www.youtube-nocookie.com/embed/live_stream?channel=jantalivenews',
-    thumbnail: '/images/about-group.png',
-    title: 'Special Documentary: From Madhubani to 15 States of Compassion',
-    channel: 'Janta Live Production',
-    date: '15 Jan 2024',
-    category: 'Documentary',
-    duration: '32:10',
-    description:
-      'Documentary chronicling Deven Jha\'s early days in Delhi in 2004, the founding of People\'s Association in 2016, and ongoing relief programs.',
-  },
-  {
-    id: 'tv-news-1',
-    youtubeId: 'national-welfare-dialogue',
-    embedUrl: 'https://www.youtube-nocookie.com/embed/live_stream?channel=jantalivenews',
-    thumbnail: '/images/appointment-banner.png',
-    title: 'National Panel Discussion: Role of Media in Amplifying NGO Initiatives',
-    channel: 'Janta Live News Desk',
-    date: '05 Nov 2023',
-    category: 'News Coverage',
-    duration: '21:30',
-    description:
-      'A roundtable conversation on empowering rural journalism and connecting welfare initiatives with corporate social responsibility.',
-  },
-  {
-    id: 'aaj-tak-2',
-    youtubeId: 'winter-relief-coverage',
-    embedUrl: 'https://www.youtube-nocookie.com/embed/live_stream?channel=jantalivenews',
-    thumbnail: '/images/media-aaj-tak.png',
-    title: 'Special Telecast: Winter Warmth Drive for 10,000 Families',
-    channel: 'Aaj Tak Digital Feature',
-    date: '20 Dec 2023',
-    category: 'Television Interview',
-    duration: '15:20',
-    description:
-      'Ground footage and interviews during the mass blanket and winter jacket distribution conducted in urban slums and rural centers.',
-  },
-  {
-    id: 'janta-live-3',
-    youtubeId: 'education-initiative-interview',
-    embedUrl: 'https://www.youtube-nocookie.com/embed/live_stream?channel=jantalivenews',
-    thumbnail: '/images/about-portrait.png',
-    title: 'One-on-One Interview: Education as the Greatest Equalizer',
-    channel: 'Janta Live Exclusive',
-    date: '02 Sep 2023',
-    category: 'Digital Broadcast',
-    duration: '27:50',
-    description:
-      'Deven Jha shares his philosophy on establishing free study centers and providing educational assistance to children from vulnerable backgrounds.',
-  },
-];
-
 const categories = ['All', 'Television Interview', 'Digital Broadcast', 'News Coverage', 'Documentary'];
 
 interface DigitalMediaPageProps {
@@ -102,8 +21,8 @@ interface DigitalMediaPageProps {
 }
 
 export const DigitalMediaPage: React.FC<DigitalMediaPageProps> = ({ onNavigateBack }) => {
-  const { data: remoteData } = useDigitalMedia(true);
-  const activeData: DigitalMediaItem[] = (remoteData.length ? remoteData : digitalMediaData) as DigitalMediaItem[];
+  const { data: remoteData, loading } = useDigitalMedia(true);
+  const activeData: DigitalMediaItem[] = remoteData as DigitalMediaItem[];
 
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
@@ -204,7 +123,20 @@ export const DigitalMediaPage: React.FC<DigitalMediaPageProps> = ({ onNavigateBa
       <section className="py-12 sm:py-16">
         <div className="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8">
           
-          {filteredVideos.length === 0 ? (
+          {/* Loading Skeletons */}
+          {loading && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+              {[1, 2, 3, 4, 5, 6].map((n) => (
+                <div key={n} className="bg-white rounded-xl overflow-hidden border border-[#e2d6c5] p-4 animate-pulse">
+                  <div className="aspect-video bg-[#ede5d8] rounded-lg mb-4" />
+                  <div className="h-4 bg-[#ede5d8] rounded w-3/4 mb-2" />
+                  <div className="h-3 bg-[#ede5d8] rounded w-1/2" />
+                </div>
+              ))}
+            </div>
+          )}
+
+          {!loading && filteredVideos.length === 0 ? (
             <div className="py-16 text-center bg-[#F8F6F0] rounded-xl border border-[#ebdcc9] p-8">
               <Film className="w-12 h-12 text-[#BD9256] mx-auto mb-3 opacity-60" />
               <h3 className="font-serif text-lg font-bold text-[#14283B] mb-1">
@@ -223,25 +155,37 @@ export const DigitalMediaPage: React.FC<DigitalMediaPageProps> = ({ onNavigateBa
                 Reset Filters
               </button>
             </div>
-          ) : (
+          ) : !loading && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-              {filteredVideos.map((video) => (
-                <div
-                  key={video.id}
-                  onClick={() => setActiveVideo(video)}
-                  className="group bg-white rounded-xl overflow-hidden border border-[#e2d6c5] shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col cursor-pointer hover:border-[#BD9256]"
-                >
-                  {/* Thumbnail with 16:9 Aspect Ratio & Play Overlay */}
-                  <div className="relative aspect-video bg-[#0d1826] overflow-hidden">
-                    <img
-                      src={video.thumbnail}
-                      alt={video.title}
-                      loading="lazy"
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90"
-                    />
+              {filteredVideos.map((video) => {
+                const thumb =
+                  video.thumbnail ||
+                  (video.youtubeId ? `https://img.youtube.com/vi/${video.youtubeId}/hqdefault.jpg` : '');
 
-                    {/* Dark gradient backdrop */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/20" />
+                return (
+                  <div
+                    key={video.id}
+                    onClick={() => setActiveVideo(video)}
+                    className="group bg-white rounded-xl overflow-hidden border border-[#e2d6c5] shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col cursor-pointer hover:border-[#BD9256]"
+                  >
+                    {/* Thumbnail with 16:9 Aspect Ratio & Play Overlay */}
+                    <div className="relative aspect-video bg-[#0d1826] overflow-hidden flex items-center justify-center">
+                      {thumb ? (
+                        <img
+                          src={thumb}
+                          alt={video.title}
+                          loading="lazy"
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90"
+                        />
+                      ) : (
+                        <div className="flex flex-col items-center justify-center text-gray-400">
+                          <Tv className="w-10 h-10 text-[#BD9256] mb-1" />
+                          <span className="text-[11px] font-semibold">Broadcast Video</span>
+                        </div>
+                      )}
+
+                      {/* Dark gradient backdrop */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/20" />
 
                     {/* Central Play Button */}
                     <div className="absolute inset-0 flex items-center justify-center">
@@ -293,7 +237,8 @@ export const DigitalMediaPage: React.FC<DigitalMediaPageProps> = ({ onNavigateBa
                     </div>
                   </div>
                 </div>
-              ))}
+              );
+            })}
             </div>
           )}
 

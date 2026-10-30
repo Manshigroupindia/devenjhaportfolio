@@ -12,6 +12,7 @@ import {
 
 interface AboutPeoplesAssociationProps {
   onOpenAppointment: () => void;
+  image?: string;
 }
 
 const initiatives = [
@@ -49,6 +50,7 @@ const initiatives = [
 
 export const AboutPeoplesAssociation: React.FC<AboutPeoplesAssociationProps> = ({
   onOpenAppointment,
+  image,
 }) => {
   return (
     <section className="py-18 sm:py-24 bg-[#FFFFFF] border-b border-[#ebdcc9] relative overflow-hidden">
@@ -110,17 +112,41 @@ export const AboutPeoplesAssociation: React.FC<AboutPeoplesAssociationProps> = (
               {/* Backing decorative border */}
               <div className="absolute -inset-3 rounded-2xl border-2 border-[#ebdcc9] bg-[#FAF7F2] -z-10 rotate-1" />
 
-              {/* Archival Community Photograph */}
-              <div className="relative rounded-xl overflow-hidden shadow-xl border-4 border-white bg-white">
-                <img
-                  src="/images/about-group.png"
-                  alt="People's Association Community Outreach and Relief"
-                  className="w-full h-auto object-cover"
-                />
+              {/* Archival Community Photograph or Editorial Emblem */}
+              <div className="relative rounded-xl overflow-hidden shadow-xl border-4 border-white bg-gradient-to-br from-[#14283B] via-[#1a344d] to-[#14283B] aspect-[4/3] flex flex-col justify-between p-6">
+                {image ? (
+                  <>
+                    <img
+                      src={image}
+                      alt="People's Association Community Outreach and Relief"
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+                  </>
+                ) : (
+                  <>
+                    <div className="absolute inset-0 bg-[radial-gradient(#BD9256_1px,transparent_1px)] [background-size:20px_20px] opacity-20 pointer-events-none" />
+                    <div className="relative z-10 flex items-center justify-between">
+                      <div className="w-12 h-12 rounded-xl bg-[#BD9256]/20 border border-[#BD9256]/40 flex items-center justify-center text-[#BD9256]">
+                        <Shield className="w-6 h-6" />
+                      </div>
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-[#BD9256] bg-white/10 px-3 py-1 rounded-full border border-white/10">
+                        Est. 2016
+                      </span>
+                    </div>
 
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+                    <div className="relative z-10 my-auto text-center py-4">
+                      <h4 className="font-serif text-2xl font-bold text-white tracking-tight">
+                        People&apos;s Association
+                      </h4>
+                      <p className="text-xs text-gray-300 mt-1 max-w-xs mx-auto">
+                        Dedicated to Education, Relief &amp; Nationwide Grassroots Welfare
+                      </p>
+                    </div>
+                  </>
+                )}
 
-                <div className="absolute bottom-3 left-4 right-4 text-white">
+                <div className="relative z-10 pt-3 border-t border-white/10 text-white">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-[#BD9256] block">
                     Community Fieldwork
                   </span>

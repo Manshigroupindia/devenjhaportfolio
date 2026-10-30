@@ -78,8 +78,8 @@ export const Navbar: React.FC<NavbarProps> = ({
           : 'bg-[#faf8f5]/90 backdrop-blur-sm border-b border-[#f0e8db]'
       }`}
     >
-      <div className="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-[72px]">
+      <div className="max-w-[1360px] mx-auto px-2.5 xs:px-3.5 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-[68px] sm:h-[72px]">
           {/* Logo Brand with original image.png on clean white container */}
           <Link
             to="/"
@@ -87,10 +87,10 @@ export const Navbar: React.FC<NavbarProps> = ({
               setMobileMenuOpen(false);
               setActiveDropdown(null);
             }}
-            className="flex items-center gap-2.5 sm:gap-3 group cursor-pointer text-left"
+            className="flex items-center gap-1.5 xs:gap-2 sm:gap-3 group cursor-pointer text-left min-w-0 shrink"
           >
             {/* White Logo Container */}
-            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-lg bg-white border border-[#ebdcc9] shadow-xs group-hover:border-[#BD9256] transition-all duration-200 flex items-center justify-center p-1.5 shrink-0 overflow-hidden">
+            <div className="w-8 h-8 xs:w-9 xs:h-9 sm:w-11 sm:h-11 rounded-lg bg-white border border-[#ebdcc9] shadow-xs group-hover:border-[#BD9256] transition-all duration-200 flex items-center justify-center p-1 sm:p-1.5 shrink-0 overflow-hidden">
               <img
                 src="/images/logo.png"
                 alt="Deven Jha Official Logo"
@@ -99,11 +99,11 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
 
             {/* Typography */}
-            <div className="flex flex-col">
-              <span className="font-serif text-[18px] sm:text-[21px] font-bold text-[#0d1826] tracking-[0.06em] group-hover:text-[#a87932] transition-colors leading-tight">
+            <div className="flex flex-col min-w-0 justify-center">
+              <span className="font-serif text-[17px] xs:text-[19px] sm:text-[21px] font-bold text-[#0d1826] tracking-tight xs:tracking-normal sm:tracking-[0.06em] group-hover:text-[#a87932] transition-colors leading-none truncate">
                 DEVEN JHA
               </span>
-              <span className="text-[7.5px] sm:text-[8.5px] font-semibold tracking-[0.16em] text-[#64748b] uppercase mt-[1px] whitespace-nowrap">
+              <span className="text-[6.5px] xs:text-[7.5px] sm:text-[8.5px] font-semibold tracking-tight xs:tracking-[0.06em] sm:tracking-[0.16em] text-[#64748b] uppercase mt-0.5 whitespace-nowrap overflow-hidden text-ellipsis">
                 SOCIAL WORKER | ENTREPRENEUR | LEADER
               </span>
             </div>
@@ -335,20 +335,23 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
           </div>
 
-          {/* Mobile Right Controls: Translate & Hamburger */}
-          <div className="flex sm:hidden items-center gap-2">
+          {/* Mobile Right Controls: Appointment Button & Hamburger Menu */}
+          <div className="flex sm:hidden items-center gap-1.5 xs:gap-2 shrink-0 ml-1">
             <button
+              type="button"
               onClick={onOpenAppointment}
-              className="px-2.5 py-1.5 bg-[#b8863b] text-white text-[11px] font-semibold rounded shadow-xs"
+              className="inline-flex items-center gap-1 px-2 xs:px-2.5 py-1.5 bg-[#b8863b] hover:bg-[#a37430] active:scale-95 text-white text-[10.5px] xs:text-[11px] font-semibold rounded shrink-0 shadow-xs transition-all cursor-pointer whitespace-nowrap"
             >
-              Appointment
+              <PhoneCall className="w-3 h-3 xs:w-3.5 xs:h-3.5 shrink-0" />
+              <span>Appointment</span>
             </button>
             <button
+              type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 text-[#334155] hover:text-[#a87932] focus:outline-none"
+              className="p-1 xs:p-1.5 text-[#334155] hover:text-[#a87932] focus:outline-none shrink-0 cursor-pointer transition-colors"
               aria-label="Toggle navigation menu"
             >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {mobileMenuOpen ? <X className="w-5 h-5 xs:w-6 xs:h-6" /> : <Menu className="w-5 h-5 xs:w-6 xs:h-6" />}
             </button>
           </div>
         </div>

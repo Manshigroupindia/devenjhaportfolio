@@ -19,8 +19,6 @@ import {
 import {
   defaultHomePageContent,
   defaultAboutPageContent,
-  defaultPrintMedia,
-  defaultDigitalMedia,
   defaultBusinesses,
   defaultSocialProfiles,
   defaultContactSettings,
@@ -135,7 +133,7 @@ export function useAboutPageContent() {
  * Hook for Print Media Clippings (with real-time onSnapshot sync)
  */
 export function usePrintMedia(onlyActive: boolean = true) {
-  const [data, setData] = useState<PrintMediaDoc[]>(defaultPrintMedia);
+  const [data, setData] = useState<PrintMediaDoc[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -154,23 +152,18 @@ export function usePrintMedia(onlyActive: boolean = true) {
             }
           });
 
-          if (!snapshot.empty) {
-            setData(items);
-          } else {
-            // If admin view, reflect actual empty state; if public and never seeded, keep defaults
-            setData(onlyActive ? defaultPrintMedia : []);
-          }
+          setData(items);
           setLoading(false);
           setError(null);
         },
         (err) => {
-          console.warn('Print media listener notice, fallback to defaults:', err.message);
+          console.warn('Print media listener notice:', err.message);
           setLoading(false);
           setError(err.message);
         }
       );
     } catch (err: any) {
-      console.warn('Using default print media:', err?.message);
+      console.warn('Error loading print media:', err?.message);
       setLoading(false);
     }
 
@@ -186,7 +179,7 @@ export function usePrintMedia(onlyActive: boolean = true) {
  * Hook for Digital Media Videos (with real-time onSnapshot sync)
  */
 export function useDigitalMedia(onlyActive: boolean = true) {
-  const [data, setData] = useState<DigitalMediaDoc[]>(defaultDigitalMedia);
+  const [data, setData] = useState<DigitalMediaDoc[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -205,22 +198,18 @@ export function useDigitalMedia(onlyActive: boolean = true) {
             }
           });
 
-          if (!snapshot.empty) {
-            setData(items);
-          } else {
-            setData(onlyActive ? defaultDigitalMedia : []);
-          }
+          setData(items);
           setLoading(false);
           setError(null);
         },
         (err) => {
-          console.warn('Digital media listener notice, fallback to defaults:', err.message);
+          console.warn('Digital media listener notice:', err.message);
           setLoading(false);
           setError(err.message);
         }
       );
     } catch (err: any) {
-      console.warn('Using default digital media:', err?.message);
+      console.warn('Error loading digital media:', err?.message);
       setLoading(false);
     }
 

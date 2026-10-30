@@ -387,11 +387,19 @@ export const ContactSection: React.FC = () => {
                 rel="noreferrer"
                 className="block relative overflow-hidden"
               >
-                <img
-                  src={contactSettings.mapsPreviewImage || '/images/map-preview.png'}
-                  alt="Google Map Location - New Delhi"
-                  className="w-full h-[140px] sm:h-[160px] object-cover group-hover:scale-105 transition-transform duration-300"
-                />
+                {contactSettings.mapsPreviewImage ? (
+                  <img
+                    src={contactSettings.mapsPreviewImage}
+                    alt="Google Map Location - New Delhi"
+                    className="w-full h-[140px] sm:h-[160px] object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                ) : (
+                  <div className="w-full h-[140px] sm:h-[160px] bg-[#f0ede6] flex flex-col items-center justify-center text-[#7a8699] p-4 text-center">
+                    <MapPin className="w-8 h-8 text-[#b8863b] mb-1" />
+                    <span className="text-xs font-semibold text-[#14283B]">{contactSettings.cityState}</span>
+                    <span className="text-[10px] text-[#7a8699]">Click to open Google Maps</span>
+                  </div>
+                )}
                 
                 {/* Overlay badge */}
                 <div className="absolute top-2 left-2 bg-white/95 px-2.5 py-1 rounded shadow-sm text-[11px] font-semibold text-[#111c2a] flex items-center gap-1">

@@ -10,12 +10,9 @@ export const ContactAppointmentCTA: React.FC<ContactAppointmentCTAProps> = ({
 }) => {
   return (
     <section className="relative overflow-hidden py-16 sm:py-20 bg-[#14283B] text-white">
-      {/* Subtle photographic background */}
-      <div
-        className="absolute inset-0 bg-cover bg-center opacity-25 mix-blend-overlay"
-        style={{ backgroundImage: 'url(/images/appointment-banner.png)' }}
-      />
-      <div className="absolute inset-0 bg-gradient-to-r from-[#0d1c2b] via-[#14283B]/95 to-[#102235]" />
+      {/* Deep navy vignette with subtle gold grid pattern */}
+      <div className="absolute inset-0 bg-gradient-to-r from-[#0d1c2b] via-[#14283B] to-[#102235]" />
+      <div className="absolute inset-0 bg-[radial-gradient(#BD9256_1px,transparent_1px)] [background-size:24px_24px] opacity-15 pointer-events-none" />
       
       {/* Decorative gold aura */}
       <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-96 h-96 bg-[#BD9256]/15 rounded-full blur-3xl pointer-events-none" />

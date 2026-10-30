@@ -19,9 +19,9 @@ export const AboutJourney: React.FC<AboutJourneyProps> = ({ onOpenAppointment, c
   const quote =
     content?.quote ||
     'True success lies in the positive difference we make in the lives of others.';
-  const portraitImg = content?.portraitImage || '/images/about-portrait.png';
-  const groupImg = content?.groupImage || '/images/about-group.png';
-  const signatureImg = content?.signatureImage || '/images/signature.png';
+  const portraitImg = content?.portraitImage || '';
+  const groupImg = content?.groupImage || '';
+  const signatureImg = content?.signatureImage || '';
   const btnText = content?.btnText || 'Discover My Story';
 
   return (
@@ -31,38 +31,49 @@ export const AboutJourney: React.FC<AboutJourneyProps> = ({ onOpenAppointment, c
           
           {/* Left Side: Overlapping Photo Composition (5 cols) */}
           <div className="lg:col-span-5 relative flex justify-center lg:justify-start">
-            <div className="relative w-full max-w-[460px]">
+            <div className="relative w-full max-w-[460px] min-h-[340px]">
               
               {/* Back Image: Group / Community Work */}
-              <div className="w-[62%] sm:w-[65%] rounded-lg overflow-hidden shadow-lg border-4 border-white bg-white rotate-[-3deg] hover:rotate-0 transition-transform duration-300">
-                <img
-                  src={groupImg}
-                  alt="Social initiatives and community upliftment"
-                  className="w-full h-auto object-cover grayscale contrast-110"
-                />
+              <div className="w-[62%] sm:w-[65%] rounded-lg overflow-hidden shadow-lg border-4 border-white bg-[#eee6d8] rotate-[-3deg] hover:rotate-0 transition-transform duration-300">
+                {groupImg ? (
+                  <img
+                    src={groupImg}
+                    alt="Social initiatives and community upliftment"
+                    className="w-full h-auto object-cover grayscale contrast-110"
+                  />
+                ) : (
+                  <div className="aspect-[4/3] w-full animate-pulse bg-[#e6dcce] flex items-center justify-center">
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-[#9f9180]">Community Initiative</span>
+                  </div>
+                )}
               </div>
 
               {/* Front Image: Deven Jha Portrait in Suit */}
-              <div className="absolute top-[18%] right-2 w-[68%] sm:w-[70%] rounded-xl overflow-hidden shadow-2xl border-4 border-[#e0cba8] bg-white rotate-[1.5deg] hover:rotate-0 transition-transform duration-300">
-                <img
-                  src={portraitImg}
-                  alt="Devendra Kumar Jha in suit"
-                  className="w-full h-auto object-cover"
-                />
+              <div className="absolute top-[18%] right-2 w-[68%] sm:w-[70%] rounded-xl overflow-hidden shadow-2xl border-4 border-[#e0cba8] bg-[#f5ede2] rotate-[1.5deg] hover:rotate-0 transition-transform duration-300">
+                {portraitImg ? (
+                  <img
+                    src={portraitImg}
+                    alt="Devendra Kumar Jha in suit"
+                    className="w-full h-auto object-cover"
+                  />
+                ) : (
+                  <div className="aspect-[4/5] w-full animate-pulse bg-gradient-to-tr from-[#ecdcc7] via-[#f7f1e7] to-[#ecdcc7] flex flex-col items-center justify-center p-4">
+                    <div className="w-12 h-12 rounded-full bg-[#decbb2]/60 mb-2" />
+                    <div className="h-3 w-24 bg-[#decbb2]/70 rounded" />
+                  </div>
+                )}
               </div>
 
               {/* Signature Overlay */}
-              <div className="absolute -bottom-6 left-6 z-20">
-                <img
-                  src={signatureImg}
-                  alt="Deven Jha Signature"
-                  className="h-10 sm:h-12 w-auto object-contain filter drop-shadow-md"
-                />
-                <span className="font-signature text-2xl text-[#a87932] block sm:hidden">
-                  Deven Jha
-                </span>
-              </div>
-
+              {signatureImg && (
+                <div className="absolute -bottom-6 left-6 z-20">
+                  <img
+                    src={signatureImg}
+                    alt="Deven Jha Signature"
+                    className="h-10 sm:h-12 w-auto object-contain filter drop-shadow-md"
+                  />
+                </div>
+              )}
             </div>
           </div>
 

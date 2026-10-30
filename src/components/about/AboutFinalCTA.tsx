@@ -12,13 +12,9 @@ export const AboutFinalCTA: React.FC<AboutFinalCTAProps> = ({
 }) => {
   return (
     <section className="relative overflow-hidden py-18 sm:py-22 bg-[#14283B] text-white">
-      {/* Background photographic texture with blended overlay */}
-      <div
-        className="absolute inset-0 bg-cover bg-center opacity-40 mix-blend-overlay filter blur-[0.6px]"
-        style={{ backgroundImage: 'url(/images/appointment-banner.png)' }}
-      />
-      {/* Deep navy vignette gradient */}
-      <div className="absolute inset-0 bg-gradient-to-r from-[#0e1c2b]/95 via-[#14283B]/90 to-[#0e1c2b]/95" />
+      {/* Deep navy vignette gradient with subtle gold starfield pattern */}
+      <div className="absolute inset-0 bg-gradient-to-r from-[#0e1c2b] via-[#14283B] to-[#0e1c2b]" />
+      <div className="absolute inset-0 bg-[radial-gradient(#BD9256_1px,transparent_1px)] [background-size:24px_24px] opacity-15 pointer-events-none" />
 
       {/* Decorative gold background circle glow */}
       <div className="absolute -top-24 -right-24 w-96 h-96 bg-[#BD9256]/15 rounded-full blur-3xl pointer-events-none" />

@@ -7,14 +7,10 @@ interface AppointmentBannerProps {
 
 export const AppointmentBanner: React.FC<AppointmentBannerProps> = ({ onOpenAppointment }) => {
   return (
-    <section className="relative overflow-hidden py-10 sm:py-12 bg-[#1a2332]">
-      {/* Background photographic overlay */}
-      <div
-        className="absolute inset-0 bg-cover bg-center opacity-60 mix-blend-overlay filter blur-[0.5px]"
-        style={{ backgroundImage: 'url(/images/appointment-banner.png)' }}
-      />
-      {/* Dark gradient for text readability */}
-      <div className="absolute inset-0 bg-gradient-to-r from-[#0d1622]/95 via-[#0d1622]/85 to-[#0d1622]/90" />
+    <section className="relative overflow-hidden py-10 sm:py-12 bg-gradient-to-r from-[#0d1622] via-[#14283B] to-[#0d1622] border-t border-b border-[#233a52]">
+      {/* Editorial ambient gold glow */}
+      <div className="absolute top-0 right-1/4 w-96 h-96 bg-[#BD9256]/15 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(#BD9256_1px,transparent_1px)] [background-size:24px_24px] opacity-15 pointer-events-none" />
 
       <div className="relative max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8 z-10">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">

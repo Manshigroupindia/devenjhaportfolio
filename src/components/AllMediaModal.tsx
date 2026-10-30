@@ -1,47 +1,60 @@
 import React from 'react';
 import { X, ExternalLink, Calendar, Newspaper, Tv, Award } from 'lucide-react';
+import { usePrintMedia, useDigitalMedia } from '../hooks/useCMSContent.ts';
 
 interface AllMediaModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const allMediaArchive = [
-  {
-    title: 'Dainik Jagran',
-    headline: 'Social Leader Deven Jha Inspires Youth in Community Service Drive',
-    date: '12 Mar 2024',
-    publication: 'Dainik Jagran National Edition',
-    type: 'Print Newspaper',
-    image: '/images/media-dainik-jagran.png',
-  },
-  {
-    title: 'The Times of India',
-    headline: "People's Association Expands Mission Across 15 States",
-    date: '08 Feb 2024',
-    publication: 'Times City Delhi',
-    type: 'Print Newspaper',
-    image: '/images/media-toi.png',
-  },
-  {
-    title: 'India Today',
-    headline: 'Devendra Kumar Jha: Architect of Ground-Level Social Transformation',
-    date: '25 Jan 2024',
-    publication: 'India Today Special Feature',
-    type: 'Magazine Cover',
-    image: '/images/media-india-today.png',
-  },
-  {
-    title: 'Aaj Tak Live',
-    headline: 'Special Interview on Grassroots Education & Healthcare in Rural India',
-    date: '14 Jun 2024',
-    publication: 'Aaj Tak Digital Broadcast',
-    type: 'TV Interview',
-    image: '/images/media-aaj-tak.png',
-  },
-];
-
 export const AllMediaModal: React.FC<AllMediaModalProps> = ({ isOpen, onClose }) => {
+  const { data: printItems, loading: loadingPrint } = usePrintMedia(true);
+  const { data: digitalItems, loading: loadingDigital } = useDigitalMedia(true);
+  const isLoading = loadingPrint || loadingDigital;
+
+  const combinedMedia = React.useMemo(() => {
+    const list: Array<{
+      id: string;
+      title: string;
+      headline: string;
+      date: string;
+      publication: string;
+      type: string;
+      image: string;
+      isVideo?: boolean;
+    }> = [];
+
+    printItems.forEach((p) => {
+      list.push({
+        id: p.id,
+        title: p.publication || 'Press Clipping',
+        headline: p.title || p.description || 'Media Recognition',
+        date: p.date || '',
+        publication: p.publication || 'Print Publication',
+        type: p.category || 'Print Media',
+        image: p.image || p.imageUrl || '',
+        isVideo: false,
+      });
+    });
+
+    digitalItems.forEach((v) => {
+      list.push({
+        id: v.id,
+        title: v.channel || 'Broadcast Media',
+        headline: v.title,
+        date: v.date || '',
+        publication: v.channel || 'Digital Channel',
+        type: v.category || 'Video Broadcast',
+        image:
+          v.thumbnail ||
+          (v.youtubeId ? `https://img.youtube.com/vi/${v.youtubeId}/hqdefault.jpg` : ''),
+        isVideo: true,
+      });
+    });
+
+    return list;
+  }, [printItems, digitalItems]);
+
   if (!isOpen) return null;
 
   return (
@@ -60,7 +73,7 @@ export const AllMediaModal: React.FC<AllMediaModalProps> = ({ isOpen, onClose })
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-white p-1 rounded-full transition-colors"
+            className="text-gray-400 hover:text-white p-1 rounded-full transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -68,36 +81,66 @@ export const AllMediaModal: React.FC<AllMediaModalProps> = ({ isOpen, onClose })
 
         {/* Content list */}
         <div className="p-6 overflow-y-auto space-y-5 bg-[#faf8f5]">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {allMediaArchive.map((item, idx) => (
-              <div
-                key={idx}
-                className="bg-white rounded-lg p-4 border border-[#e2d6c5] shadow-xs flex flex-col sm:flex-row gap-4 items-center"
-              >
-                <div className="w-full sm:w-32 aspect-[4/3] rounded overflow-hidden bg-[#f3ede3] shrink-0 border border-[#eee2d2]">
-                  <img
-                    src={item.image}
-                    alt={item.title}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#b8863b] bg-[#f8f2e7] px-2 py-0.5 rounded">
-                      {item.type}
-                    </span>
-                    <span className="text-[11px] text-gray-500">{item.date}</span>
+          {isLoading && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {[1, 2, 3, 4].map((n) => (
+                <div key={n} className="bg-white rounded-lg p-4 border border-[#e2d6c5] flex gap-4 animate-pulse">
+                  <div className="w-28 aspect-[4/3] bg-[#ede5d8] rounded shrink-0" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-3 bg-[#ede5d8] rounded w-1/3" />
+                    <div className="h-4 bg-[#ede5d8] rounded w-3/4" />
+                    <div className="h-3 bg-[#ede5d8] rounded w-1/2" />
                   </div>
-                  <h4 className="font-serif font-bold text-sm text-[#111c2a] leading-snug mb-1">
-                    {item.headline}
-                  </h4>
-                  <p className="text-xs text-[#64748b]">
-                    {item.publication}
-                  </p>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
+
+          {!isLoading && combinedMedia.length === 0 && (
+            <div className="py-12 text-center text-gray-500">
+              <Newspaper className="w-10 h-10 mx-auto text-[#b8863b] mb-2 opacity-60" />
+              <p className="text-sm font-semibold">No media records currently published.</p>
+            </div>
+          )}
+
+          {!isLoading && combinedMedia.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {combinedMedia.map((item) => (
+                <div
+                  key={item.id}
+                  className="bg-white rounded-lg p-4 border border-[#e2d6c5] shadow-xs flex flex-col sm:flex-row gap-4 items-center"
+                >
+                  <div className="w-full sm:w-32 aspect-[4/3] rounded overflow-hidden bg-[#f3ede3] shrink-0 border border-[#eee2d2] flex items-center justify-center">
+                    {item.image ? (
+                      <img
+                        src={item.image}
+                        alt={item.title}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : item.isVideo ? (
+                      <Tv className="w-8 h-8 text-[#b8863b]" />
+                    ) : (
+                      <Newspaper className="w-8 h-8 text-[#b8863b]" />
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#b8863b] bg-[#f8f2e7] px-2 py-0.5 rounded">
+                        {item.type}
+                      </span>
+                      {item.date && <span className="text-[11px] text-gray-500">{item.date}</span>}
+                    </div>
+                    <h4 className="font-serif font-bold text-sm text-[#111c2a] leading-snug mb-1 line-clamp-2">
+                      {item.headline}
+                    </h4>
+                    <p className="text-xs text-[#64748b]">
+                      {item.publication}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
 
           <div className="bg-[#0e1b2b] text-white p-5 rounded-lg flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
             <div>

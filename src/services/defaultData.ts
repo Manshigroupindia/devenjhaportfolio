@@ -20,7 +20,7 @@ export const defaultHomePageContent: HomePageContent = {
     fullName: 'DEVENDRA KUMAR JHA',
     subname: 'Popularly Known as Deven Jha.',
     location: 'New Delhi, India',
-    portraitImage: '/images/hero-portrait.png',
+    portraitImage: '',
     exploreBtnText: 'Explore My Journey',
     connectBtnText: 'Connect With Me',
   },
@@ -33,9 +33,9 @@ export const defaultHomePageContent: HomePageContent = {
       'In 2016, I founded People’s Association, an NGO that has expanded its presence across 15 states of India. Through dedicated teamwork, we work towards supporting underprivileged communities through free education, food, clothing, and healthcare assistance.',
     quote:
       'True success lies in the positive difference we make in the lives of others.',
-    portraitImage: '/images/about-portrait.png',
-    groupImage: '/images/about-group.png',
-    signatureImage: '/images/signature.png',
+    portraitImage: '',
+    groupImage: '',
+    signatureImage: '',
     btnText: 'Discover My Story',
   },
   impactStats: [
@@ -76,7 +76,7 @@ export const defaultAboutPageContent: AboutPageContent = {
     heading: 'The Journey Behind The Purpose',
     description:
       'Every journey begins with a purpose. Mine began with a deep desire to serve people and bring positive change in society. Over the past two decades, this journey has evolved into meaningful social welfare initiatives, community leadership, and impactful ventures.',
-    heroImage: '/images/about-hero.png',
+    heroImage: '',
   },
   story: {
     eyebrow: 'PERSONAL BIOGRAPHY',
@@ -87,8 +87,8 @@ export const defaultAboutPageContent: AboutPageContent = {
       'In 2004, I arrived in the national capital, New Delhi, determined to turn empathy into structured action. Navigating the pulse of the capital, I witnessed the immense potential of youth and the urgent need for accessible healthcare, nutrition, and education.',
       'In 2016, this vision crystallized with the establishment of People’s Association. What started as localized relief drives has today scaled into a humanitarian movement spanning 15 Indian states.',
     ],
-    portraitImage: '/images/about-portrait.png',
-    signatureImage: '/images/signature.png',
+    portraitImage: '',
+    signatureImage: '',
   },
   timeline: [
     {
@@ -175,7 +175,7 @@ export const defaultPrintMedia: PrintMediaDoc[] = [
     publication: 'Dainik Jagran National',
     date: '12 Mar 2024',
     category: 'National Daily',
-    image: '/images/media-dainik-jagran.png',
+    image: '',
     description:
       'Coverage highlighting the expansion of grassroots education and winter relief distributions organized under People\'s Association across North India.',
     clippingSnippet: 'दैनिक जागरण: युवाओं को समाज सेवा और आत्मनिर्भरता की राह दिखाते देवेन्द्र कुमार झा।',
@@ -188,7 +188,7 @@ export const defaultPrintMedia: PrintMediaDoc[] = [
     publication: 'The Times of India (Delhi)',
     date: '08 Feb 2024',
     category: 'National Daily',
-    image: '/images/media-toi.png',
+    image: '',
     description:
       'Feature report detailing Deven Jha\'s two-decade dedication to underprivileged welfare, health camps, and free scholastic materials for children.',
     clippingSnippet: 'The Times of India: Driving social cohesion and educational equality from Delhi to 15 states.',
@@ -201,7 +201,7 @@ export const defaultPrintMedia: PrintMediaDoc[] = [
     publication: 'India Today Magazine',
     date: '25 Jan 2024',
     category: 'Magazine',
-    image: '/images/media-india-today.png',
+    image: '',
     description:
       'An in-depth special feature profiling Devendra Kumar Jha (Deven Jha) — his journey from Madhubani, Bihar to heading multi-state humanitarian missions.',
     clippingSnippet: 'India Today: Leadership with a human touch — bridging opportunity gaps for youth.',
@@ -214,7 +214,7 @@ export const defaultPrintMedia: PrintMediaDoc[] = [
     publication: 'Dainik Jagran Special',
     date: '18 Nov 2023',
     category: 'National Daily',
-    image: '/images/media-dainik-jagran.png',
+    image: '',
     description:
       'Public acknowledgement of rural outreach campaigns providing essential nutrition kits and books to children in underserved villages.',
     clippingSnippet: 'दैनिक जागरण: बच्चों के उज्ज्वल भविष्य के लिए नि:शुल्क शिक्षा सामग्री वितरण।',
@@ -227,7 +227,7 @@ export const defaultPrintMedia: PrintMediaDoc[] = [
     publication: 'The Times of India City',
     date: '04 Oct 2023',
     category: 'National Daily',
-    image: '/images/media-toi.png',
+    image: '',
     description:
       'Report on the national civic convention honoring social organizers, highlighting Deven Jha\'s keynote address on sustainable NGO collaboration.',
     clippingSnippet: 'Times City: Mobilizing civic volunteers for emergency relief and healthcare access.',
@@ -240,7 +240,7 @@ export const defaultPrintMedia: PrintMediaDoc[] = [
     publication: 'India Today Feature',
     date: '15 Aug 2023',
     category: 'Magazine',
-    image: '/images/media-india-today.png',
+    image: '',
     description:
       'Editorial analysis exploring the synergy between Janta Live public journalism and People\'s Association humanitarian drives.',
     clippingSnippet: 'India Today: Empowering citizens by giving voice to the voiceless.',
@@ -259,7 +259,7 @@ export const defaultDigitalMedia: DigitalMediaDoc[] = [
     youtubeUrl: 'https://www.youtube.com/watch?v=live_stream',
     youtubeId: 'live_stream',
     embedUrl: 'https://www.youtube-nocookie.com/embed/live_stream?channel=jantalivenews',
-    thumbnail: '/images/media-aaj-tak.png',
+    thumbnail: '',
     duration: '24:18',
     description:
       'Devendra Kumar Jha discusses two decades of community mobilization, youth motivation, and the importance of civic philanthropy in modern India.',
@@ -275,7 +275,7 @@ export const defaultDigitalMedia: DigitalMediaDoc[] = [
     youtubeUrl: 'https://www.youtube.com/watch?v=janta-live-report',
     youtubeId: 'janta-live-report',
     embedUrl: 'https://www.youtube-nocookie.com/embed/live_stream?channel=jantalivenews',
-    thumbnail: '/images/media-banner.png',
+    thumbnail: '',
     duration: '18:45',
     description:
       'Live coverage of People\'s Association state coordinators meeting, reviewing free educational relief drives and rural health camps.',
@@ -291,7 +291,7 @@ export const defaultDigitalMedia: DigitalMediaDoc[] = [
     youtubeUrl: 'https://www.youtube.com/watch?v=janta-live-service',
     youtubeId: 'janta-live-service',
     embedUrl: 'https://www.youtube-nocookie.com/embed/live_stream?channel=jantalivenews',
-    thumbnail: '/images/about-group.png',
+    thumbnail: '',
     duration: '32:10',
     description:
       'Documentary chronicling Deven Jha\'s early days in Delhi in 2004, the founding of People\'s Association in 2016, and ongoing relief programs.',
@@ -307,7 +307,7 @@ export const defaultDigitalMedia: DigitalMediaDoc[] = [
     youtubeUrl: 'https://www.youtube.com/watch?v=national-welfare-dialogue',
     youtubeId: 'national-welfare-dialogue',
     embedUrl: 'https://www.youtube-nocookie.com/embed/live_stream?channel=jantalivenews',
-    thumbnail: '/images/appointment-banner.png',
+    thumbnail: '',
     duration: '21:30',
     description:
       'A roundtable conversation on empowering rural journalism and connecting welfare initiatives with corporate social responsibility.',
@@ -323,7 +323,7 @@ export const defaultDigitalMedia: DigitalMediaDoc[] = [
     youtubeUrl: 'https://www.youtube.com/watch?v=winter-relief-coverage',
     youtubeId: 'winter-relief-coverage',
     embedUrl: 'https://www.youtube-nocookie.com/embed/live_stream?channel=jantalivenews',
-    thumbnail: '/images/media-aaj-tak.png',
+    thumbnail: '',
     duration: '15:20',
     description:
       'Ground footage and interviews during the mass blanket and winter jacket distribution conducted in urban slums and rural centers.',
@@ -339,7 +339,7 @@ export const defaultDigitalMedia: DigitalMediaDoc[] = [
     youtubeUrl: 'https://www.youtube.com/watch?v=education-initiative-interview',
     youtubeId: 'education-initiative-interview',
     embedUrl: 'https://www.youtube-nocookie.com/embed/live_stream?channel=jantalivenews',
-    thumbnail: '/images/about-portrait.png',
+    thumbnail: '',
     duration: '28:15',
     description:
       'Detailed discussion on the pedagogy of empathy, community schools, and sustaining voluntary civil engagement for long-term social impact.',
@@ -478,7 +478,7 @@ export const defaultContactSettings: ContactSettingsDoc = {
   cityState: 'New Delhi, India',
   addressNote: 'New Delhi, India (Exact address available on request)',
   mapsQueryUrl: 'https://maps.google.com/?q=New+Delhi',
-  mapsPreviewImage: '/images/map-preview.png',
+  mapsPreviewImage: '',
   officeHours: 'Monday – Saturday: 10:00 AM – 6:00 PM IST',
 };
 

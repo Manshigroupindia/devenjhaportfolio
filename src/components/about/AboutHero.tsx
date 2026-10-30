@@ -13,7 +13,7 @@ export const AboutHero: React.FC<AboutHeroProps> = ({ onOpenAppointment, content
   const description =
     content?.description ||
     'Every journey begins with a purpose. Mine began with a deep desire to serve people and bring positive change in society. Over the past two decades, this journey has evolved into meaningful social welfare initiatives, community leadership, and impactful ventures.';
-  const heroImage = content?.heroImage || '/images/hero-portrait.png';
+  const heroImage = content?.heroImage || '';
 
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-[#F8F6F0] via-[#FAF7F2] to-[#F4EDE0] pt-10 pb-16 sm:pt-14 sm:pb-20 lg:pt-20 lg:pb-24 border-b border-[#ebdcc9]">
@@ -92,25 +92,35 @@ export const AboutHero: React.FC<AboutHeroProps> = ({ onOpenAppointment, content
               <div className="absolute -inset-2.5 rounded-2xl border-2 border-[#BD9256]/40 -z-10 transform -rotate-1 group-hover:rotate-0 transition-transform duration-500" />
               
               {/* Main Photo Card */}
-              <div className="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-white bg-white">
-                <img
-                  src={heroImage}
-                  alt="Devendra Kumar Jha (Deven Jha) - Social Worker & Leader"
-                  className="w-full h-auto object-cover object-center transform group-hover:scale-[1.02] transition-transform duration-500"
-                />
-                
-                {/* Subtle vignette */}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#14283B]/40 via-transparent to-transparent pointer-events-none" />
+              <div className="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-white bg-[#f5ede2] min-h-[420px] flex items-center justify-center">
+                {heroImage ? (
+                  <>
+                    <img
+                      src={heroImage}
+                      alt="Devendra Kumar Jha (Deven Jha) - Social Worker & Leader"
+                      className="w-full h-auto object-cover object-center transform group-hover:scale-[1.02] transition-transform duration-500"
+                    />
+                    
+                    {/* Subtle vignette */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#14283B]/40 via-transparent to-transparent pointer-events-none" />
 
-                {/* Corner Badge */}
-                <div className="absolute bottom-3 right-3 bg-[#14283B]/90 backdrop-blur-xs px-3 py-1.5 rounded border border-[#BD9256]/40 text-right">
-                  <span className="text-[10px] uppercase font-bold tracking-wider text-[#BD9256] block">
-                    Leadership &amp; Service
-                  </span>
-                  <span className="text-[12px] font-semibold text-white">
-                    Since 2004
-                  </span>
-                </div>
+                    {/* Corner Badge */}
+                    <div className="absolute bottom-3 right-3 bg-[#14283B]/90 backdrop-blur-xs px-3 py-1.5 rounded border border-[#BD9256]/40 text-right">
+                      <span className="text-[10px] uppercase font-bold tracking-wider text-[#BD9256] block">
+                        Leadership &amp; Service
+                      </span>
+                      <span className="text-[12px] font-semibold text-white">
+                        Since 2004
+                      </span>
+                    </div>
+                  </>
+                ) : (
+                  <div className="w-full aspect-[4/5] animate-pulse bg-gradient-to-tr from-[#ece1cf] via-[#f7f2e8] to-[#ece1cf] flex flex-col items-center justify-center p-6 text-center">
+                    <div className="w-20 h-20 rounded-full bg-[#dfd0b8]/60 mb-4" />
+                    <div className="h-4 w-40 bg-[#dfd0b8]/70 rounded mb-2" />
+                    <div className="h-3 w-28 bg-[#dfd0b8]/40 rounded" />
+                  </div>
+                )}
               </div>
 
               {/* Decorative gold embellishments */}

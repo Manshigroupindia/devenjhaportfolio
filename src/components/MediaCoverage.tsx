@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowRight, Play, ExternalLink } from 'lucide-react';
+import { ArrowRight, Play, ExternalLink, Newspaper, Tv } from 'lucide-react';
 import { usePrintMedia, useDigitalMedia } from '../hooks/useCMSContent.ts';
 
 export interface MediaItem {
@@ -17,49 +17,14 @@ interface MediaCoverageProps {
   onViewAll: () => void;
 }
 
-const defaultMediaItems: MediaItem[] = [
-  {
-    id: 'dainik-jagran',
-    image: '/images/media-dainik-jagran.png',
-    title: 'Dainik Jagran',
-    category: 'Newspaper Publication',
-    date: '12 Mar 2024',
-  },
-  {
-    id: 'times-of-india',
-    image: '/images/media-toi.png',
-    title: 'The Times of India',
-    category: 'Newspaper Publication',
-    date: '08 Feb 2024',
-  },
-  {
-    id: 'india-today',
-    image: '/images/media-india-today.png',
-    title: 'India Today',
-    category: 'Magazine Feature',
-    date: '25 Jan 2024',
-  },
-  {
-    id: 'aaj-tak',
-    image: '/images/media-aaj-tak.png',
-    title: 'Aaj Tak',
-    category: 'Digital Media Interview',
-    date: '14 Jun 2024',
-    isVideo: true,
-    videoUrl: 'https://www.youtube.com/embed/live_stream?channel=jantalivenews',
-  },
-];
-
 export const MediaCoverage: React.FC<MediaCoverageProps> = ({ onSelectMedia, onViewAll }) => {
-  const { data: printItems } = usePrintMedia(true);
-  const { data: digitalItems } = useDigitalMedia(true);
+  const { data: printItems, loading: loadingPrint } = usePrintMedia(true);
+  const { data: digitalItems, loading: loadingDigital } = useDigitalMedia(true);
+
+  const isLoading = loadingPrint || loadingDigital;
 
   // Combine top 3 print clippings + 1 digital video for the homepage preview
   const displayItems: MediaItem[] = React.useMemo(() => {
-    if (!printItems.length && !digitalItems.length) {
-      return defaultMediaItems;
-    }
-
     const items: MediaItem[] = [];
     // Top print items
     printItems.slice(0, 3).forEach((p) => {
@@ -76,9 +41,13 @@ export const MediaCoverage: React.FC<MediaCoverageProps> = ({ onSelectMedia, onV
     // Top video item
     if (digitalItems.length > 0) {
       const vid = digitalItems[0];
+      const videoThumb =
+        vid.thumbnail ||
+        (vid.youtubeId ? `https://img.youtube.com/vi/${vid.youtubeId}/hqdefault.jpg` : '');
+
       items.push({
         id: vid.id,
-        image: vid.thumbnail || '/images/media-aaj-tak.png',
+        image: videoThumb,
         title: vid.channel || vid.title,
         category: vid.category || 'Digital Media Interview',
         date: vid.date,
@@ -87,7 +56,7 @@ export const MediaCoverage: React.FC<MediaCoverageProps> = ({ onSelectMedia, onV
       });
     }
 
-    return items.length ? items : defaultMediaItems;
+    return items;
   }, [printItems, digitalItems]);
 
   return (
@@ -117,20 +86,47 @@ export const MediaCoverage: React.FC<MediaCoverageProps> = ({ onSelectMedia, onV
         {/* Media Cards Grid: 4 items + 1 big navy banner */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-5">
           
+          {/* Skeleton Cards while loading */}
+          {isLoading && (
+            <>
+              {[1, 2, 3, 4].map((n) => (
+                <div
+                  key={`skeleton-${n}`}
+                  className="bg-white rounded-lg overflow-hidden border border-[#e8ded0] p-3 animate-pulse"
+                >
+                  <div className="aspect-[4/3] bg-[#ede5d8] rounded mb-3" />
+                  <div className="h-3.5 bg-[#ede5d8] rounded w-3/4 mb-2" />
+                  <div className="h-2.5 bg-[#ede5d8] rounded w-1/2" />
+                </div>
+              ))}
+            </>
+          )}
+
           {/* 4 Regular Media Cards (taking 1 col each on lg) */}
-          {displayItems.map((item) => (
+          {!isLoading && displayItems.map((item) => (
             <div
               key={item.id}
               onClick={() => onSelectMedia(item)}
               className="group bg-white rounded-lg overflow-hidden border border-[#e8ded0] shadow-sm hover:shadow-md transition-all duration-300 flex flex-col cursor-pointer"
             >
               {/* Thumbnail Container */}
-              <div className="relative aspect-[4/3] bg-[#f2ecdf] overflow-hidden">
-                <img
-                  src={item.image}
-                  alt={item.title}
-                  className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
-                />
+              <div className="relative aspect-[4/3] bg-[#f2ecdf] overflow-hidden flex items-center justify-center">
+                {item.image ? (
+                  <img
+                    src={item.image}
+                    alt={item.title}
+                    className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
+                  />
+                ) : (
+                  <div className="flex flex-col items-center justify-center p-3 text-center text-[#9c8975]">
+                    {item.isVideo ? (
+                      <Tv className="w-8 h-8 mb-1 text-[#b8863b]" />
+                    ) : (
+                      <Newspaper className="w-8 h-8 mb-1 text-[#b8863b]" />
+                    )}
+                    <span className="text-[10px] font-bold uppercase tracking-wider">{item.category}</span>
+                  </div>
+                )}
 
                 {/* Video Play Overlay */}
                 {item.isVideo && (
@@ -171,15 +167,11 @@ export const MediaCoverage: React.FC<MediaCoverageProps> = ({ onSelectMedia, onV
           {/* Prominent Dark Navy Media Banner (taking 2 cols on lg) */}
           <div
             onClick={onViewAll}
-            className="group relative sm:col-span-2 rounded-lg overflow-hidden border border-[#1e2e42] shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer min-h-[190px] flex flex-col justify-between p-5 bg-[#0e1b2b]"
-            style={{
-              backgroundImage: 'url(/images/media-banner.png)',
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-            }}
+            className="group relative sm:col-span-2 rounded-lg overflow-hidden border border-[#1e2e42] shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer min-h-[190px] flex flex-col justify-between p-5 bg-gradient-to-br from-[#0a1522] via-[#14283B] to-[#0d1d2d]"
           >
-            {/* Dark overlay with studio glow */}
-            <div className="absolute inset-0 bg-gradient-to-r from-[#0d1826]/95 via-[#0d1826]/85 to-transparent z-0" />
+            {/* Subtle gold grid effect */}
+            <div className="absolute inset-0 bg-[radial-gradient(#BD9256_1px,transparent_1px)] [background-size:20px_20px] opacity-20 pointer-events-none" />
+            <div className="absolute top-0 right-0 w-44 h-44 bg-[#BD9256]/15 rounded-full blur-2xl pointer-events-none" />
 
             <div className="relative z-10">
               <span className="text-[10.5px] font-bold tracking-[0.18em] text-[#d4af62] uppercase block mb-1">

@@ -4,13 +4,9 @@ import { Sparkles, MessageSquare, ArrowDown, MapPin } from 'lucide-react';
 export const ContactHero: React.FC = () => {
   return (
     <section className="relative overflow-hidden py-18 sm:py-24 bg-[#14283B] text-white">
-      {/* Background photographic texture with navy overlay */}
-      <div
-        className="absolute inset-0 bg-cover bg-center opacity-30 mix-blend-overlay filter blur-[0.8px]"
-        style={{ backgroundImage: 'url(/images/appointment-banner.png)' }}
-      />
-      {/* Navy gradient overlays */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#0a1420]/95 via-[#14283B]/90 to-[#0e1c2b]/98" />
+      {/* Editorial navy background texture with gold ambient glow */}
+      <div className="absolute inset-0 bg-gradient-to-b from-[#0a1420] via-[#14283B] to-[#0e1c2b]" />
+      <div className="absolute inset-0 bg-[radial-gradient(#BD9256_1px,transparent_1px)] [background-size:24px_24px] opacity-15 pointer-events-none" />
       <div className="absolute top-0 right-1/4 w-[420px] h-[420px] bg-[#BD9256]/15 rounded-full blur-3xl pointer-events-none" />
 
       <div className="relative max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8 z-10 text-center">

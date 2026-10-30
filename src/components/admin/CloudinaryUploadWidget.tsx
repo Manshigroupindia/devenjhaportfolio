@@ -220,7 +220,7 @@ export const CloudinaryUploadWidget: React.FC<CloudinaryUploadWidgetProps> = ({
               type="url"
               value={directUrl}
               onChange={(e) => setDirectUrl(e.target.value)}
-              placeholder="https://res.cloudinary.com/... or /images/..."
+              placeholder="https://res.cloudinary.com/... or image URL"
               className="w-full pl-9 pr-3 py-2 text-xs border border-slate-300 rounded-lg focus:outline-none focus:border-[#b8863b]"
             />
           </div>

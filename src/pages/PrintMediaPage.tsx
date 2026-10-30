@@ -13,7 +13,6 @@ import {
 } from 'lucide-react';
 import { ImageLightbox, PrintMediaItem } from '../components/media/ImageLightbox.tsx';
 import { usePrintMedia } from '../hooks/useCMSContent.ts';
-import { defaultPrintMedia } from '../services/defaultData.ts';
 
 const categories = ['All', 'National Daily', 'Magazine', 'Press Feature', 'Regional'];
 
@@ -22,8 +21,8 @@ interface PrintMediaPageProps {
 }
 
 export const PrintMediaPage: React.FC<PrintMediaPageProps> = ({ onNavigateBack }) => {
-  const { data: remoteData } = usePrintMedia(true);
-  const activeData: PrintMediaItem[] = (remoteData.length ? remoteData : defaultPrintMedia) as PrintMediaItem[];
+  const { data: remoteData, loading } = usePrintMedia(true);
+  const activeData: PrintMediaItem[] = remoteData as PrintMediaItem[];
 
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
@@ -149,8 +148,21 @@ export const PrintMediaPage: React.FC<PrintMediaPageProps> = ({ onNavigateBack }
             </span>
           </div>
 
+          {/* Loading Skeletons */}
+          {loading && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+              {[1, 2, 3, 4, 5, 6].map((n) => (
+                <div key={n} className="bg-white rounded-xl overflow-hidden border border-[#e2d6c5] p-4 animate-pulse">
+                  <div className="aspect-[4/3] bg-[#ede5d8] rounded-lg mb-4" />
+                  <div className="h-4 bg-[#ede5d8] rounded w-3/4 mb-2" />
+                  <div className="h-3 bg-[#ede5d8] rounded w-1/2" />
+                </div>
+              ))}
+            </div>
+          )}
+
           {/* Empty State */}
-          {filteredItems.length === 0 ? (
+          {!loading && filteredItems.length === 0 ? (
             <div className="py-20 text-center bg-[#FAF8F5] rounded-2xl border border-dashed border-[#ebdcc9]">
               <FileText className="w-12 h-12 text-[#BD9256] mx-auto mb-3 opacity-60" />
               <h3 className="font-serif text-lg font-bold text-[#14283B] mb-1">
@@ -169,7 +181,7 @@ export const PrintMediaPage: React.FC<PrintMediaPageProps> = ({ onNavigateBack }
                 Reset Filters
               </button>
             </div>
-          ) : (
+          ) : !loading && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
               {filteredItems.slice(0, visibleCount).map((item, index) => {
                 const hasDetails = Boolean(

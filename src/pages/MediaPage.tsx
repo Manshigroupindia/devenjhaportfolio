@@ -12,6 +12,7 @@ import {
   FileCheck,
   CheckCircle2,
 } from 'lucide-react';
+import { usePrintMedia, useDigitalMedia } from '../hooks/useCMSContent.ts';
 
 interface MediaPageProps {
   onNavigatePrint?: () => void;
@@ -24,6 +25,10 @@ export const MediaPage: React.FC<MediaPageProps> = ({
   onNavigateDigital,
   onOpenAppointment,
 }) => {
+  const { data: printItems, loading: loadingPrint } = usePrintMedia(true);
+  const { data: digitalItems, loading: loadingDigital } = useDigitalMedia(true);
+  const isLoading = loadingPrint || loadingDigital;
+
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     document.title = 'Media Coverage | Devendra Kumar Jha (Deven Jha)';
@@ -34,13 +39,9 @@ export const MediaPage: React.FC<MediaPageProps> = ({
       
       {/* 1. Hero Section */}
       <section className="relative overflow-hidden py-18 sm:py-24 bg-[#14283B] text-white">
-        {/* Subtle media photography backdrop */}
-        <div
-          className="absolute inset-0 bg-cover bg-center opacity-30 mix-blend-overlay filter blur-[0.8px]"
-          style={{ backgroundImage: 'url(/images/media-banner.png)' }}
-        />
-        {/* Navy gradient overlays */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0a1420]/95 via-[#14283B]/90 to-[#0e1c2b]/98" />
+        {/* Subtle media gradient backdrop */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0a1420] via-[#14283B] to-[#0e1c2b]" />
+        <div className="absolute inset-0 bg-[radial-gradient(#BD9256_1px,transparent_1px)] [background-size:24px_24px] opacity-15 pointer-events-none" />
         <div className="absolute top-0 right-1/4 w-[450px] h-[450px] bg-[#BD9256]/15 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8 z-10 text-center">
@@ -106,23 +107,38 @@ export const MediaPage: React.FC<MediaPageProps> = ({
             {/* Card 1: PRINT MEDIA */}
             <div className="group bg-white rounded-2xl overflow-hidden border border-[#e2d6c5] shadow-sm hover:shadow-2xl transition-all duration-300 flex flex-col justify-between hover:border-[#BD9256]">
               {/* Image Banner / Collage */}
-              <div className="relative h-64 sm:h-72 bg-[#f4ece0] overflow-hidden">
-                <div className="absolute inset-0 grid grid-cols-2 gap-2 p-3 transform group-hover:scale-105 transition-transform duration-500">
-                  <div className="rounded-lg overflow-hidden border border-white shadow-sm bg-white">
+              <div className="relative h-64 sm:h-72 bg-[#f4ece0] overflow-hidden flex items-center justify-center">
+                {printItems.length >= 2 && (printItems[0].image || printItems[0].imageUrl) && (printItems[1].image || printItems[1].imageUrl) ? (
+                  <div className="absolute inset-0 grid grid-cols-2 gap-2 p-3 transform group-hover:scale-105 transition-transform duration-500">
+                    <div className="rounded-lg overflow-hidden border border-white shadow-sm bg-white">
+                      <img
+                        src={printItems[0].image || printItems[0].imageUrl}
+                        alt={printItems[0].title || 'Print Media'}
+                        className="w-full h-full object-cover object-top"
+                      />
+                    </div>
+                    <div className="rounded-lg overflow-hidden border border-white shadow-sm bg-white">
+                      <img
+                        src={printItems[1].image || printItems[1].imageUrl}
+                        alt={printItems[1].title || 'Print Media'}
+                        className="w-full h-full object-cover object-top"
+                      />
+                    </div>
+                  </div>
+                ) : printItems.length >= 1 && (printItems[0].image || printItems[0].imageUrl) ? (
+                  <div className="absolute inset-0 p-3 transform group-hover:scale-105 transition-transform duration-500">
                     <img
-                      src="/images/media-dainik-jagran.png"
-                      alt="Dainik Jagran Newspaper"
-                      className="w-full h-full object-cover object-top"
+                      src={printItems[0].image || printItems[0].imageUrl}
+                      alt={printItems[0].title || 'Print Media'}
+                      className="w-full h-full object-cover object-top rounded-lg"
                     />
                   </div>
-                  <div className="rounded-lg overflow-hidden border border-white shadow-sm bg-white">
-                    <img
-                      src="/images/media-toi.png"
-                      alt="The Times of India"
-                      className="w-full h-full object-cover object-top"
-                    />
+                ) : (
+                  <div className="flex flex-col items-center justify-center text-[#9f8d7b] p-6 text-center">
+                    <Newspaper className="w-16 h-16 text-[#BD9256] mb-2" />
+                    <span className="font-serif text-lg font-bold text-[#14283B]">Print Media Archive</span>
                   </div>
-                </div>
+                )}
 
                 <div className="absolute inset-0 bg-gradient-to-t from-[#14283B]/90 via-[#14283B]/40 to-transparent pointer-events-none" />
 
@@ -158,7 +174,7 @@ export const MediaPage: React.FC<MediaPageProps> = ({
                   </Link>
 
                   <span className="text-xs font-semibold text-[#777777]">
-                    6+ Archival Clippings
+                    {printItems.length ? `${printItems.length} Published Clippings` : 'Press Clippings'}
                   </span>
                 </div>
               </div>
@@ -167,12 +183,22 @@ export const MediaPage: React.FC<MediaPageProps> = ({
             {/* Card 2: DIGITAL MEDIA */}
             <div className="group bg-white rounded-2xl overflow-hidden border border-[#e2d6c5] shadow-sm hover:shadow-2xl transition-all duration-300 flex flex-col justify-between hover:border-[#BD9256]">
               {/* Image Banner / Video Mock */}
-              <div className="relative h-64 sm:h-72 bg-[#0e1b2b] overflow-hidden">
-                <img
-                  src="/images/media-aaj-tak.png"
-                  alt="Aaj Tak Digital Interview"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80"
-                />
+              <div className="relative h-64 sm:h-72 bg-[#0e1b2b] overflow-hidden flex items-center justify-center">
+                {digitalItems.length > 0 && (digitalItems[0].thumbnail || digitalItems[0].youtubeId) ? (
+                  <img
+                    src={
+                      digitalItems[0].thumbnail ||
+                      `https://img.youtube.com/vi/${digitalItems[0].youtubeId}/hqdefault.jpg`
+                    }
+                    alt={digitalItems[0].title || 'Digital Video'}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80"
+                  />
+                ) : (
+                  <div className="flex flex-col items-center justify-center text-gray-400 p-6 text-center">
+                    <Tv className="w-16 h-16 text-[#BD9256] mb-2" />
+                    <span className="font-serif text-lg font-bold text-white">Broadcast Archive</span>
+                  </div>
+                )}
 
                 <div className="absolute inset-0 bg-gradient-to-t from-[#14283B]/90 via-[#14283B]/40 to-transparent pointer-events-none" />
 
@@ -259,104 +285,100 @@ export const MediaPage: React.FC<MediaPageProps> = ({
 
           {/* 4 Featured Items Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            
-            {/* Dainik Jagran */}
-            <div
-              onClick={onNavigatePrint}
-              className="group bg-[#FAF8F5] rounded-xl overflow-hidden border border-[#ebdcc9] p-4 cursor-pointer hover:shadow-lg transition-all hover:border-[#BD9256]"
-            >
-              <div className="aspect-[4/3] rounded-lg overflow-hidden bg-white mb-3 border border-[#e2d6c5]">
-                <img
-                  src="/images/media-dainik-jagran.png"
-                  alt="Dainik Jagran"
-                  className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
-                />
-              </div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#BD9256] block mb-1">
-                Newspaper • 12 Mar 2024
-              </span>
-              <h4 className="font-serif font-bold text-sm text-[#14283B] group-hover:text-[#BD9256] transition-colors line-clamp-2 mb-1">
-                Dainik Jagran: Community Service Drive
-              </h4>
-              <p className="text-xs text-[#777777] line-clamp-2">
-                Expansion of youth empowerment and winter relief distributions across North India.
-              </p>
-            </div>
-
-            {/* Times of India */}
-            <div
-              onClick={onNavigatePrint}
-              className="group bg-[#FAF8F5] rounded-xl overflow-hidden border border-[#ebdcc9] p-4 cursor-pointer hover:shadow-lg transition-all hover:border-[#BD9256]"
-            >
-              <div className="aspect-[4/3] rounded-lg overflow-hidden bg-white mb-3 border border-[#e2d6c5]">
-                <img
-                  src="/images/media-toi.png"
-                  alt="Times of India"
-                  className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
-                />
-              </div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#BD9256] block mb-1">
-                Newspaper • 08 Feb 2024
-              </span>
-              <h4 className="font-serif font-bold text-sm text-[#14283B] group-hover:text-[#BD9256] transition-colors line-clamp-2 mb-1">
-                The Times of India: 15 States Mission
-              </h4>
-              <p className="text-xs text-[#777777] line-clamp-2">
-                Two-decade commitment to healthcare, food relief and child educational support.
-              </p>
-            </div>
-
-            {/* India Today */}
-            <div
-              onClick={onNavigatePrint}
-              className="group bg-[#FAF8F5] rounded-xl overflow-hidden border border-[#ebdcc9] p-4 cursor-pointer hover:shadow-lg transition-all hover:border-[#BD9256]"
-            >
-              <div className="aspect-[4/3] rounded-lg overflow-hidden bg-white mb-3 border border-[#e2d6c5]">
-                <img
-                  src="/images/media-india-today.png"
-                  alt="India Today"
-                  className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
-                />
-              </div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#BD9256] block mb-1">
-                Magazine • 25 Jan 2024
-              </span>
-              <h4 className="font-serif font-bold text-sm text-[#14283B] group-hover:text-[#BD9256] transition-colors line-clamp-2 mb-1">
-                India Today: Social Transformation
-              </h4>
-              <p className="text-xs text-[#777777] line-clamp-2">
-                Special editorial profile tracing the humanitarian journey of Devendra Kumar Jha.
-              </p>
-            </div>
-
-            {/* Aaj Tak */}
-            <div
-              onClick={onNavigateDigital}
-              className="group bg-[#FAF8F5] rounded-xl overflow-hidden border border-[#ebdcc9] p-4 cursor-pointer hover:shadow-lg transition-all hover:border-[#BD9256]"
-            >
-              <div className="aspect-[4/3] rounded-lg overflow-hidden bg-black mb-3 border border-[#e2d6c5] relative">
-                <img
-                  src="/images/media-aaj-tak.png"
-                  alt="Aaj Tak"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 opacity-90"
-                />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-10 h-10 rounded-full bg-[#BD9256] flex items-center justify-center shadow-md">
-                    <Play className="w-4 h-4 fill-white text-white ml-0.5" />
+            {isLoading && (
+              <>
+                {[1, 2, 3, 4].map((n) => (
+                  <div key={n} className="bg-[#FAF8F5] rounded-xl border border-[#ebdcc9] p-4 animate-pulse">
+                    <div className="aspect-[4/3] bg-[#ede5d8] rounded-lg mb-3" />
+                    <div className="h-3 bg-[#ede5d8] rounded w-1/2 mb-2" />
+                    <div className="h-4 bg-[#ede5d8] rounded w-3/4 mb-1" />
+                    <div className="h-3 bg-[#ede5d8] rounded w-2/3" />
                   </div>
-                </div>
-              </div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#BD9256] block mb-1">
-                Television • 14 Jun 2024
-              </span>
-              <h4 className="font-serif font-bold text-sm text-[#14283B] group-hover:text-[#BD9256] transition-colors line-clamp-2 mb-1">
-                Aaj Tak: Youth Empowerment Interview
-              </h4>
-              <p className="text-xs text-[#777777] line-clamp-2">
-                Exclusive broadcast interview on civil society mobilization and self-reliance.
-              </p>
-            </div>
+                ))}
+              </>
+            )}
 
+            {!isLoading && (
+              <>
+                {/* Print Clippings */}
+                {printItems.slice(0, 3).map((item) => (
+                  <div
+                    key={item.id}
+                    onClick={onNavigatePrint}
+                    className="group bg-[#FAF8F5] rounded-xl overflow-hidden border border-[#ebdcc9] p-4 cursor-pointer hover:shadow-lg transition-all hover:border-[#BD9256]"
+                  >
+                    <div className="aspect-[4/3] rounded-lg overflow-hidden bg-white mb-3 border border-[#e2d6c5] flex items-center justify-center">
+                      {item.image || item.imageUrl ? (
+                        <img
+                          src={item.image || item.imageUrl}
+                          alt={item.title || 'Print Media'}
+                          className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
+                        />
+                      ) : (
+                        <div className="flex flex-col items-center justify-center text-[#9f8d7b] p-3 text-center">
+                          <Newspaper className="w-8 h-8 text-[#BD9256] mb-1" />
+                          <span className="text-[10px] font-bold uppercase">{item.publication || 'Press'}</span>
+                        </div>
+                      )}
+                    </div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#BD9256] block mb-1">
+                      {item.publication || 'Newspaper'}{item.date ? ` • ${item.date}` : ''}
+                    </span>
+                    <h4 className="font-serif font-bold text-sm text-[#14283B] group-hover:text-[#BD9256] transition-colors line-clamp-2 mb-1">
+                      {item.title || item.publication || 'Archival Press Clipping'}
+                    </h4>
+                    {item.description && (
+                      <p className="text-xs text-[#777777] line-clamp-2">
+                        {item.description}
+                      </p>
+                    )}
+                  </div>
+                ))}
+
+                {/* Digital Video */}
+                {digitalItems.slice(0, 1).map((video) => {
+                  const thumb =
+                    video.thumbnail ||
+                    (video.youtubeId ? `https://img.youtube.com/vi/${video.youtubeId}/hqdefault.jpg` : '');
+
+                  return (
+                    <div
+                      key={video.id}
+                      onClick={onNavigateDigital}
+                      className="group bg-[#FAF8F5] rounded-xl overflow-hidden border border-[#ebdcc9] p-4 cursor-pointer hover:shadow-lg transition-all hover:border-[#BD9256]"
+                    >
+                      <div className="aspect-[4/3] rounded-lg overflow-hidden bg-black mb-3 border border-[#e2d6c5] relative flex items-center justify-center">
+                        {thumb ? (
+                          <img
+                            src={thumb}
+                            alt={video.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 opacity-90"
+                          />
+                        ) : (
+                          <Tv className="w-10 h-10 text-[#BD9256]" />
+                        )}
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="w-10 h-10 rounded-full bg-[#BD9256] flex items-center justify-center shadow-md">
+                            <Play className="w-4 h-4 fill-white text-white ml-0.5" />
+                          </div>
+                        </div>
+                      </div>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#BD9256] block mb-1">
+                        {video.channel || 'Broadcast'}{video.date ? ` • ${video.date}` : ''}
+                      </span>
+                      <h4 className="font-serif font-bold text-sm text-[#14283B] group-hover:text-[#BD9256] transition-colors line-clamp-2 mb-1">
+                        {video.title}
+                      </h4>
+                      {video.description && (
+                        <p className="text-xs text-[#777777] line-clamp-2">
+                          {video.description}
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
+              </>
+            )}
           </div>
 
         </div>

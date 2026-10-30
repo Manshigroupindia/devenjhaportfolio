@@ -20,7 +20,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenAppointment, onExploreJourney,
   const fullName = content?.fullName || 'DEVENDRA KUMAR JHA';
   const subname = content?.subname || 'Popularly Known as Deven Jha.';
   const location = content?.location || 'New Delhi, India';
-  const portraitImage = content?.portraitImage || '/images/hero-portrait.png';
+  const portraitImage = content?.portraitImage || '';
   const exploreBtnText = content?.exploreBtnText || 'Explore My Journey';
   const connectBtnText = content?.connectBtnText || 'Connect With Me';
 
@@ -105,15 +105,24 @@ export const Hero: React.FC<HeroProps> = ({ onOpenAppointment, onExploreJourney,
           <div className="lg:col-span-5 relative flex justify-center lg:justify-end">
             <div className="relative w-full max-w-[480px] group">
               {/* Image Frame */}
-              <div className="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-white/80 bg-white">
-                <img
-                  src={portraitImage}
-                  alt={fullName}
-                  className="w-full h-auto object-cover object-center transform group-hover:scale-[1.02] transition-transform duration-500"
-                />
-                
-                {/* Soft gradient bottom vignette */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent pointer-events-none" />
+              <div className="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-white/80 bg-[#f4ede3] min-h-[420px] flex items-center justify-center">
+                {portraitImage ? (
+                  <>
+                    <img
+                      src={portraitImage}
+                      alt={fullName}
+                      className="w-full h-auto object-cover object-center transform group-hover:scale-[1.02] transition-transform duration-500"
+                    />
+                    {/* Soft gradient bottom vignette */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent pointer-events-none" />
+                  </>
+                ) : (
+                  <div className="w-full aspect-[4/5] animate-pulse bg-gradient-to-tr from-[#ece1cf] via-[#f7f2e8] to-[#ece1cf] flex flex-col items-center justify-center p-6 text-center">
+                    <div className="w-20 h-20 rounded-full bg-[#dfd0b8]/60 mb-4" />
+                    <div className="h-4 w-40 bg-[#dfd0b8]/70 rounded mb-2" />
+                    <div className="h-3 w-28 bg-[#dfd0b8]/40 rounded" />
+                  </div>
+                )}
               </div>
 
               {/* Decorative subtle backdrop ornament */}

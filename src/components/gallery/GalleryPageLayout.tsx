@@ -101,13 +101,20 @@ export const GalleryPageLayout: React.FC<GalleryPageLayoutProps> = ({
                         className="group bg-white rounded-xl overflow-hidden border border-[#e2d6c5] shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col cursor-pointer hover:border-[#BD9256]"
                       >
                         {/* 16:9 Thumbnail with Play overlay */}
-                        <div className="relative aspect-video bg-[#0d1826] overflow-hidden">
-                          <img
-                            src={vid.thumbnail}
-                            alt={vid.title}
-                            loading="lazy"
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90"
-                          />
+                        <div className="relative aspect-video bg-[#0d1826] overflow-hidden flex items-center justify-center">
+                          {vid.thumbnail ? (
+                            <img
+                              src={vid.thumbnail}
+                              alt={vid.title}
+                              loading="lazy"
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90"
+                              onError={(e) => {
+                                (e.currentTarget as HTMLElement).style.display = 'none';
+                              }}
+                            />
+                          ) : (
+                            <Tv className="w-10 h-10 text-[#BD9256]" />
+                          )}
 
                           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent" />
 
@@ -196,12 +203,27 @@ export const GalleryPageLayout: React.FC<GalleryPageLayoutProps> = ({
                       >
                         {/* Image Frame with original quality preservation */}
                         <div className="relative bg-[#f5ede2] overflow-hidden border-b border-[#ebdcc9] aspect-[4/3] flex items-center justify-center">
-                          <img
-                            src={item.image}
-                            alt={item.title}
-                            loading="lazy"
-                            className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
-                          />
+                          {item.image ? (
+                            <img
+                              src={item.image}
+                              alt={item.title}
+                              loading="lazy"
+                              className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                              onError={(e) => {
+                                (e.currentTarget as HTMLElement).style.display = 'none';
+                                const parent = (e.currentTarget as HTMLElement).parentElement;
+                                if (parent) {
+                                  const fallback = parent.querySelector('.img-error-fallback');
+                                  if (fallback) (fallback as HTMLElement).classList.remove('hidden');
+                                }
+                              }}
+                            />
+                          ) : null}
+
+                          <div className={`img-error-fallback ${item.image ? 'hidden' : 'flex'} flex-col items-center justify-center text-center p-4 text-[#9c8975]`}>
+                            <ImageIcon className="w-10 h-10 text-[#BD9256] mb-1 opacity-70" />
+                            <span className="text-xs font-semibold text-[#14283B]">{item.title}</span>
+                          </div>
 
                           {/* Hover overlay badge */}
                           <div className="absolute inset-0 bg-black/35 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
