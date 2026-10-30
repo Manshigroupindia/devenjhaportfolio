@@ -97,3 +97,4 @@ export const OFFICIAL_SOCIAL_PROFILES: SocialProfile[] = [
     ),
   },
 ];
+

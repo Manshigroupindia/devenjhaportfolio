@@ -134,7 +134,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               </li>
               <li>
                 <button
-                  onClick={() => handleLink('home', '#gallery')}
+                  onClick={() => handleLink('gallery-awards')}
                   className="hover:text-[#b8863b] transition-colors cursor-pointer text-left"
                 >
                   Gallery
@@ -192,7 +192,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             </ul>
           </div>
 
-          {/* Col 4: Gallery */}
+          {/* Col 4: Gallery (6 Categories) */}
           <div>
             <h4 className="text-[12px] font-bold uppercase tracking-wider text-white mb-3">
               Gallery
@@ -200,7 +200,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             <ul className="space-y-2 text-[11.5px] text-gray-400">
               <li>
                 <button
-                  onClick={() => handleLink('home', '#gallery')}
+                  onClick={() => handleLink('gallery-awards')}
                   className="hover:text-[#b8863b] transition-colors cursor-pointer text-left"
                 >
                   Awards
@@ -208,7 +208,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               </li>
               <li>
                 <button
-                  onClick={() => handleLink('home', '#gallery')}
+                  onClick={() => handleLink('gallery-celebrities')}
                   className="hover:text-[#b8863b] transition-colors cursor-pointer text-left"
                 >
                   Pictures With Celebrities
@@ -216,7 +216,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               </li>
               <li>
                 <button
-                  onClick={() => handleLink('home', '#gallery')}
+                  onClick={() => handleLink('gallery-social')}
                   className="hover:text-[#b8863b] transition-colors cursor-pointer text-left"
                 >
                   Social Events
@@ -224,7 +224,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               </li>
               <li>
                 <button
-                  onClick={() => handleLink('home', '#gallery')}
+                  onClick={() => handleLink('gallery-invitations')}
                   className="hover:text-[#b8863b] transition-colors cursor-pointer text-left"
                 >
                   Program Invitations
@@ -232,7 +232,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               </li>
               <li>
                 <button
-                  onClick={() => handleLink('home', '#gallery')}
+                  onClick={() => handleLink('gallery-videos')}
                   className="hover:text-[#b8863b] transition-colors cursor-pointer text-left"
                 >
                   Videos
@@ -240,7 +240,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               </li>
               <li>
                 <button
-                  onClick={() => handleLink('home', '#gallery')}
+                  onClick={() => handleLink('gallery-personal')}
                   className="hover:text-[#b8863b] transition-colors cursor-pointer text-left"
                 >
                   Personal Pictures

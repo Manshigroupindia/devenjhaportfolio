@@ -2,7 +2,18 @@ import React, { useState, useEffect, useRef } from 'react';
 import { ChevronDown, Menu, X, Globe, PhoneCall } from 'lucide-react';
 import { ReusableSocialGrid } from './common/ReusableSocialGrid.tsx';
 
-export type PageType = 'home' | 'about' | 'media' | 'media-print' | 'media-digital';
+export type PageType =
+  | 'home'
+  | 'about'
+  | 'media'
+  | 'media-print'
+  | 'media-digital'
+  | 'gallery-awards'
+  | 'gallery-celebrities'
+  | 'gallery-social'
+  | 'gallery-invitations'
+  | 'gallery-videos'
+  | 'gallery-personal';
 
 interface NavbarProps {
   currentPage?: PageType;
@@ -63,6 +74,8 @@ export const Navbar: React.FC<NavbarProps> = ({
     currentPage === 'media' ||
     currentPage === 'media-print' ||
     currentPage === 'media-digital';
+
+  const isGalleryActive = currentPage.startsWith('gallery-');
 
   return (
     <header
@@ -156,63 +169,91 @@ export const Navbar: React.FC<NavbarProps> = ({
               )}
             </div>
 
-            {/* Gallery Dropdown */}
+            {/* Gallery Dropdown (6 Dedicated Categories) */}
             <div
               className="relative"
               onMouseEnter={() => setActiveDropdown('gallery')}
               onMouseLeave={() => setActiveDropdown(null)}
             >
               <button
-                onClick={() => toggleDropdown('gallery')}
-                className="flex items-center gap-1 px-3 py-1.5 hover:text-[#a87932] transition-colors focus:outline-none cursor-pointer"
+                onClick={() => handleLinkClick('gallery-awards')}
+                className={`flex items-center gap-1 px-3 py-1.5 transition-colors focus:outline-none cursor-pointer ${
+                  isGalleryActive
+                    ? 'text-[#a87932] font-semibold border-b-2 border-[#a87932]'
+                    : 'hover:text-[#a87932]'
+                }`}
               >
                 <span>Gallery</span>
                 <ChevronDown className="w-3.5 h-3.5 opacity-70 transition-transform duration-200" />
               </button>
 
               {activeDropdown === 'gallery' && (
-                <div className="absolute top-full left-0 w-56 bg-white rounded-lg shadow-lg border border-[#ede5d8] py-2 z-50 animate-fadeIn">
+                <div className="absolute top-full left-0 w-60 bg-white rounded-lg shadow-lg border border-[#ede5d8] py-2 z-50 animate-fadeIn">
                   <button
-                    onClick={() => handleLinkClick('home', '#gallery')}
-                    className="block w-full text-left px-4 py-2 text-xs text-[#334155] hover:bg-[#faf7f0] hover:text-[#a87932] transition-colors cursor-pointer"
+                    onClick={() => handleLinkClick('gallery-awards')}
+                    className={`block w-full text-left px-4 py-2 text-xs hover:bg-[#faf7f0] transition-colors cursor-pointer ${
+                      currentPage === 'gallery-awards'
+                        ? 'text-[#a87932] font-bold bg-[#faf7f0]'
+                        : 'text-[#334155] hover:text-[#a87932]'
+                    }`}
                   >
-                    Awards &amp; Citations
+                    1. Awards
                   </button>
                   <button
-                    onClick={() => handleLinkClick('home', '#gallery')}
-                    className="block w-full text-left px-4 py-2 text-xs text-[#334155] hover:bg-[#faf7f0] hover:text-[#a87932] transition-colors cursor-pointer"
+                    onClick={() => handleLinkClick('gallery-celebrities')}
+                    className={`block w-full text-left px-4 py-2 text-xs hover:bg-[#faf7f0] transition-colors cursor-pointer ${
+                      currentPage === 'gallery-celebrities'
+                        ? 'text-[#a87932] font-bold bg-[#faf7f0]'
+                        : 'text-[#334155] hover:text-[#a87932]'
+                    }`}
                   >
-                    Pictures With Celebrities
+                    2. Pictures With Celebrities
                   </button>
                   <button
-                    onClick={() => handleLinkClick('home', '#gallery')}
-                    className="block w-full text-left px-4 py-2 text-xs text-[#334155] hover:bg-[#faf7f0] hover:text-[#a87932] transition-colors cursor-pointer"
+                    onClick={() => handleLinkClick('gallery-social')}
+                    className={`block w-full text-left px-4 py-2 text-xs hover:bg-[#faf7f0] transition-colors cursor-pointer ${
+                      currentPage === 'gallery-social'
+                        ? 'text-[#a87932] font-bold bg-[#faf7f0]'
+                        : 'text-[#334155] hover:text-[#a87932]'
+                    }`}
                   >
-                    Social &amp; NGO Events
+                    3. Social Events
                   </button>
                   <button
-                    onClick={() => handleLinkClick('home', '#gallery')}
-                    className="block w-full text-left px-4 py-2 text-xs text-[#334155] hover:bg-[#faf7f0] hover:text-[#a87932] transition-colors cursor-pointer"
+                    onClick={() => handleLinkClick('gallery-invitations')}
+                    className={`block w-full text-left px-4 py-2 text-xs hover:bg-[#faf7f0] transition-colors cursor-pointer ${
+                      currentPage === 'gallery-invitations'
+                        ? 'text-[#a87932] font-bold bg-[#faf7f0]'
+                        : 'text-[#334155] hover:text-[#a87932]'
+                    }`}
                   >
-                    Program Invitations
+                    4. Program Invitations
                   </button>
                   <button
-                    onClick={() => handleLinkClick('home', '#gallery')}
-                    className="block w-full text-left px-4 py-2 text-xs text-[#334155] hover:bg-[#faf7f0] hover:text-[#a87932] transition-colors cursor-pointer"
+                    onClick={() => handleLinkClick('gallery-videos')}
+                    className={`block w-full text-left px-4 py-2 text-xs hover:bg-[#faf7f0] transition-colors cursor-pointer ${
+                      currentPage === 'gallery-videos'
+                        ? 'text-[#a87932] font-bold bg-[#faf7f0]'
+                        : 'text-[#334155] hover:text-[#a87932]'
+                    }`}
                   >
-                    Videos &amp; Documentaries
+                    5. Videos
                   </button>
                   <button
-                    onClick={() => handleLinkClick('home', '#gallery')}
-                    className="block w-full text-left px-4 py-2 text-xs text-[#334155] hover:bg-[#faf7f0] hover:text-[#a87932] transition-colors cursor-pointer"
+                    onClick={() => handleLinkClick('gallery-personal')}
+                    className={`block w-full text-left px-4 py-2 text-xs hover:bg-[#faf7f0] transition-colors cursor-pointer ${
+                      currentPage === 'gallery-personal'
+                        ? 'text-[#a87932] font-bold bg-[#faf7f0]'
+                        : 'text-[#334155] hover:text-[#a87932]'
+                    }`}
                   >
-                    Personal Pictures
+                    6. Personal Pictures
                   </button>
                 </div>
               )}
             </div>
 
-            {/* Connect Me Dropdown (Features Official Social Platforms) */}
+            {/* Connect Me Dropdown */}
             <div
               className="relative"
               onMouseEnter={() => setActiveDropdown('connect')}
@@ -303,6 +344,8 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             About Us
           </button>
+          
+          {/* Media Coverage */}
           <button
             onClick={() => handleLinkClick('media')}
             className={`block w-full text-left py-2 font-semibold border-b border-gray-100 ${
@@ -325,12 +368,51 @@ export const Navbar: React.FC<NavbarProps> = ({
               • Digital &amp; TV Interviews
             </button>
           </div>
-          <button
-            onClick={() => handleLinkClick('home', '#gallery')}
-            className="block w-full text-left py-2 text-[#2d3748] font-medium hover:text-[#a87932] border-b border-gray-100"
-          >
-            Gallery
-          </button>
+
+          {/* Gallery with 6 items */}
+          <div className="border-b border-gray-100 pb-2">
+            <span className="block py-2 font-semibold text-[#14283B]">
+              Gallery Archives
+            </span>
+            <div className="pl-4 space-y-1.5">
+              <button
+                onClick={() => handleLinkClick('gallery-awards')}
+                className="block w-full text-left py-1 text-xs text-[#64748b] hover:text-[#a87932]"
+              >
+                1. Awards
+              </button>
+              <button
+                onClick={() => handleLinkClick('gallery-celebrities')}
+                className="block w-full text-left py-1 text-xs text-[#64748b] hover:text-[#a87932]"
+              >
+                2. Pictures With Celebrities
+              </button>
+              <button
+                onClick={() => handleLinkClick('gallery-social')}
+                className="block w-full text-left py-1 text-xs text-[#64748b] hover:text-[#a87932]"
+              >
+                3. Social Events
+              </button>
+              <button
+                onClick={() => handleLinkClick('gallery-invitations')}
+                className="block w-full text-left py-1 text-xs text-[#64748b] hover:text-[#a87932]"
+              >
+                4. Program Invitations
+              </button>
+              <button
+                onClick={() => handleLinkClick('gallery-videos')}
+                className="block w-full text-left py-1 text-xs text-[#64748b] hover:text-[#a87932]"
+              >
+                5. Videos
+              </button>
+              <button
+                onClick={() => handleLinkClick('gallery-personal')}
+                className="block w-full text-left py-1 text-xs text-[#64748b] hover:text-[#a87932]"
+              >
+                6. Personal Pictures
+              </button>
+            </div>
+          </div>
 
           {/* Mobile Connect Me Section */}
           <div className="border-b border-gray-100 pb-3 pt-1">
