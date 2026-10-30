@@ -30,6 +30,7 @@ import {
   Globe,
   ExternalLink,
   Save,
+  RefreshCw,
 } from 'lucide-react';
 
 export const MyBusinessCMS: React.FC = () => {
@@ -78,7 +79,7 @@ export const MyBusinessCMS: React.FC = () => {
       setStatusMessage(`Business "${item.name}" is now ${!item.isActive ? 'Active' : 'Hidden'}.`);
       setTimeout(() => setStatusMessage(null), 3000);
     } catch (err: any) {
-      setErrorMessage(`Failed to update status: ${err.message}`);
+      setErrorMessage(`Failed to update status in Firestore: ${err.message}`);
     }
   };
 
@@ -96,7 +97,7 @@ export const MyBusinessCMS: React.FC = () => {
       await setDoc(currentRef, { order: targetItem.order }, { merge: true });
       await setDoc(targetRef, { order: currentItem.order }, { merge: true });
 
-      setStatusMessage('Order updated successfully.');
+      setStatusMessage('Order updated successfully in Firestore.');
       setTimeout(() => setStatusMessage(null), 2500);
     } catch (err: any) {
       setErrorMessage(`Failed to reorder: ${err.message}`);
@@ -110,11 +111,19 @@ export const MyBusinessCMS: React.FC = () => {
 
     try {
       await deleteDoc(doc(db, 'businesses', item.id));
-      setStatusMessage('Business venture removed.');
+      setStatusMessage('Business venture removed from Firestore.');
       setTimeout(() => setStatusMessage(null), 3000);
     } catch (err: any) {
-      setErrorMessage(`Failed to delete: ${err.message}`);
+      setErrorMessage(`Failed to delete from Firestore: ${err.message}`);
     }
+  };
+
+  const sanitizePayload = (payload: Record<string, any>) => {
+    const clean: Record<string, any> = {};
+    Object.keys(payload).forEach((key) => {
+      clean[key] = payload[key] !== undefined ? payload[key] : '';
+    });
+    return clean;
   };
 
   const handleSaveModal = async (e: React.FormEvent) => {
@@ -129,18 +138,20 @@ export const MyBusinessCMS: React.FC = () => {
 
     try {
       const docId = formData.id || `biz-${Date.now()}`;
-      const payload: BusinessDoc = {
+      const payload: Record<string, any> = {
         ...formData,
         id: docId,
         updatedAt: new Date().toISOString(),
       };
 
-      await setDoc(doc(db, 'businesses', docId), payload, { merge: true });
+      const sanitized = sanitizePayload(payload);
+      await setDoc(doc(db, 'businesses', docId), sanitized, { merge: true });
+
       setIsModalOpen(false);
-      setStatusMessage('Business venture saved successfully!');
+      setStatusMessage('Business venture saved successfully to Firestore!');
       setTimeout(() => setStatusMessage(null), 3000);
     } catch (err: any) {
-      console.error('Error saving business:', err);
+      console.error('Error saving business to Firestore:', err);
       setErrorMessage(err.message || 'Failed to save business venture.');
     } finally {
       setSubmitting(false);
@@ -181,7 +192,7 @@ export const MyBusinessCMS: React.FC = () => {
             My Business Portfolio ({items.length})
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
-            Manage entrepreneurial ventures, organizations, and company initiatives.
+            Manage entrepreneurial ventures, organizations, and company initiatives with live Firestore persistence.
           </p>
         </div>
 
@@ -196,14 +207,14 @@ export const MyBusinessCMS: React.FC = () => {
 
       {/* Notifications */}
       {statusMessage && (
-        <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-xs flex items-center gap-2">
+        <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-xs flex items-center gap-2 animate-fadeIn">
           <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
           <span>{statusMessage}</span>
         </div>
       )}
 
       {errorMessage && (
-        <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-800 text-xs flex items-center gap-2">
+        <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-800 text-xs flex items-center gap-2 animate-fadeIn">
           <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
           <span>{errorMessage}</span>
         </div>
@@ -303,7 +314,7 @@ export const MyBusinessCMS: React.FC = () => {
               </h3>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg"
+                className="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -387,9 +398,9 @@ export const MyBusinessCMS: React.FC = () => {
                   id="isBizActive"
                   checked={formData.isActive}
                   onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                  className="rounded text-[#b8863b] focus:ring-[#b8863b] h-4 w-4"
+                  className="rounded text-[#b8863b] focus:ring-[#b8863b] h-4 w-4 cursor-pointer"
                 />
-                <label htmlFor="isBizActive" className="text-xs font-medium text-slate-700">
+                <label htmlFor="isBizActive" className="text-xs font-medium text-slate-700 cursor-pointer">
                   Visible on My Business section
                 </label>
               </div>
@@ -407,8 +418,8 @@ export const MyBusinessCMS: React.FC = () => {
                   disabled={submitting}
                   className="inline-flex items-center gap-2 px-5 py-2 bg-[#b8863b] hover:bg-[#a0742f] text-white rounded-lg text-xs font-semibold cursor-pointer disabled:opacity-50"
                 >
-                  <Save className="w-4 h-4" />
-                  <span>{submitting ? 'Saving...' : 'Save Venture'}</span>
+                  {submitting ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                  <span>{submitting ? 'Saving to Firestore...' : 'Save Venture'}</span>
                 </button>
               </div>
             </form>
@@ -418,4 +429,3 @@ export const MyBusinessCMS: React.FC = () => {
     </div>
   );
 };
-

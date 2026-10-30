@@ -154,7 +154,7 @@ export const BulkPrintMediaUploader: React.FC<BulkPrintMediaUploaderProps> = ({
     );
   };
 
-  // Upload all queued items
+  // Upload all queued items sequentially to Cloudinary and commit each to Firestore
   const handleUploadAll = async () => {
     const pendingItems = items.filter((i) => i.status === 'idle' || i.status === 'error');
     if (pendingItems.length === 0) return;
@@ -172,14 +172,18 @@ export const BulkPrintMediaUploader: React.FC<BulkPrintMediaUploaderProps> = ({
       );
 
       try {
-        // 1. Upload to Cloudinary under subfolder 'print-media'
+        // Step 1: Upload to Cloudinary under subfolder 'print-media'
         const uploadRes = await uploadToCloudinary(current.file, 'print-media', (pct) => {
           setItems((prev) =>
             prev.map((i) => (i.id === current.id ? { ...i, progress: pct } : i))
           );
         });
 
-        // 2. Prepare safe sanitized Firestore document (NO undefined values)
+        if (!uploadRes || !uploadRes.secureUrl) {
+          throw new Error('Cloudinary did not return a valid secure URL.');
+        }
+
+        // Step 2: Prepare sanitized Firestore document (NO undefined values)
         const docId = `print-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
         const orderIndex = currentItemsCount + index + 1;
         const nowIso = new Date().toISOString();
@@ -201,13 +205,22 @@ export const BulkPrintMediaUploader: React.FC<BulkPrintMediaUploaderProps> = ({
           updatedAt: nowIso,
         };
 
-        // Write directly to Firestore media_print
+        // Step 3: Await Firestore write confirmation
         await setDoc(doc(db, 'media_print', docId), docPayload, { merge: true });
 
-        // Update item status to success
+        // Step 4: Revoke temporary blob URL and mark success
+        URL.revokeObjectURL(current.previewUrl);
+
         setItems((prev) =>
           prev.map((i) =>
-            i.id === current.id ? { ...i, status: 'success', progress: 100 } : i
+            i.id === current.id
+              ? {
+                  ...i,
+                  status: 'success',
+                  progress: 100,
+                  previewUrl: uploadRes.secureUrl, // Switch preview to authoritative Cloudinary URL
+                }
+              : i
           )
         );
         successCount++;
@@ -221,7 +234,7 @@ export const BulkPrintMediaUploader: React.FC<BulkPrintMediaUploaderProps> = ({
                   ...i,
                   status: 'error',
                   progress: 0,
-                  error: err?.message || 'Upload failed',
+                  error: err?.message || 'Upload to Cloudinary or Firestore failed.',
                 }
               : i
           )
@@ -242,7 +255,7 @@ export const BulkPrintMediaUploader: React.FC<BulkPrintMediaUploaderProps> = ({
   const completedCount = items.filter((i) => i.status === 'success').length;
 
   return (
-    <div className="bg-white rounded-2xl border border-[#e5decb] shadow-sm p-6 space-y-6">
+    <div className="bg-white rounded-2xl border border-[#e5decb] shadow-sm p-6 space-y-6 animate-fadeIn">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
         <div className="flex items-center gap-3">
@@ -254,7 +267,7 @@ export const BulkPrintMediaUploader: React.FC<BulkPrintMediaUploaderProps> = ({
               Bulk Newspaper Clipping Upload
             </h3>
             <p className="text-xs text-slate-500">
-              Select or drop multiple clipping images. Text metadata is 100% optional.
+              Select or drop multiple clipping images. Cloudinary stream + Firestore real-time commit.
             </p>
           </div>
         </div>
@@ -262,7 +275,7 @@ export const BulkPrintMediaUploader: React.FC<BulkPrintMediaUploaderProps> = ({
         {onClose && (
           <button
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg self-start sm:self-auto"
+            className="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg self-start sm:self-auto cursor-pointer"
             title="Close Bulk Uploader"
           >
             <X className="w-5 h-5" />
@@ -369,7 +382,7 @@ export const BulkPrintMediaUploader: React.FC<BulkPrintMediaUploaderProps> = ({
       {/* Overall Summary Notice */}
       {overallSummary && (
         <div
-          className={`p-4 rounded-xl border text-xs flex items-center justify-between ${
+          className={`p-4 rounded-xl border text-xs flex items-center justify-between animate-fadeIn ${
             overallSummary.failed === 0
               ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
               : 'bg-amber-50 border-amber-200 text-amber-800'
@@ -379,7 +392,7 @@ export const BulkPrintMediaUploader: React.FC<BulkPrintMediaUploaderProps> = ({
             <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
             <span>
               Batch complete! <strong>{overallSummary.uploaded}</strong> of{' '}
-              <strong>{overallSummary.total}</strong> clippings successfully uploaded to Cloudinary &amp; published to Firestore.
+              <strong>{overallSummary.total}</strong> clippings successfully uploaded to Cloudinary &amp; committed to Firestore.
               {overallSummary.failed > 0 && ` (${overallSummary.failed} failed - you can retry them below)`}
             </span>
           </div>
@@ -429,7 +442,7 @@ export const BulkPrintMediaUploader: React.FC<BulkPrintMediaUploaderProps> = ({
           </div>
 
           <div className="space-y-3 max-h-[460px] overflow-y-auto pr-1">
-            {items.map((item, idx) => (
+            {items.map((item) => (
               <div
                 key={item.id}
                 className={`p-3.5 rounded-xl border transition-all text-xs bg-white ${
@@ -469,13 +482,13 @@ export const BulkPrintMediaUploader: React.FC<BulkPrintMediaUploaderProps> = ({
                         {item.status === 'uploading' && (
                           <span className="text-[10px] text-[#b8863b] font-semibold flex items-center gap-1">
                             <RefreshCw className="w-3 h-3 animate-spin" />
-                            Uploading ({item.progress}%)
+                            Uploading to Cloudinary &amp; saving ({item.progress}%)
                           </span>
                         )}
                         {item.status === 'success' && (
                           <span className="text-[10px] text-emerald-700 font-bold flex items-center gap-1">
                             <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                            Published to Firestore
+                            Saved to Firestore
                           </span>
                         )}
                         {item.status === 'error' && (
@@ -597,12 +610,12 @@ export const BulkPrintMediaUploader: React.FC<BulkPrintMediaUploaderProps> = ({
               {isUploading ? (
                 <>
                   <RefreshCw className="w-4 h-4 animate-spin" />
-                  <span>Uploading to Cloudinary...</span>
+                  <span>Streaming &amp; Saving to Firestore...</span>
                 </>
               ) : (
                 <>
                   <UploadCloud className="w-4 h-4" />
-                  <span>Upload &amp; Publish All ({pendingCount})</span>
+                  <span>Upload &amp; Save All ({pendingCount})</span>
                 </>
               )}
             </button>

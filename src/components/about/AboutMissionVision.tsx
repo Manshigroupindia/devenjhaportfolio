@@ -1,7 +1,19 @@
 import React from 'react';
 import { Target, Compass, Sparkles, ShieldCheck, HeartHandshake } from 'lucide-react';
+import { AboutPageContent } from '../../types/cms.ts';
 
-export const AboutMissionVision: React.FC = () => {
+interface AboutMissionVisionProps {
+  content?: AboutPageContent['missionVision'];
+}
+
+export const AboutMissionVision: React.FC<AboutMissionVisionProps> = ({ content }) => {
+  const missionText =
+    content?.missionText ||
+    'To serve society with dedication by supporting underprivileged communities through education, healthcare, food and other essential resources.';
+  const visionText =
+    content?.visionText ||
+    'To contribute towards a prosperous, inclusive and compassionate India where every individual has the opportunity to live with dignity.';
+
   return (
     <section className="py-16 sm:py-20 bg-[#F8F6F0] border-b border-[#ebdcc9]">
       <div className="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8">
@@ -41,7 +53,7 @@ export const AboutMissionVision: React.FC = () => {
               </h3>
 
               <blockquote className="font-serif italic text-[16px] sm:text-[17.5px] text-[#2c3e50] leading-relaxed border-l-2 border-[#BD9256]/50 pl-4 mb-6">
-                &ldquo;To serve society with dedication by supporting underprivileged communities through education, healthcare, food and other essential resources.&rdquo;
+                &ldquo;{missionText}&rdquo;
               </blockquote>
 
               <p className="text-[13.5px] text-[#777777] leading-relaxed">
@@ -87,7 +99,7 @@ export const AboutMissionVision: React.FC = () => {
               </h3>
 
               <blockquote className="font-serif italic text-[16px] sm:text-[17.5px] text-[#2c3e50] leading-relaxed border-l-2 border-[#14283B]/50 pl-4 mb-6">
-                &ldquo;To contribute towards a prosperous, inclusive and compassionate India where every individual has the opportunity to live with dignity.&rdquo;
+                &ldquo;{visionText}&rdquo;
               </blockquote>
 
               <p className="text-[13.5px] text-[#777777] leading-relaxed">
@@ -118,4 +130,3 @@ export const AboutMissionVision: React.FC = () => {
     </section>
   );
 };
-

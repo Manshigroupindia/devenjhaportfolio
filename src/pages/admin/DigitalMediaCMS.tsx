@@ -26,10 +26,11 @@ import {
   Clock,
   Save,
   Link as LinkIcon,
+  RefreshCw,
 } from 'lucide-react';
 
 export const DigitalMediaCMS: React.FC = () => {
-  const { data: items, loading } = useDigitalMedia(false);
+  const { data: items } = useDigitalMedia(false);
   const [editingItem, setEditingItem] = useState<DigitalMediaDoc | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -110,7 +111,7 @@ export const DigitalMediaCMS: React.FC = () => {
       setStatusMessage(`Video "${item.title.substring(0, 25)}..." is now ${!item.isActive ? 'Active' : 'Hidden'}.`);
       setTimeout(() => setStatusMessage(null), 3000);
     } catch (err: any) {
-      setErrorMessage(`Failed to update status: ${err.message}`);
+      setErrorMessage(`Failed to update status in Firestore: ${err.message}`);
     }
   };
 
@@ -128,7 +129,7 @@ export const DigitalMediaCMS: React.FC = () => {
       await setDoc(currentRef, { order: targetItem.order }, { merge: true });
       await setDoc(targetRef, { order: currentItem.order }, { merge: true });
 
-      setStatusMessage('Order updated successfully.');
+      setStatusMessage('Order updated successfully in Firestore.');
       setTimeout(() => setStatusMessage(null), 2500);
     } catch (err: any) {
       setErrorMessage(`Failed to reorder: ${err.message}`);
@@ -142,11 +143,19 @@ export const DigitalMediaCMS: React.FC = () => {
 
     try {
       await deleteDoc(doc(db, 'media_digital', item.id));
-      setStatusMessage('Digital video deleted.');
+      setStatusMessage('Digital video deleted from Firestore.');
       setTimeout(() => setStatusMessage(null), 3000);
     } catch (err: any) {
-      setErrorMessage(`Failed to delete: ${err.message}`);
+      setErrorMessage(`Failed to delete from Firestore: ${err.message}`);
     }
+  };
+
+  const sanitizePayload = (payload: Record<string, any>) => {
+    const clean: Record<string, any> = {};
+    Object.keys(payload).forEach((key) => {
+      clean[key] = payload[key] !== undefined ? payload[key] : '';
+    });
+    return clean;
   };
 
   const handleSaveModal = async (e: React.FormEvent) => {
@@ -165,19 +174,21 @@ export const DigitalMediaCMS: React.FC = () => {
 
     try {
       const docId = formData.id || `digital-${Date.now()}`;
-      const payload: DigitalMediaDoc = {
+      const payload: Record<string, any> = {
         ...formData,
         id: docId,
         updatedAt: new Date().toISOString(),
       };
 
-      await setDoc(doc(db, 'media_digital', docId), payload, { merge: true });
+      const sanitized = sanitizePayload(payload);
+      await setDoc(doc(db, 'media_digital', docId), sanitized, { merge: true });
+
       setIsModalOpen(false);
-      setStatusMessage('Digital media video saved successfully!');
+      setStatusMessage('Digital media video saved successfully to Firestore!');
       setTimeout(() => setStatusMessage(null), 3000);
     } catch (err: any) {
-      console.error('Error saving digital media:', err);
-      setErrorMessage(err.message || 'Failed to save video.');
+      console.error('Error saving digital media to Firestore:', err);
+      setErrorMessage(err.message || 'Failed to save video to Firestore.');
     } finally {
       setSubmitting(false);
     }
@@ -195,7 +206,7 @@ export const DigitalMediaCMS: React.FC = () => {
             Digital Media &amp; Videos ({items.length})
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
-            Manage television appearances, Janta Live broadcasts and documentary interviews.
+            Manage television appearances, Janta Live broadcasts and documentary interviews with live Firestore sync.
           </p>
         </div>
 
@@ -210,14 +221,14 @@ export const DigitalMediaCMS: React.FC = () => {
 
       {/* Notifications */}
       {statusMessage && (
-        <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-xs flex items-center gap-2">
+        <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-xs flex items-center gap-2 animate-fadeIn">
           <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
           <span>{statusMessage}</span>
         </div>
       )}
 
       {errorMessage && (
-        <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-800 text-xs flex items-center gap-2">
+        <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-800 text-xs flex items-center gap-2 animate-fadeIn">
           <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
           <span>{errorMessage}</span>
         </div>
@@ -357,7 +368,7 @@ export const DigitalMediaCMS: React.FC = () => {
               </h3>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg"
+                className="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -486,9 +497,9 @@ export const DigitalMediaCMS: React.FC = () => {
                   id="isDigitalActive"
                   checked={formData.isActive}
                   onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                  className="rounded text-[#b8863b] focus:ring-[#b8863b] h-4 w-4"
+                  className="rounded text-[#b8863b] focus:ring-[#b8863b] h-4 w-4 cursor-pointer"
                 />
-                <label htmlFor="isDigitalActive" className="text-xs font-medium text-slate-700">
+                <label htmlFor="isDigitalActive" className="text-xs font-medium text-slate-700 cursor-pointer">
                   Visible on public website
                 </label>
               </div>
@@ -506,8 +517,8 @@ export const DigitalMediaCMS: React.FC = () => {
                   disabled={submitting}
                   className="inline-flex items-center gap-2 px-5 py-2 bg-[#b8863b] hover:bg-[#a0742f] text-white rounded-lg text-xs font-semibold cursor-pointer disabled:opacity-50"
                 >
-                  <Save className="w-4 h-4" />
-                  <span>{submitting ? 'Saving...' : 'Save Video'}</span>
+                  {submitting ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                  <span>{submitting ? 'Saving to Firestore...' : 'Save Video'}</span>
                 </button>
               </div>
             </form>

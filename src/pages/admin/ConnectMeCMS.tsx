@@ -22,6 +22,7 @@ import {
   Share2,
   ExternalLink,
   Save,
+  RefreshCw,
 } from 'lucide-react';
 
 export const ConnectMeCMS: React.FC = () => {
@@ -72,7 +73,7 @@ export const ConnectMeCMS: React.FC = () => {
       setStatusMessage(`Social account "${item.name}" is now ${!item.isActive ? 'Active' : 'Hidden'}.`);
       setTimeout(() => setStatusMessage(null), 3000);
     } catch (err: any) {
-      setErrorMessage(`Failed to update status: ${err.message}`);
+      setErrorMessage(`Failed to update status in Firestore: ${err.message}`);
     }
   };
 
@@ -90,7 +91,7 @@ export const ConnectMeCMS: React.FC = () => {
       await setDoc(currentRef, { order: targetItem.order }, { merge: true });
       await setDoc(targetRef, { order: currentItem.order }, { merge: true });
 
-      setStatusMessage('Order updated successfully.');
+      setStatusMessage('Order updated successfully in Firestore.');
       setTimeout(() => setStatusMessage(null), 2500);
     } catch (err: any) {
       setErrorMessage(`Failed to reorder: ${err.message}`);
@@ -104,11 +105,19 @@ export const ConnectMeCMS: React.FC = () => {
 
     try {
       await deleteDoc(doc(db, 'socialProfiles', item.id));
-      setStatusMessage('Social profile removed.');
+      setStatusMessage('Social profile removed from Firestore.');
       setTimeout(() => setStatusMessage(null), 3000);
     } catch (err: any) {
       setErrorMessage(`Failed to delete: ${err.message}`);
     }
+  };
+
+  const sanitizePayload = (payload: Record<string, any>) => {
+    const clean: Record<string, any> = {};
+    Object.keys(payload).forEach((key) => {
+      clean[key] = payload[key] !== undefined ? payload[key] : '';
+    });
+    return clean;
   };
 
   const handleSaveModal = async (e: React.FormEvent) => {
@@ -123,18 +132,20 @@ export const ConnectMeCMS: React.FC = () => {
 
     try {
       const docId = formData.id || `social-${Date.now()}`;
-      const payload: SocialProfileDoc = {
+      const payload: Record<string, any> = {
         ...formData,
         id: docId,
         updatedAt: new Date().toISOString(),
       };
 
-      await setDoc(doc(db, 'socialProfiles', docId), payload, { merge: true });
+      const sanitized = sanitizePayload(payload);
+      await setDoc(doc(db, 'socialProfiles', docId), sanitized, { merge: true });
+
       setIsModalOpen(false);
-      setStatusMessage('Social profile saved successfully!');
+      setStatusMessage('Social profile saved successfully to Firestore!');
       setTimeout(() => setStatusMessage(null), 3000);
     } catch (err: any) {
-      console.error('Error saving social profile:', err);
+      console.error('Error saving social profile to Firestore:', err);
       setErrorMessage(err.message || 'Failed to save social profile.');
     } finally {
       setSubmitting(false);
@@ -168,14 +179,14 @@ export const ConnectMeCMS: React.FC = () => {
 
       {/* Notifications */}
       {statusMessage && (
-        <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-xs flex items-center gap-2">
+        <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-xs flex items-center gap-2 animate-fadeIn">
           <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
           <span>{statusMessage}</span>
         </div>
       )}
 
       {errorMessage && (
-        <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-800 text-xs flex items-center gap-2">
+        <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-800 text-xs flex items-center gap-2 animate-fadeIn">
           <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
           <span>{errorMessage}</span>
         </div>
@@ -286,7 +297,7 @@ export const ConnectMeCMS: React.FC = () => {
               </h3>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg"
+                className="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -378,9 +389,9 @@ export const ConnectMeCMS: React.FC = () => {
                   id="isSocialActive"
                   checked={formData.isActive}
                   onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                  className="rounded text-[#b8863b] focus:ring-[#b8863b] h-4 w-4"
+                  className="rounded text-[#b8863b] focus:ring-[#b8863b] h-4 w-4 cursor-pointer"
                 />
-                <label htmlFor="isSocialActive" className="text-xs font-medium text-slate-700">
+                <label htmlFor="isSocialActive" className="text-xs font-medium text-slate-700 cursor-pointer">
                   Visible in Connect Me navigation
                 </label>
               </div>
@@ -398,8 +409,8 @@ export const ConnectMeCMS: React.FC = () => {
                   disabled={submitting}
                   className="inline-flex items-center gap-2 px-5 py-2 bg-[#b8863b] hover:bg-[#a0742f] text-white rounded-lg text-xs font-semibold cursor-pointer disabled:opacity-50"
                 >
-                  <Save className="w-4 h-4" />
-                  <span>{submitting ? 'Saving...' : 'Save Channel'}</span>
+                  {submitting ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                  <span>{submitting ? 'Saving to Firestore...' : 'Save Channel'}</span>
                 </button>
               </div>
             </form>
@@ -409,4 +420,3 @@ export const ConnectMeCMS: React.FC = () => {
     </div>
   );
 };
-

@@ -27,10 +27,11 @@ import {
   Calendar,
   ExternalLink,
   MessageSquare,
+  RefreshCw,
 } from 'lucide-react';
 
 export const ContactDetailsCMS: React.FC = () => {
-  const { data: initialSettings, reload } = useContactSettings();
+  const { data: initialSettings } = useContactSettings();
   const [formData, setFormData] = useState<ContactSettingsDoc>(initialSettings);
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
@@ -41,7 +42,9 @@ export const ContactDetailsCMS: React.FC = () => {
   const [loadingSubmissions, setLoadingSubmissions] = useState(true);
 
   useEffect(() => {
-    setFormData(initialSettings);
+    if (initialSettings) {
+      setFormData(initialSettings);
+    }
   }, [initialSettings]);
 
   useEffect(() => {
@@ -76,6 +79,14 @@ export const ContactDetailsCMS: React.FC = () => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+  const sanitizePayload = (payload: Record<string, any>) => {
+    const clean: Record<string, any> = {};
+    Object.keys(payload).forEach((key) => {
+      clean[key] = payload[key] !== undefined ? payload[key] : '';
+    });
+    return clean;
+  };
+
   const handleSaveSettings = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
@@ -84,16 +95,18 @@ export const ContactDetailsCMS: React.FC = () => {
 
     try {
       const timestamp = new Date().toISOString();
-      await setDoc(doc(db, 'siteSettings', 'contact'), {
+      const rawPayload = {
         ...formData,
         updatedAt: timestamp,
-      }, { merge: true });
+      };
+
+      const sanitized = sanitizePayload(rawPayload);
+      await setDoc(doc(db, 'siteSettings', 'contact'), sanitized, { merge: true });
 
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 4000);
-      reload();
     } catch (err: any) {
-      console.error('Error saving contact settings:', err);
+      console.error('Error saving contact settings to Firestore:', err);
       setErrorMessage(err.message || 'Failed to update contact settings.');
     } finally {
       setSaving(false);
@@ -104,7 +117,7 @@ export const ContactDetailsCMS: React.FC = () => {
     try {
       await updateDoc(doc(db, 'contact_submissions', id), { status });
     } catch (err) {
-      console.error('Status update failed:', err);
+      console.error('Status update failed in Firestore:', err);
     }
   };
 
@@ -113,7 +126,7 @@ export const ContactDetailsCMS: React.FC = () => {
     try {
       await deleteDoc(doc(db, 'contact_submissions', id));
     } catch (err) {
-      console.error('Delete failed:', err);
+      console.error('Delete from Firestore failed:', err);
     }
   };
 
@@ -129,20 +142,20 @@ export const ContactDetailsCMS: React.FC = () => {
             Contact Details &amp; Inquiry Messages
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
-            Configure official office channels, phone numbers, map preview, and review incoming contact messages.
+            Configure official office channels, phone numbers, map preview, and review incoming contact messages with live Firestore persistence.
           </p>
         </div>
       </div>
 
       {saveSuccess && (
-        <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-xs flex items-center gap-2">
+        <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-xs flex items-center gap-2 animate-fadeIn">
           <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-          <span>Contact settings successfully updated and published!</span>
+          <span>Contact settings successfully updated and published to Firestore!</span>
         </div>
       )}
 
       {errorMessage && (
-        <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-800 text-xs flex items-center gap-2">
+        <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-800 text-xs flex items-center gap-2 animate-fadeIn">
           <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
           <span>{errorMessage}</span>
         </div>
@@ -278,8 +291,8 @@ export const ContactDetailsCMS: React.FC = () => {
             disabled={saving}
             className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#b8863b] hover:bg-[#a0742f] text-white rounded-lg text-xs font-semibold shadow-sm hover:shadow transition-all cursor-pointer disabled:opacity-50"
           >
-            <Save className="w-4 h-4" />
-            <span>{saving ? 'Saving...' : 'Save Contact Settings'}</span>
+            {saving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            <span>{saving ? 'Saving to Firestore...' : 'Save Contact Settings'}</span>
           </button>
         </div>
       </form>
@@ -407,4 +420,3 @@ export const ContactDetailsCMS: React.FC = () => {
     </div>
   );
 };
-

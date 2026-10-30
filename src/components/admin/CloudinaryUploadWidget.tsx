@@ -1,5 +1,5 @@
-import React, { useState, useRef } from 'react';
-import { UploadCloud, Image as ImageIcon, CheckCircle, AlertCircle, Link as LinkIcon, X } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { UploadCloud, CheckCircle2, AlertCircle, Link as LinkIcon, X, RefreshCw, Image as ImageIcon } from 'lucide-react';
 import { uploadToCloudinary } from '../../lib/cloudinary.ts';
 
 interface CloudinaryUploadWidgetProps {
@@ -7,7 +7,8 @@ interface CloudinaryUploadWidgetProps {
   subfolder: 'home' | 'about' | 'print-media' | 'business-logos' | 'general';
   label?: string;
   helperText?: string;
-  onImageUploaded: (url: string) => void;
+  onImageUploaded: (url: string, publicId?: string) => void;
+  onImageRemoved?: () => void;
 }
 
 export const CloudinaryUploadWidget: React.FC<CloudinaryUploadWidgetProps> = ({
@@ -16,6 +17,7 @@ export const CloudinaryUploadWidget: React.FC<CloudinaryUploadWidgetProps> = ({
   label = 'Upload Image',
   helperText = 'PNG, JPG or WebP up to 10MB',
   onImageUploaded,
+  onImageRemoved,
 }) => {
   const [mode, setMode] = useState<'upload' | 'url'>('upload');
   const [directUrl, setDirectUrl] = useState('');
@@ -24,8 +26,25 @@ export const CloudinaryUploadWidget: React.FC<CloudinaryUploadWidgetProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [preview, setPreview] = useState<string | undefined>(currentImageUrl);
+  const [createdBlobUrl, setCreatedBlobUrl] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Sync internal preview state whenever currentImageUrl prop changes
+  useEffect(() => {
+    setPreview(currentImageUrl);
+    setError(null);
+    setSuccess(false);
+  }, [currentImageUrl]);
+
+  // Clean up any lingering object URLs on unmount
+  useEffect(() => {
+    return () => {
+      if (createdBlobUrl) {
+        URL.revokeObjectURL(createdBlobUrl);
+      }
+    };
+  }, [createdBlobUrl]);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -37,37 +56,79 @@ export const CloudinaryUploadWidget: React.FC<CloudinaryUploadWidgetProps> = ({
       return;
     }
 
+    // Revoke previous blob if any
+    if (createdBlobUrl) {
+      URL.revokeObjectURL(createdBlobUrl);
+    }
+
     setError(null);
     setSuccess(false);
     setUploading(true);
     setProgress(0);
 
-    // Local instant preview
-    const localUrl = URL.createObjectURL(file);
-    setPreview(localUrl);
+    // Temporary local preview while upload progresses
+    const localBlob = URL.createObjectURL(file);
+    setCreatedBlobUrl(localBlob);
+    setPreview(localBlob);
 
     try {
       const result = await uploadToCloudinary(file, subfolder, (pct) => {
         setProgress(pct);
       });
+
+      // Revoke temporary blob and set authoritative Cloudinary secure URL
+      URL.revokeObjectURL(localBlob);
+      setCreatedBlobUrl(null);
       setPreview(result.secureUrl);
       setSuccess(true);
-      onImageUploaded(result.secureUrl);
+      setError(null);
+
+      // Pass both secure URL and Cloudinary public ID
+      onImageUploaded(result.secureUrl, result.publicId);
     } catch (err: any) {
       console.error('Cloudinary upload error:', err);
-      setError(err.message || 'Upload failed. Check Cloudinary upload preset.');
+      // Revert preview to original image if upload fails
+      setPreview(currentImageUrl);
+      setError(err.message || 'Upload failed. Check Cloudinary upload preset and internet connection.');
     } finally {
       setUploading(false);
+      // Reset input value so same file can be re-selected if desired
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     }
   };
 
   const handleApplyDirectUrl = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!directUrl.trim()) return;
-    setPreview(directUrl.trim());
+    const cleanUrl = directUrl.trim();
+    if (!cleanUrl) return;
+
+    if (createdBlobUrl) {
+      URL.revokeObjectURL(createdBlobUrl);
+      setCreatedBlobUrl(null);
+    }
+
+    setPreview(cleanUrl);
     setSuccess(true);
     setError(null);
-    onImageUploaded(directUrl.trim());
+    onImageUploaded(cleanUrl);
+  };
+
+  const handleRemoveImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (createdBlobUrl) {
+      URL.revokeObjectURL(createdBlobUrl);
+      setCreatedBlobUrl(null);
+    }
+    setPreview('');
+    setSuccess(false);
+    setError(null);
+    if (onImageRemoved) {
+      onImageRemoved();
+    } else {
+      onImageUploaded('');
+    }
   };
 
   return (
@@ -110,6 +171,7 @@ export const CloudinaryUploadWidget: React.FC<CloudinaryUploadWidgetProps> = ({
             ref={fileInputRef}
             onChange={handleFileChange}
             accept="image/*"
+            disabled={uploading}
             className="hidden"
           />
 
@@ -117,19 +179,22 @@ export const CloudinaryUploadWidget: React.FC<CloudinaryUploadWidgetProps> = ({
             onClick={() => !uploading && fileInputRef.current?.click()}
             className={`border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-all ${
               uploading
-                ? 'bg-slate-50 border-amber-400 cursor-wait'
+                ? 'bg-amber-50/50 border-amber-400 cursor-wait'
                 : 'bg-white hover:bg-[#faf7f2] border-slate-300 hover:border-[#b8863b]'
             }`}
           >
             {uploading ? (
               <div className="py-3">
-                <div className="w-8 h-8 border-3 border-[#b8863b] border-t-transparent rounded-full animate-spin mx-auto mb-2" />
-                <p className="text-xs font-semibold text-slate-700">
+                <RefreshCw className="w-7 h-7 text-[#b8863b] animate-spin mx-auto mb-2" />
+                <p className="text-xs font-bold text-slate-800">
                   Uploading to Cloudinary ({subfolder})... {progress}%
                 </p>
-                <div className="w-48 bg-slate-200 h-1.5 rounded-full mx-auto mt-2 overflow-hidden">
+                <p className="text-[10.5px] text-slate-500 mt-0.5">
+                  Streaming image directly to Cloudinary media cloud
+                </p>
+                <div className="w-56 bg-slate-200 h-1.5 rounded-full mx-auto mt-2.5 overflow-hidden">
                   <div
-                    className="bg-[#b8863b] h-full transition-all duration-200"
+                    className="bg-[#b8863b] h-full transition-all duration-150"
                     style={{ width: `${progress}%` }}
                   />
                 </div>
@@ -171,23 +236,23 @@ export const CloudinaryUploadWidget: React.FC<CloudinaryUploadWidgetProps> = ({
 
       {/* Status Messages */}
       {error && (
-        <div className="p-2.5 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2 text-red-600 text-[11.5px]">
+        <div className="p-2.5 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2 text-red-600 text-[11.5px] animate-fadeIn">
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
           <span>{error}</span>
         </div>
       )}
 
       {success && (
-        <div className="p-2 bg-emerald-50 border border-emerald-200 rounded-lg flex items-center gap-2 text-emerald-700 text-[11.5px]">
-          <CheckCircle className="w-3.5 h-3.5 shrink-0" />
-          <span>Image ready and attached to this record!</span>
+        <div className="p-2 bg-emerald-50 border border-emerald-200 rounded-lg flex items-center gap-2 text-emerald-700 text-[11.5px] animate-fadeIn">
+          <CheckCircle2 className="w-3.5 h-3.5 shrink-0 text-emerald-600" />
+          <span>Image uploaded to Cloudinary and ready to save!</span>
         </div>
       )}
 
-      {/* Image Preview Thumbnail */}
+      {/* Authoritative Image Preview Thumbnail */}
       {preview && (
-        <div className="mt-2 relative inline-block group">
-          <div className="w-32 h-20 rounded-lg overflow-hidden border border-slate-200 bg-slate-100 shadow-xs">
+        <div className="mt-2.5 flex items-start gap-3 bg-[#faf7f2] p-2.5 rounded-xl border border-[#ebdcc9]">
+          <div className="w-24 h-16 rounded-lg overflow-hidden border border-slate-200 bg-white shadow-xs shrink-0 relative group">
             <img
               src={preview}
               alt="Preview"
@@ -195,12 +260,31 @@ export const CloudinaryUploadWidget: React.FC<CloudinaryUploadWidgetProps> = ({
               onError={() => setError('Image failed to render from specified source.')}
             />
           </div>
-          <span className="block text-[10px] text-slate-500 mt-1 max-w-xs truncate">
-            {preview}
-          </span>
+
+          <div className="flex-1 min-w-0 flex flex-col justify-between self-stretch">
+            <div>
+              <span className="text-[10px] font-bold uppercase text-[#a87932] tracking-wider block">
+                {preview.startsWith('https://res.cloudinary.com') ? 'Cloudinary Hosted' : 'Active Preview'}
+              </span>
+              <p className="text-[11px] text-slate-600 font-mono truncate mt-0.5" title={preview}>
+                {preview}
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2 pt-1">
+              <button
+                type="button"
+                onClick={handleRemoveImage}
+                disabled={uploading}
+                className="inline-flex items-center gap-1 text-[10.5px] text-red-600 hover:text-red-800 font-medium cursor-pointer"
+              >
+                <X className="w-3 h-3" />
+                <span>Remove Image</span>
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
   );
 };
-

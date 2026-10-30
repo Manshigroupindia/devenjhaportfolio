@@ -31,6 +31,7 @@ import {
   Square,
   UploadCloud,
   ImageIcon,
+  RefreshCw,
 } from 'lucide-react';
 
 export const PrintMediaCMS: React.FC = () => {
@@ -97,6 +98,7 @@ export const PrintMediaCMS: React.FC = () => {
       ...item,
       image: item.image || item.imageUrl || '',
       imageUrl: item.imageUrl || item.image || '',
+      publicId: item.publicId || '',
     });
     setEditingItem(item);
     setIsModalOpen(true);
@@ -111,7 +113,7 @@ export const PrintMediaCMS: React.FC = () => {
       setStatusMessage(`Clipping "${label.substring(0, 25)}" is now ${!item.isActive ? 'Published' : 'Hidden'}.`);
       setTimeout(() => setStatusMessage(null), 3000);
     } catch (err: any) {
-      setErrorMessage(`Failed to update status: ${err.message}`);
+      setErrorMessage(`Failed to update status in Firestore: ${err.message}`);
     }
   };
 
@@ -129,7 +131,7 @@ export const PrintMediaCMS: React.FC = () => {
       await setDoc(currentRef, { order: targetItem.order }, { merge: true });
       await setDoc(targetRef, { order: currentItem.order }, { merge: true });
 
-      setStatusMessage('Order updated successfully.');
+      setStatusMessage('Order updated successfully in Firestore.');
       setTimeout(() => setStatusMessage(null), 2500);
     } catch (err: any) {
       setErrorMessage(`Failed to reorder: ${err.message}`);
@@ -145,10 +147,10 @@ export const PrintMediaCMS: React.FC = () => {
     try {
       await deleteDoc(doc(db, 'media_print', item.id));
       setSelectedIds((prev) => prev.filter((id) => id !== item.id));
-      setStatusMessage('Print media clipping deleted.');
+      setStatusMessage('Print media clipping deleted from Firestore.');
       setTimeout(() => setStatusMessage(null), 3000);
     } catch (err: any) {
-      setErrorMessage(`Failed to delete: ${err.message}`);
+      setErrorMessage(`Failed to delete from Firestore: ${err.message}`);
     }
   };
 
@@ -171,7 +173,7 @@ export const PrintMediaCMS: React.FC = () => {
     if (selectedIds.length === 0) return;
     if (
       !window.confirm(
-        `Are you sure you want to permanently delete ${selectedIds.length} selected print media clipping(s)? This action cannot be undone.`
+        `Are you sure you want to permanently delete ${selectedIds.length} selected print media clipping(s)? This action will remove them from Firestore.`
       )
     ) {
       return;
@@ -180,7 +182,7 @@ export const PrintMediaCMS: React.FC = () => {
     setBulkDeleting(true);
     try {
       await Promise.all(selectedIds.map((id) => deleteDoc(doc(db, 'media_print', id))));
-      setStatusMessage(`Successfully deleted ${selectedIds.length} print media clipping(s).`);
+      setStatusMessage(`Successfully deleted ${selectedIds.length} clipping(s) from Firestore.`);
       setSelectedIds([]);
       setTimeout(() => setStatusMessage(null), 3500);
     } catch (err: any) {
@@ -195,7 +197,7 @@ export const PrintMediaCMS: React.FC = () => {
     e.preventDefault();
 
     // Image is the ONLY mandatory field
-    const imageUri = formData.image.trim() || formData.imageUrl?.trim() || '';
+    const imageUri = (formData.image || formData.imageUrl || '').trim();
     if (!imageUri) {
       setErrorMessage('Please upload or provide an image for the clipping.');
       return;
@@ -226,14 +228,16 @@ export const PrintMediaCMS: React.FC = () => {
       };
 
       const sanitized = sanitizeDocPayload(rawPayload);
+
+      // Commit directly to Firestore
       await setDoc(doc(db, 'media_print', docId), sanitized, { merge: true });
 
       setIsModalOpen(false);
-      setStatusMessage(editingItem ? 'Clipping updated successfully!' : 'New clipping published successfully!');
-      setTimeout(() => setStatusMessage(null), 3000);
+      setStatusMessage(editingItem ? 'Clipping updated & saved to Firestore!' : 'New clipping published to Firestore!');
+      setTimeout(() => setStatusMessage(null), 3500);
     } catch (err: any) {
-      console.error('Error saving print media:', err);
-      setErrorMessage(err.message || 'Failed to save clipping.');
+      console.error('Error saving print media to Firestore:', err);
+      setErrorMessage(err.message || 'Failed to save clipping to Firestore.');
     } finally {
       setSubmitting(false);
     }
@@ -251,7 +255,7 @@ export const PrintMediaCMS: React.FC = () => {
             Print Media Coverage ({items.length})
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
-            Bulk upload multiple images, manage press clippings, or edit optional article metadata.
+            Cloudinary media hosting with live Firebase Firestore synchronization.
           </p>
         </div>
 
@@ -282,14 +286,14 @@ export const PrintMediaCMS: React.FC = () => {
 
       {/* Notifications */}
       {statusMessage && (
-        <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-xs flex items-center gap-2">
+        <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-xs flex items-center gap-2 animate-fadeIn">
           <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
           <span>{statusMessage}</span>
         </div>
       )}
 
       {errorMessage && (
-        <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-800 text-xs flex items-center gap-2">
+        <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-800 text-xs flex items-center gap-2 animate-fadeIn">
           <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
           <span>{errorMessage}</span>
         </div>
@@ -300,7 +304,7 @@ export const PrintMediaCMS: React.FC = () => {
         <BulkPrintMediaUploader
           currentItemsCount={items.length}
           onUploadSuccess={() => {
-            setStatusMessage('Images uploaded and synced to Firestore.');
+            setStatusMessage('Images successfully uploaded to Cloudinary and synchronized with Firestore.');
           }}
           onClose={() => setShowBulkUploader(false)}
         />
@@ -642,11 +646,20 @@ export const PrintMediaCMS: React.FC = () => {
                   label={editingItem ? 'Clipping Image * (Click to Replace)' : 'Clipping Image *'}
                   currentImageUrl={formData.image || formData.imageUrl}
                   helperText="Upload newspaper clipping scan, article photo or screenshot"
-                  onImageUploaded={(url) => {
+                  onImageUploaded={(url, publicId) => {
                     setFormData((prev) => ({
                       ...prev,
                       image: url,
                       imageUrl: url,
+                      publicId: publicId || prev.publicId || '',
+                    }));
+                  }}
+                  onImageRemoved={() => {
+                    setFormData((prev) => ({
+                      ...prev,
+                      image: '',
+                      imageUrl: '',
+                      publicId: '',
                     }));
                   }}
                 />
@@ -774,8 +787,8 @@ export const PrintMediaCMS: React.FC = () => {
                   disabled={submitting}
                   className="inline-flex items-center gap-2 px-5 py-2 bg-[#b8863b] hover:bg-[#a0742f] text-white rounded-lg text-xs font-semibold cursor-pointer disabled:opacity-50"
                 >
-                  <Save className="w-4 h-4" />
-                  <span>{submitting ? 'Saving...' : editingItem ? 'Update Clipping' : 'Publish Clipping'}</span>
+                  {submitting ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                  <span>{submitting ? 'Saving to Firestore...' : editingItem ? 'Update Clipping' : 'Publish Clipping'}</span>
                 </button>
               </div>
             </form>

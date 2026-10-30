@@ -1,9 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import {
   doc,
-  getDoc,
   collection,
-  getDocs,
   query,
   orderBy,
   onSnapshot,
@@ -29,85 +27,112 @@ import {
 } from '../services/defaultData.ts';
 
 /**
- * Hook for Home Page dynamic content
+ * Hook for Home Page dynamic content with real-time onSnapshot synchronization
  */
 export function useHomePageContent() {
   const [data, setData] = useState<HomePageContent>(defaultHomePageContent);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchContent = useCallback(async () => {
+  useEffect(() => {
+    let unsubscribe: (() => void) | undefined;
     try {
-      setLoading(true);
       const docRef = doc(db, 'siteSettings', 'home');
-      const snap = await getDoc(docRef);
-      if (snap.exists()) {
-        const remote = snap.data() as Partial<HomePageContent>;
-        setData({
-          hero: { ...defaultHomePageContent.hero, ...remote.hero },
-          aboutPreview: { ...defaultHomePageContent.aboutPreview, ...remote.aboutPreview },
-          impactStats: remote.impactStats && remote.impactStats.length ? remote.impactStats : defaultHomePageContent.impactStats,
-          updatedAt: remote.updatedAt,
-        });
-      }
-      setError(null);
+      unsubscribe = onSnapshot(
+        docRef,
+        (snap) => {
+          if (snap.exists()) {
+            const remote = snap.data() as Partial<HomePageContent>;
+            setData({
+              hero: { ...defaultHomePageContent.hero, ...remote.hero },
+              aboutPreview: { ...defaultHomePageContent.aboutPreview, ...remote.aboutPreview },
+              impactStats:
+                remote.impactStats && remote.impactStats.length
+                  ? remote.impactStats
+                  : defaultHomePageContent.impactStats,
+              updatedAt: remote.updatedAt,
+            });
+          }
+          setLoading(false);
+          setError(null);
+        },
+        (err) => {
+          console.warn('Real-time listener for home content notice:', err.message);
+          setLoading(false);
+          setError(err.message);
+        }
+      );
     } catch (err: any) {
-      console.warn('Using default home content:', err?.message);
-      setError(err?.message || 'Failed to load remote content');
-    } finally {
+      console.warn('Error setting up home listener:', err?.message);
       setLoading(false);
+      setError(err?.message);
     }
+
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
   }, []);
 
-  useEffect(() => {
-    fetchContent();
-  }, [fetchContent]);
-
-  return { data, loading, error, reload: fetchContent };
+  return { data, loading, error };
 }
 
 /**
- * Hook for About Page dynamic content
+ * Hook for About Page dynamic content with real-time onSnapshot synchronization
  */
 export function useAboutPageContent() {
   const [data, setData] = useState<AboutPageContent>(defaultAboutPageContent);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchContent = useCallback(async () => {
+  useEffect(() => {
+    let unsubscribe: (() => void) | undefined;
     try {
-      setLoading(true);
       const docRef = doc(db, 'siteSettings', 'about');
-      const snap = await getDoc(docRef);
-      if (snap.exists()) {
-        const remote = snap.data() as Partial<AboutPageContent>;
-        setData({
-          hero: { ...defaultAboutPageContent.hero, ...remote.hero },
-          story: { ...defaultAboutPageContent.story, ...remote.story },
-          timeline: remote.timeline && remote.timeline.length ? remote.timeline : defaultAboutPageContent.timeline,
-          missionVision: { ...defaultAboutPageContent.missionVision, ...remote.missionVision },
-          peoplesAssociation: { ...defaultAboutPageContent.peoplesAssociation, ...remote.peoplesAssociation },
-          updatedAt: remote.updatedAt,
-        });
-      }
-      setError(null);
+      unsubscribe = onSnapshot(
+        docRef,
+        (snap) => {
+          if (snap.exists()) {
+            const remote = snap.data() as Partial<AboutPageContent>;
+            setData({
+              hero: { ...defaultAboutPageContent.hero, ...remote.hero },
+              story: { ...defaultAboutPageContent.story, ...remote.story },
+              timeline:
+                remote.timeline && remote.timeline.length
+                  ? remote.timeline
+                  : defaultAboutPageContent.timeline,
+              missionVision: { ...defaultAboutPageContent.missionVision, ...remote.missionVision },
+              peoplesAssociation: {
+                ...defaultAboutPageContent.peoplesAssociation,
+                ...remote.peoplesAssociation,
+              },
+              updatedAt: remote.updatedAt,
+            });
+          }
+          setLoading(false);
+          setError(null);
+        },
+        (err) => {
+          console.warn('Real-time listener for about content notice:', err.message);
+          setLoading(false);
+          setError(err.message);
+        }
+      );
     } catch (err: any) {
-      console.warn('Using default about content:', err?.message);
-      setError(err?.message || 'Failed to load remote content');
-    } finally {
+      console.warn('Error setting up about listener:', err?.message);
       setLoading(false);
+      setError(err?.message);
     }
+
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
   }, []);
 
-  useEffect(() => {
-    fetchContent();
-  }, [fetchContent]);
-
-  return { data, loading, error, reload: fetchContent };
+  return { data, loading, error };
 }
 
 /**
- * Hook for Print Media Clippings (with real-time updates)
+ * Hook for Print Media Clippings (with real-time onSnapshot sync)
  */
 export function usePrintMedia(onlyActive: boolean = true) {
   const [data, setData] = useState<PrintMediaDoc[]>(defaultPrintMedia);
@@ -121,22 +146,27 @@ export function usePrintMedia(onlyActive: boolean = true) {
       unsubscribe = onSnapshot(
         q,
         (snapshot) => {
+          const items: PrintMediaDoc[] = [];
+          snapshot.forEach((docSnap) => {
+            const item = { id: docSnap.id, ...docSnap.data() } as PrintMediaDoc;
+            if (!onlyActive || item.isActive !== false) {
+              items.push(item);
+            }
+          });
+
           if (!snapshot.empty) {
-            const items: PrintMediaDoc[] = [];
-            snapshot.forEach((docSnap) => {
-              const item = { id: docSnap.id, ...docSnap.data() } as PrintMediaDoc;
-              if (!onlyActive || item.isActive !== false) {
-                items.push(item);
-              }
-            });
             setData(items);
+          } else {
+            // If admin view, reflect actual empty state; if public and never seeded, keep defaults
+            setData(onlyActive ? defaultPrintMedia : []);
           }
           setLoading(false);
           setError(null);
         },
         (err) => {
-          console.warn('Real-time listener notice for print media, using defaults:', err.message);
+          console.warn('Print media listener notice, fallback to defaults:', err.message);
           setLoading(false);
+          setError(err.message);
         }
       );
     } catch (err: any) {
@@ -153,7 +183,7 @@ export function usePrintMedia(onlyActive: boolean = true) {
 }
 
 /**
- * Hook for Digital Media Videos (with real-time updates)
+ * Hook for Digital Media Videos (with real-time onSnapshot sync)
  */
 export function useDigitalMedia(onlyActive: boolean = true) {
   const [data, setData] = useState<DigitalMediaDoc[]>(defaultDigitalMedia);
@@ -167,22 +197,26 @@ export function useDigitalMedia(onlyActive: boolean = true) {
       unsubscribe = onSnapshot(
         q,
         (snapshot) => {
+          const items: DigitalMediaDoc[] = [];
+          snapshot.forEach((docSnap) => {
+            const item = { id: docSnap.id, ...docSnap.data() } as DigitalMediaDoc;
+            if (!onlyActive || item.isActive !== false) {
+              items.push(item);
+            }
+          });
+
           if (!snapshot.empty) {
-            const items: DigitalMediaDoc[] = [];
-            snapshot.forEach((docSnap) => {
-              const item = { id: docSnap.id, ...docSnap.data() } as DigitalMediaDoc;
-              if (!onlyActive || item.isActive !== false) {
-                items.push(item);
-              }
-            });
             setData(items);
+          } else {
+            setData(onlyActive ? defaultDigitalMedia : []);
           }
           setLoading(false);
           setError(null);
         },
         (err) => {
-          console.warn('Real-time listener notice for digital media, using defaults:', err.message);
+          console.warn('Digital media listener notice, fallback to defaults:', err.message);
           setLoading(false);
+          setError(err.message);
         }
       );
     } catch (err: any) {
@@ -199,7 +233,7 @@ export function useDigitalMedia(onlyActive: boolean = true) {
 }
 
 /**
- * Hook for Business Ventures (with real-time updates)
+ * Hook for Business Ventures (with real-time onSnapshot sync)
  */
 export function useBusinesses(onlyActive: boolean = true) {
   const [data, setData] = useState<BusinessDoc[]>(defaultBusinesses);
@@ -213,22 +247,26 @@ export function useBusinesses(onlyActive: boolean = true) {
       unsubscribe = onSnapshot(
         q,
         (snapshot) => {
+          const items: BusinessDoc[] = [];
+          snapshot.forEach((docSnap) => {
+            const item = { id: docSnap.id, ...docSnap.data() } as BusinessDoc;
+            if (!onlyActive || item.isActive !== false) {
+              items.push(item);
+            }
+          });
+
           if (!snapshot.empty) {
-            const items: BusinessDoc[] = [];
-            snapshot.forEach((docSnap) => {
-              const item = { id: docSnap.id, ...docSnap.data() } as BusinessDoc;
-              if (!onlyActive || item.isActive !== false) {
-                items.push(item);
-              }
-            });
             setData(items);
+          } else {
+            setData(onlyActive ? defaultBusinesses : []);
           }
           setLoading(false);
           setError(null);
         },
         (err) => {
-          console.warn('Real-time listener notice for businesses, using defaults:', err.message);
+          console.warn('Businesses listener notice, fallback to defaults:', err.message);
           setLoading(false);
+          setError(err.message);
         }
       );
     } catch (err: any) {
@@ -245,7 +283,7 @@ export function useBusinesses(onlyActive: boolean = true) {
 }
 
 /**
- * Hook for Social Profiles (with real-time updates)
+ * Hook for Social Profiles (with real-time onSnapshot sync)
  */
 export function useSocialProfiles(onlyActive: boolean = true) {
   const [data, setData] = useState<SocialProfileDoc[]>(defaultSocialProfiles);
@@ -259,22 +297,26 @@ export function useSocialProfiles(onlyActive: boolean = true) {
       unsubscribe = onSnapshot(
         q,
         (snapshot) => {
+          const items: SocialProfileDoc[] = [];
+          snapshot.forEach((docSnap) => {
+            const item = { id: docSnap.id, ...docSnap.data() } as SocialProfileDoc;
+            if (!onlyActive || item.isActive !== false) {
+              items.push(item);
+            }
+          });
+
           if (!snapshot.empty) {
-            const items: SocialProfileDoc[] = [];
-            snapshot.forEach((docSnap) => {
-              const item = { id: docSnap.id, ...docSnap.data() } as SocialProfileDoc;
-              if (!onlyActive || item.isActive !== false) {
-                items.push(item);
-              }
-            });
             setData(items);
+          } else {
+            setData(onlyActive ? defaultSocialProfiles : []);
           }
           setLoading(false);
           setError(null);
         },
         (err) => {
-          console.warn('Real-time listener notice for social profiles, using defaults:', err.message);
+          console.warn('Social profiles listener notice, fallback to defaults:', err.message);
           setLoading(false);
+          setError(err.message);
         }
       );
     } catch (err: any) {
@@ -291,37 +333,45 @@ export function useSocialProfiles(onlyActive: boolean = true) {
 }
 
 /**
- * Hook for Contact Details & Settings
+ * Hook for Contact Details & Settings (with real-time onSnapshot sync)
  */
 export function useContactSettings() {
   const [data, setData] = useState<ContactSettingsDoc>(defaultContactSettings);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchSettings = useCallback(async () => {
+  useEffect(() => {
+    let unsubscribe: (() => void) | undefined;
     try {
-      setLoading(true);
       const docRef = doc(db, 'siteSettings', 'contact');
-      const snap = await getDoc(docRef);
-      if (snap.exists()) {
-        setData({
-          ...defaultContactSettings,
-          ...snap.data(),
-        } as ContactSettingsDoc);
-      }
-      setError(null);
+      unsubscribe = onSnapshot(
+        docRef,
+        (snap) => {
+          if (snap.exists()) {
+            setData({
+              ...defaultContactSettings,
+              ...snap.data(),
+            } as ContactSettingsDoc);
+          }
+          setLoading(false);
+          setError(null);
+        },
+        (err) => {
+          console.warn('Contact settings listener notice:', err.message);
+          setLoading(false);
+          setError(err.message);
+        }
+      );
     } catch (err: any) {
-      console.warn('Using default contact settings:', err?.message);
-      setError(err?.message || 'Failed to load remote contact settings');
-    } finally {
+      console.warn('Error setting up contact listener:', err?.message);
       setLoading(false);
+      setError(err?.message);
     }
+
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
   }, []);
 
-  useEffect(() => {
-    fetchSettings();
-  }, [fetchSettings]);
-
-  return { data, loading, error, reload: fetchSettings };
+  return { data, loading, error };
 }
-

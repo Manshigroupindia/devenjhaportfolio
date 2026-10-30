@@ -1,7 +1,28 @@
 import React from 'react';
 import { Sparkles, HeartHandshake, Compass, Users } from 'lucide-react';
+import { AboutPageContent } from '../../types/cms.ts';
 
-export const AboutStory: React.FC = () => {
+interface AboutStoryProps {
+  content?: AboutPageContent['story'];
+}
+
+export const AboutStory: React.FC<AboutStoryProps> = ({ content }) => {
+  const eyebrow = content?.eyebrow || 'MY STORY';
+  const heading = content?.heading || 'A Life Dedicated to Making a Difference.';
+  const portraitImg = content?.portraitImage || '/images/about-portrait.png';
+  const signatureImg = content?.signatureImage || '/images/signature.png';
+
+  const defaultParagraphs = [
+    'Hey! Myself Devendra Kumar Jha, popularly known as Deven Jha, born in Madhubani, Bihar, India.',
+    "By the grace of God, I have been serving society as a social worker for many years. I undertake different types of social work with the aim of understanding today's society and serving it better.",
+    'With a deep passion for doing something meaningful for society, I came to New Delhi in 2004 to contribute towards building a better society and achieving my dream of a prosperous India.',
+    'While residing in New Delhi, I started helping poor and needy people in different ways to improve their quality of life. From initial grassroots efforts to community support, every step reinforced my conviction in social empowerment.',
+    "To make social service a regular part of my life, I decided to establish my own NGO, People's Association, in 2016.",
+    'Today, our NGO is working across 15 states of the country. As its President, I continue to work with my dedicated team to support people who need assistance.',
+  ];
+
+  const paragraphs = content?.paragraphs && content.paragraphs.length > 0 ? content.paragraphs : defaultParagraphs;
+
   return (
     <section id="biography" className="py-16 sm:py-20 lg:py-24 bg-[#FFFFFF] border-b border-[#ebdcc9]">
       <div className="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8">
@@ -17,7 +38,7 @@ export const AboutStory: React.FC = () => {
               {/* Main Portrait of Deven Jha */}
               <div className="relative rounded-xl overflow-hidden shadow-xl border-4 border-[#BD9256]/60 bg-white">
                 <img
-                  src="/images/about-portrait.png"
+                  src={portraitImg}
                   alt="Devendra Kumar Jha (Deven Jha) - Dedicated to Social Work"
                   className="w-full h-auto object-cover"
                 />
@@ -36,7 +57,7 @@ export const AboutStory: React.FC = () => {
               {/* Signature Overlay */}
               <div className="absolute -bottom-8 -right-2 z-20 bg-white/95 backdrop-blur-xs px-4 py-2 rounded-lg border border-[#BD9256]/40 shadow-lg">
                 <img
-                  src="/images/signature.png"
+                  src={signatureImg}
                   alt="Deven Jha Signature"
                   className="h-9 sm:h-11 w-auto object-contain filter drop-shadow-xs"
                 />
@@ -67,48 +88,48 @@ export const AboutStory: React.FC = () => {
             <div className="inline-flex items-center gap-2 mb-3">
               <span className="w-5 h-[1.5px] bg-[#BD9256]" />
               <span className="text-[11px] sm:text-[12px] font-bold tracking-[0.22em] text-[#BD9256] uppercase">
-                MY STORY
+                {eyebrow}
               </span>
             </div>
 
             {/* Editorial Heading */}
             <h2 className="font-serif text-[32px] sm:text-[40px] lg:text-[44px] font-bold text-[#14283B] leading-[1.18] tracking-tight mb-8">
-              A Life Dedicated to <br />
-              <span className="font-serif italic text-[#BD9256]">Making a Difference.</span>
+              {heading}
             </h2>
 
             {/* Structured Biography Content */}
             <div className="space-y-5 text-[15px] sm:text-[16px] text-[#2c3e50] leading-relaxed">
-              
-              <p className="first-letter:text-5xl first-letter:font-serif first-letter:font-bold first-letter:text-[#BD9256] first-letter:mr-2 first-letter:float-left first-letter:leading-none">
-                Hey! Myself <strong className="font-semibold text-[#14283B]">Devendra Kumar Jha</strong>,
-                popularly known as <strong className="text-[#BD9256] font-semibold">Deven Jha</strong>,
-                born in Madhubani, Bihar, India.
-              </p>
+              {paragraphs.map((para, index) => {
+                if (index === 0) {
+                  return (
+                    <p
+                      key={index}
+                      className="first-letter:text-5xl first-letter:font-serif first-letter:font-bold first-letter:text-[#BD9256] first-letter:mr-2 first-letter:float-left first-letter:leading-none"
+                    >
+                      {para}
+                    </p>
+                  );
+                }
 
-              <p>
-                By the grace of God, I have been serving society as a social worker for many years.
-                I undertake different types of social work with the aim of understanding today&apos;s
-                society and serving it better.
-              </p>
+                // If this is the 2004 highlight paragraph
+                if (para.includes('2004')) {
+                  return (
+                    <div
+                      key={index}
+                      className="bg-[#F8F6F0] border-l-[3.5px] border-[#BD9256] p-4 sm:p-5 rounded-r-lg my-6"
+                    >
+                      <p className="text-[14.5px] sm:text-[15.5px] text-[#14283B] font-medium">
+                        {para}
+                      </p>
+                    </div>
+                  );
+                }
 
-              {/* Highlight callout box for 2004 Delhi migration */}
-              <div className="bg-[#F8F6F0] border-l-[3.5px] border-[#BD9256] p-4 sm:p-5 rounded-r-lg my-6">
-                <p className="text-[14.5px] sm:text-[15.5px] text-[#14283B] font-medium">
-                  With a deep passion for doing something meaningful for society, I came to
-                  <span className="text-[#BD9256] font-bold"> New Delhi in 2004</span> to contribute
-                  towards building a better society and achieving my dream of a prosperous India.
-                </p>
-              </div>
-
-              <p>
-                While residing in New Delhi, I started helping poor and needy people in different ways
-                to improve their quality of life. From initial grassroots efforts to community support,
-                every step reinforced my conviction in social empowerment.
-              </p>
+                return <p key={index}>{para}</p>;
+              })}
 
               {/* Parents Tribute */}
-              <div className="py-2.5 px-4 rounded-lg bg-[#FAF7F2] border border-[#ebdcc9] text-[14px] text-[#4a5568] flex items-center gap-3">
+              <div className="py-2.5 px-4 rounded-lg bg-[#FAF7F2] border border-[#ebdcc9] text-[14px] text-[#4a5568] flex items-center gap-3 my-4">
                 <HeartHandshake className="w-5 h-5 text-[#BD9256] shrink-0" />
                 <span>
                   My parents, Mother <strong className="text-[#14283B]">Mrs. Ranjana Jha</strong> and
@@ -116,18 +137,6 @@ export const AboutStory: React.FC = () => {
                   have been an important source of support and inspiration in my journey.
                 </span>
               </div>
-
-              <p>
-                To make social service a regular part of my life, I decided to establish my own NGO,
-                <strong className="text-[#14283B] font-semibold"> People&apos;s Association</strong>,
-                in <strong className="text-[#BD9256] font-semibold">2016</strong>.
-              </p>
-
-              <p>
-                Today, our NGO is working across <strong className="text-[#BD9256] font-semibold">15 states</strong> of
-                the country. As its President, I continue to work with my dedicated team to support
-                people who need assistance.
-              </p>
 
               {/* Key Support Pillars List */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 pb-2">
@@ -153,7 +162,6 @@ export const AboutStory: React.FC = () => {
                 &ldquo;My vision has always been to create opportunities for people, improve lives and
                 contribute towards building a prosperous and inclusive India.&rdquo;
               </p>
-
             </div>
 
           </div>
@@ -163,4 +171,3 @@ export const AboutStory: React.FC = () => {
     </section>
   );
 };
-

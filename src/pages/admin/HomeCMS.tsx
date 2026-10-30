@@ -7,14 +7,17 @@ import { CloudinaryUploadWidget } from '../../components/admin/CloudinaryUploadW
 import { Save, CheckCircle2, AlertCircle, RefreshCw, Sparkles, Image as ImageIcon } from 'lucide-react';
 
 export const HomeCMS: React.FC = () => {
-  const { data: initialData, loading, reload } = useHomePageContent();
+  const { data: initialData, loading } = useHomePageContent();
   const [formData, setFormData] = useState<HomePageContent>(initialData);
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  // Sync local form state when Firestore onSnapshot emits new data
   useEffect(() => {
-    setFormData(initialData);
+    if (initialData) {
+      setFormData(initialData);
+    }
   }, [initialData]);
 
   const handleHeroChange = (field: keyof HomePageContent['hero'], value: string) => {
@@ -48,6 +51,21 @@ export const HomeCMS: React.FC = () => {
     });
   };
 
+  // Ensure NO undefined values are ever passed into Firestore
+  const sanitizePayload = (obj: any): any => {
+    if (Array.isArray(obj)) {
+      return obj.map(sanitizePayload);
+    } else if (obj !== null && typeof obj === 'object') {
+      const clean: Record<string, any> = {};
+      Object.keys(obj).forEach((key) => {
+        const val = obj[key];
+        clean[key] = val !== undefined ? sanitizePayload(val) : '';
+      });
+      return clean;
+    }
+    return obj !== undefined ? obj : '';
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
@@ -56,15 +74,16 @@ export const HomeCMS: React.FC = () => {
 
     try {
       const timestamp = new Date().toISOString();
-      const updatedData = {
+      const rawPayload = {
         ...formData,
         updatedAt: timestamp,
       };
+      const sanitized = sanitizePayload(rawPayload);
 
-      await setDoc(doc(db, 'siteSettings', 'home'), updatedData, { merge: true });
+      await setDoc(doc(db, 'siteSettings', 'home'), sanitized, { merge: true });
+
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 4000);
-      reload();
     } catch (err: any) {
       console.error('Error saving home content:', err);
       setErrorMessage(err.message || 'Failed to save changes to Firestore.');
@@ -85,15 +104,15 @@ export const HomeCMS: React.FC = () => {
             Home Page Content
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
-            Customize the editorial hero, about overview and impact stats.
+            Customize the editorial hero, about overview and impact stats. Synchronized live with Firestore.
           </p>
         </div>
 
         <div className="flex items-center gap-3">
           {saveSuccess && (
-            <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-200">
+            <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-200 animate-fadeIn">
               <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-              <span>Saved &amp; Published!</span>
+              <span>Saved &amp; Published to Firestore!</span>
             </div>
           )}
 
@@ -107,13 +126,13 @@ export const HomeCMS: React.FC = () => {
             ) : (
               <Save className="w-4 h-4" />
             )}
-            <span>{saving ? 'Saving...' : 'Save & Publish Changes'}</span>
+            <span>{saving ? 'Saving to Firestore...' : 'Save & Publish Changes'}</span>
           </button>
         </div>
       </div>
 
       {errorMessage && (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-center gap-2">
+        <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-center gap-2 animate-fadeIn">
           <AlertCircle className="w-4 h-4 text-red-500 shrink-0" />
           <span>{errorMessage}</span>
         </div>
@@ -434,10 +453,9 @@ export const HomeCMS: React.FC = () => {
           ) : (
             <Save className="w-4 h-4" />
           )}
-          <span>{saving ? 'Publishing Updates...' : 'Publish Home Changes'}</span>
+          <span>{saving ? 'Saving to Firestore...' : 'Publish Home Changes'}</span>
         </button>
       </div>
     </form>
   );
 };
-

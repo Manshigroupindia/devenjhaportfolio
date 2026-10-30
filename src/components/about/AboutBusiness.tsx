@@ -7,61 +7,39 @@ import {
   LayoutGrid,
   ArrowRight,
   Briefcase,
+  Building,
+  Globe,
 } from 'lucide-react';
-
-interface BusinessItem {
-  id: string;
-  name: string;
-  category: string;
-  description: string;
-  icon: React.ReactNode;
-  url: string;
-}
-
-const businessVentures: BusinessItem[] = [
-  {
-    id: 'peoples-association',
-    name: "People's Association",
-    category: 'Social Welfare & NGO',
-    description: 'National NGO working across 15 states in education, healthcare, and food assistance.',
-    icon: <Users className="w-5 h-5 text-teal-600" />,
-    url: 'https://peoplesassociation.org',
-  },
-  {
-    id: 'janta-live',
-    name: 'Janta Live',
-    category: 'News & Media',
-    description: 'Digital news and media broadcasting network delivering ground-level public interest journalism.',
-    icon: <Tv className="w-5 h-5 text-red-600" />,
-    url: 'https://www.youtube.com/c/jantalivenews/',
-  },
-  {
-    id: 'production-house',
-    name: 'Production House',
-    category: 'Media Production',
-    description: 'Content creation, video documentaries, event audio-visuals, and digital production solutions.',
-    icon: <Film className="w-5 h-5 text-cyan-700" />,
-    url: '#',
-  },
-  {
-    id: 'celebrity-bulaye',
-    name: 'Celebrity Bulaye',
-    category: 'Celebrity Booking & Management',
-    description: 'Artist coordination, VIP appearances, celebrity management, and high-profile event engagements.',
-    icon: <Star className="w-5 h-5 text-blue-600 fill-blue-600" />,
-    url: 'https://celebritybulaye.com',
-  },
-  {
-    id: 'more-businesses',
-    name: 'More Businesses',
-    category: 'Additional Ventures',
-    description: 'Consultancy, strategic enterprise development, and cross-sector commercial collaborations.',
-    icon: <LayoutGrid className="w-5 h-5 text-indigo-600" />,
-    url: '#',
-  },
-];
+import { useBusinesses } from '../../hooks/useCMSContent.ts';
+import { defaultBusinesses } from '../../services/defaultData.ts';
+import { BusinessDoc } from '../../types/cms.ts';
 
 export const AboutBusiness: React.FC = () => {
+  const { data: remoteBusinesses } = useBusinesses(true);
+  const businesses: BusinessDoc[] = remoteBusinesses && remoteBusinesses.length ? remoteBusinesses : defaultBusinesses;
+
+  const renderIcon = (name?: string) => {
+    switch (name) {
+      case 'Users':
+        return <Users className="w-5 h-5 text-teal-600" />;
+      case 'Tv':
+        return <Tv className="w-5 h-5 text-red-600" />;
+      case 'Film':
+        return <Film className="w-5 h-5 text-cyan-700" />;
+      case 'Star':
+        return <Star className="w-5 h-5 text-blue-600 fill-blue-600" />;
+      case 'Building':
+        return <Building className="w-5 h-5 text-amber-700" />;
+      case 'Briefcase':
+        return <Briefcase className="w-5 h-5 text-purple-700" />;
+      case 'Globe':
+        return <Globe className="w-5 h-5 text-emerald-600" />;
+      case 'LayoutGrid':
+      default:
+        return <LayoutGrid className="w-5 h-5 text-indigo-600" />;
+    }
+  };
+
   return (
     <section className="py-16 sm:py-20 bg-[#F8F6F0] border-b border-[#ebdcc9]">
       <div className="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8">
@@ -85,14 +63,18 @@ export const AboutBusiness: React.FC = () => {
 
         {/* 5 Premium Cards Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-          {businessVentures.map((biz) => (
+          {businesses.map((biz) => (
             <div
               key={biz.id}
               className="group bg-white rounded-xl p-5 border border-[#e8ded0] shadow-xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between hover:border-[#BD9256]"
             >
               <div>
                 <div className="w-11 h-11 rounded-lg bg-[#F8F6F0] border border-[#e5d8c6] flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-200">
-                  {biz.icon}
+                  {biz.logoUrl ? (
+                    <img src={biz.logoUrl} alt={biz.name} className="w-6 h-6 object-contain" />
+                  ) : (
+                    renderIcon(biz.iconName)
+                  )}
                 </div>
 
                 <span className="text-[10px] font-bold uppercase tracking-wider text-[#BD9256] block mb-1">
@@ -102,14 +84,10 @@ export const AboutBusiness: React.FC = () => {
                 <h3 className="font-bold text-[14px] text-[#14283B] group-hover:text-[#BD9256] transition-colors mb-2 leading-snug">
                   {biz.name}
                 </h3>
-
-                <p className="text-xs text-[#777777] leading-relaxed mb-4">
-                  {biz.description}
-                </p>
               </div>
 
-              <div className="pt-3 border-t border-[#f0e8dc]">
-                {biz.url.startsWith('http') ? (
+              <div className="pt-3 border-t border-[#f0e8dc] mt-4">
+                {biz.url && biz.url.startsWith('http') ? (
                   <a
                     href={biz.url}
                     target="_blank"
@@ -123,7 +101,7 @@ export const AboutBusiness: React.FC = () => {
                   <button
                     onClick={() =>
                       alert(
-                        `${biz.name}: Official dedicated portal is under expansion. For commercial and media inquiries, please connect via our Contact Us page.`
+                        `${biz.name}: Dedicated portal is expanding. For commercial and media inquiries, please connect via our Contact Us page.`
                       )
                     }
                     className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#BD9256] group-hover:text-[#966b2b] transition-colors cursor-pointer"
@@ -141,4 +119,3 @@ export const AboutBusiness: React.FC = () => {
     </section>
   );
 };
-

@@ -38,13 +38,13 @@ export const AboutPage: React.FC<AboutPageProps> = ({
       />
 
       {/* 3. My Story – Personal Biography */}
-      <AboutStory />
+      <AboutStory content={aboutContent.story} />
 
       {/* 4. My Journey – Timeline */}
       <AboutTimeline timeline={aboutContent.timeline} />
 
       {/* 5. Mission & Vision */}
-      <AboutMissionVision />
+      <AboutMissionVision content={aboutContent.missionVision} />
 
       {/* 6. People's Association – Social Initiative */}
       <AboutPeoplesAssociation onOpenAppointment={onOpenAppointment} />
