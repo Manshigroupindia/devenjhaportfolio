@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Phone, Mail, MapPin, Send, CheckCircle2 } from 'lucide-react';
+import { Phone, Mail, MapPin, Send, CheckCircle2, Copy, Check } from 'lucide-react';
 
 const indianStates = [
   'Delhi (NCR)',
@@ -37,10 +37,13 @@ export const ContactSection: React.FC = () => {
     state: '',
     purpose: '',
     message: '',
+    honeypot: '',
   });
 
   const [submitted, setSubmitted] = useState(false);
+  const [referenceId, setReferenceId] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
+  const [copiedRef, setCopiedRef] = useState(false);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -51,11 +54,59 @@ export const ContactSection: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name.trim() || !formData.email.trim() || !formData.mobile.trim()) {
-      setErrorMsg('Please fill in all required fields.');
+
+    if (formData.honeypot.trim() !== '') {
+      setErrorMsg('Spam submission detected.');
       return;
     }
+
+    if (!formData.name.trim() || formData.name.trim().length < 2) {
+      setErrorMsg('Please enter your full name (at least 2 characters).');
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!formData.email.trim() || !emailRegex.test(formData.email.trim())) {
+      setErrorMsg('Please enter a valid email address.');
+      return;
+    }
+
+    const digitsOnly = formData.mobile.replace(/\D/g, '');
+    if (!formData.mobile.trim() || digitsOnly.length < 10) {
+      setErrorMsg('Please enter a valid mobile number (at least 10 digits).');
+      return;
+    }
+
+    const refId = `DJ-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`;
+    setReferenceId(refId);
+
+    try {
+      const stored = localStorage.getItem('deven_jha_enquiries');
+      const list = stored ? JSON.parse(stored) : [];
+      list.unshift({
+        referenceId: refId,
+        fullName: formData.name.trim(),
+        email: formData.email.trim(),
+        mobile: formData.mobile.trim(),
+        state: formData.state || 'Not Specified',
+        purpose: formData.purpose || 'General Inquiry',
+        message: formData.message.trim(),
+        submittedAt: new Date().toISOString(),
+      });
+      localStorage.setItem('deven_jha_enquiries', JSON.stringify(list));
+    } catch (err) {
+      console.warn('Could not persist enquiry to localStorage:', err);
+    }
+
     setSubmitted(true);
+  };
+
+  const handleCopyRef = () => {
+    if (referenceId) {
+      navigator.clipboard.writeText(referenceId);
+      setCopiedRef(true);
+      setTimeout(() => setCopiedRef(false), 2000);
+    }
   };
 
   return (
@@ -82,28 +133,57 @@ export const ContactSection: React.FC = () => {
                 <h3 className="font-serif text-xl font-bold text-[#111c2a] mb-2">
                   Thank You for Reaching Out!
                 </h3>
-                <p className="text-sm text-[#4a5568] max-w-md mb-6">
+                <p className="text-sm text-[#4a5568] max-w-md mb-4">
                   Your message has been successfully received. Deven Jha&apos;s team will review your inquiry and get in touch with you shortly.
                 </p>
-                <button
-                  onClick={() => {
-                    setSubmitted(false);
-                    setFormData({
-                      name: '',
-                      email: '',
-                      mobile: '',
-                      state: '',
-                      purpose: '',
-                      message: '',
-                    });
-                  }}
-                  className="px-5 py-2 bg-[#a87932] hover:bg-[#946927] text-white text-xs font-semibold rounded-md transition"
-                >
-                  Send Another Message
-                </button>
+
+                {referenceId && (
+                  <div className="inline-flex items-center gap-2.5 bg-[#FAF8F5] px-3.5 py-1.5 rounded-md border border-[#ebdcc9] mb-6 text-xs">
+                    <span className="text-gray-500 font-medium">Reference:</span>
+                    <span className="font-mono font-bold text-[#14283B]">{referenceId}</span>
+                    <button
+                      onClick={handleCopyRef}
+                      className="p-1 hover:bg-gray-200 rounded text-gray-500 hover:text-[#14283B] transition"
+                      title="Copy reference code"
+                    >
+                      {copiedRef ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                    </button>
+                  </div>
+                )}
+
+                <div>
+                  <button
+                    onClick={() => {
+                      setSubmitted(false);
+                      setFormData({
+                        name: '',
+                        email: '',
+                        mobile: '',
+                        state: '',
+                        purpose: '',
+                        message: '',
+                        honeypot: '',
+                      });
+                    }}
+                    className="px-5 py-2 bg-[#a87932] hover:bg-[#946927] text-white text-xs font-semibold rounded-md transition"
+                  >
+                    Send Another Message
+                  </button>
+                </div>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">
+                {/* Honeypot field for spam prevention */}
+                <div className="hidden" aria-hidden="true">
+                  <input
+                    type="text"
+                    name="honeypot"
+                    tabIndex={-1}
+                    value={formData.honeypot}
+                    onChange={handleChange}
+                  />
+                </div>
+
                 {errorMsg && (
                   <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-md">
                     {errorMsg}

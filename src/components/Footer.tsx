@@ -342,13 +342,19 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
           <p>© 2025 Deven Jha. All Rights Reserved.</p>
 
           <div className="flex items-center gap-4 text-gray-400 text-xs">
-            <a href="#" className="hover:text-[#b8863b] transition-colors">
+            <button
+              onClick={() => alert("Privacy Policy: Deven Jha's official website respects your privacy. Any personal details submitted through our forms are kept confidential and used solely for communication.")}
+              className="hover:text-[#b8863b] transition-colors cursor-pointer"
+            >
               Privacy Policy
-            </a>
+            </button>
             <span className="text-gray-600">|</span>
-            <a href="#" className="hover:text-[#b8863b] transition-colors">
+            <button
+              onClick={() => alert("Terms & Conditions: All media, photographs, and archival records on this site are the property of Devendra Kumar Jha and respective publication owners.")}
+              className="hover:text-[#b8863b] transition-colors cursor-pointer"
+            >
               Terms &amp; Conditions
-            </a>
+            </button>
           </div>
 
           {/* Back to top button */}

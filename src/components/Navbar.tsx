@@ -283,16 +283,13 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Contact Us */}
             <button
               onClick={() => handleLinkClick('contact')}
-              className={`px-3 py-1.5 transition-colors cursor-pointer relative ${
+              className={`px-3 py-1.5 transition-colors cursor-pointer ${
                 currentPage === 'contact'
-                  ? 'text-[#a87932] font-semibold'
+                  ? 'text-[#a87932] font-semibold border-b-2 border-[#a87932]'
                   : 'hover:text-[#a87932]'
               }`}
             >
               Contact Us
-              {currentPage === 'contact' && (
-                <span className="absolute bottom-0 left-3 right-3 h-0.5 bg-[#a87932] rounded-full" />
-              )}
             </button>
           </nav>
 

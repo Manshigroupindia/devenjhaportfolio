@@ -96,15 +96,29 @@ export const MyBusiness: React.FC = () => {
                     </p>
                   </div>
 
-                  <a
-                    href={biz.url}
-                    target={biz.url.startsWith('http') ? '_blank' : '_self'}
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-1 text-[10.5px] font-semibold text-[#a87932] group-hover:text-[#8b6122] transition-colors mt-auto"
-                  >
-                    <span>Visit Website</span>
-                    <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
-                  </a>
+                  {biz.url.startsWith('http') ? (
+                    <a
+                      href={biz.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1 text-[10.5px] font-semibold text-[#a87932] group-hover:text-[#8b6122] transition-colors mt-auto"
+                    >
+                      <span>Visit Website</span>
+                      <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+                    </a>
+                  ) : (
+                    <button
+                      onClick={() =>
+                        alert(
+                          `${biz.name}: Official dedicated portal is under expansion. For commercial and media inquiries, please connect via our Contact Us page.`
+                        )
+                      }
+                      className="inline-flex items-center gap-1 text-[10.5px] font-semibold text-[#a87932] group-hover:text-[#8b6122] transition-colors mt-auto cursor-pointer"
+                    >
+                      <span>Inquire Details</span>
+                      <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+                    </button>
+                  )}
                 </div>
               ))}
             </div>

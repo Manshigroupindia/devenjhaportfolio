@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Calendar, Clock, CheckCircle2, Send, User, Mail, Phone, MapPin } from 'lucide-react';
+import { X, Calendar, Clock, CheckCircle2, Send, User, Mail, Phone, MapPin, Copy, Check } from 'lucide-react';
 
 interface AppointmentModalProps {
   isOpen: boolean;
@@ -18,12 +18,63 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({ isOpen, onCl
   });
 
   const [isSuccess, setIsSuccess] = useState(false);
+  const [referenceId, setReferenceId] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
+  const [copiedRef, setCopiedRef] = useState(false);
 
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!formData.name.trim() || formData.name.trim().length < 2) {
+      setErrorMsg('Please enter your full name.');
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!formData.email.trim() || !emailRegex.test(formData.email.trim())) {
+      setErrorMsg('Please enter a valid email address.');
+      return;
+    }
+
+    const digitsOnly = formData.phone.replace(/\D/g, '');
+    if (!formData.phone.trim() || digitsOnly.length < 10) {
+      setErrorMsg('Please enter a valid phone number (at least 10 digits).');
+      return;
+    }
+
+    const refId = `DJ-APT-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`;
+    setReferenceId(refId);
+
+    try {
+      const stored = localStorage.getItem('deven_jha_appointments');
+      const list = stored ? JSON.parse(stored) : [];
+      list.unshift({
+        referenceId: refId,
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        phone: formData.phone.trim(),
+        date: formData.date,
+        timeSlot: formData.timeSlot,
+        type: formData.type,
+        notes: formData.notes.trim(),
+        requestedAt: new Date().toISOString(),
+      });
+      localStorage.setItem('deven_jha_appointments', JSON.stringify(list));
+    } catch (err) {
+      console.warn('Could not save appointment to localStorage:', err);
+    }
+
     setIsSuccess(true);
+  };
+
+  const handleCopyRef = () => {
+    if (referenceId) {
+      navigator.clipboard.writeText(referenceId);
+      setCopiedRef(true);
+      setTimeout(() => setCopiedRef(false), 2000);
+    }
   };
 
   return (
@@ -56,21 +107,45 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({ isOpen, onCl
               <h4 className="font-serif text-xl font-bold text-[#111c2a] mb-2">
                 Appointment Requested!
               </h4>
-              <p className="text-sm text-[#4a5568] max-w-sm mb-6">
+              <p className="text-sm text-[#4a5568] max-w-sm mb-4">
                 Thank you, {formData.name}. Your appointment request for {formData.date || 'the selected date'} has been recorded. Our office will confirm the appointment slot shortly.
               </p>
-              <button
-                onClick={() => {
-                  setIsSuccess(false);
-                  onClose();
-                }}
-                className="px-6 py-2.5 bg-[#a87932] hover:bg-[#946927] text-white text-xs font-semibold rounded-md transition shadow-sm"
-              >
-                Close
-              </button>
+
+              {referenceId && (
+                <div className="inline-flex items-center gap-2.5 bg-[#FAF8F5] px-3.5 py-1.5 rounded-md border border-[#ebdcc9] mb-6 text-xs">
+                  <span className="text-gray-500 font-medium">Ref Code:</span>
+                  <span className="font-mono font-bold text-[#14283B]">{referenceId}</span>
+                  <button
+                    onClick={handleCopyRef}
+                    className="p-1 hover:bg-gray-200 rounded text-gray-500 hover:text-[#14283B] transition"
+                    title="Copy appointment reference code"
+                  >
+                    {copiedRef ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                  </button>
+                </div>
+              )}
+
+              <div>
+                <button
+                  onClick={() => {
+                    setIsSuccess(false);
+                    setErrorMsg('');
+                    onClose();
+                  }}
+                  className="px-6 py-2.5 bg-[#a87932] hover:bg-[#946927] text-white text-xs font-semibold rounded-md transition shadow-sm"
+                >
+                  Close
+                </button>
+              </div>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-3.5">
+              {errorMsg && (
+                <div className="p-2.5 bg-red-50 border border-red-200 text-red-700 text-xs rounded-md">
+                  {errorMsg}
+                </div>
+              )}
+
               <p className="text-xs text-[#64748b]">
                 Connect directly with Devendra Kumar Jha (Deven Jha) for community ventures, public engagements, and collaborations.
               </p>

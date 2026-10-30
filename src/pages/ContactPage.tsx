@@ -49,3 +49,4 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onOpenAppointment }) =
 };
 
 export default ContactPage;
+
