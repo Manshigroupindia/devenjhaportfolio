@@ -65,10 +65,10 @@ export const MediaCoverage: React.FC<MediaCoverageProps> = ({ onSelectMedia, onV
     printItems.slice(0, 3).forEach((p) => {
       items.push({
         id: p.id,
-        image: p.image,
-        title: p.publication || p.title,
+        image: p.image || p.imageUrl || '',
+        title: p.publication || p.title || 'Press Clipping',
         category: p.category || 'Newspaper Publication',
-        date: p.date,
+        date: p.date || '',
         isVideo: false,
       });
     });
@@ -153,13 +153,17 @@ export const MediaCoverage: React.FC<MediaCoverageProps> = ({ onSelectMedia, onV
                   <h3 className="font-semibold text-[13px] sm:text-[13.5px] text-[#111c2a] group-hover:text-[#a87932] transition-colors line-clamp-1 mb-0.5">
                     {item.title}
                   </h3>
-                  <p className="text-[11px] text-[#64748b]">
-                    {item.category}
-                  </p>
+                  {item.category && (
+                    <p className="text-[11px] text-[#64748b]">
+                      {item.category}
+                    </p>
+                  )}
                 </div>
-                <div className="mt-2 text-[10.5px] font-medium text-[#94a3b8]">
-                  {item.date}
-                </div>
+                {item.date && (
+                  <div className="mt-2 text-[10.5px] font-medium text-[#94a3b8]">
+                    {item.date}
+                  </div>
+                )}
               </div>
             </div>
           ))}

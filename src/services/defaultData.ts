@@ -481,3 +481,4 @@ export const defaultContactSettings: ContactSettingsDoc = {
   mapsPreviewImage: '/images/map-preview.png',
   officeHours: 'Monday – Saturday: 10:00 AM – 6:00 PM IST',
 };
+

@@ -100,3 +100,4 @@ export async function verifyAdminStatus(user: User | null): Promise<boolean> {
     return true;
   }
 }
+

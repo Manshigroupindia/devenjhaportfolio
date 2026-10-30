@@ -8,17 +8,18 @@ import {
   Calendar,
   Newspaper,
   ExternalLink,
-  Download,
 } from 'lucide-react';
 
 export interface PrintMediaItem {
   id: string;
   image: string;
-  title: string;
-  publication: string;
-  date: string;
-  category: 'National Daily' | 'Magazine' | 'Regional' | 'Press Feature';
-  description: string;
+  imageUrl?: string;
+  publicId?: string;
+  title?: string;
+  publication?: string;
+  date?: string;
+  category?: string;
+  description?: string;
   clippingSnippet?: string;
 }
 
@@ -35,18 +36,24 @@ export const ImageLightbox: React.FC<ImageLightboxProps> = ({
   onClose,
   onNavigate,
 }) => {
-  const [zoomLevel, setZoomLevel] = useState(1);
+  const [zoomLevel, setZoomLevel] = useState<number>(1);
 
+  // Reset zoom on item switch
   useEffect(() => {
     setZoomLevel(1);
   }, [currentIndex]);
 
+  // Keyboard navigation & escape listener
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (currentIndex === null) return;
       if (e.key === 'Escape') onClose();
-      if (e.key === 'ArrowRight' && currentIndex < items.length - 1) onNavigate(currentIndex + 1);
-      if (e.key === 'ArrowLeft' && currentIndex > 0) onNavigate(currentIndex - 1);
+      if (e.key === 'ArrowRight' && currentIndex < items.length - 1) {
+        onNavigate(currentIndex + 1);
+      }
+      if (e.key === 'ArrowLeft' && currentIndex > 0) {
+        onNavigate(currentIndex - 1);
+      }
     };
 
     window.addEventListener('keydown', handleKeyDown);
@@ -56,9 +63,16 @@ export const ImageLightbox: React.FC<ImageLightboxProps> = ({
   if (currentIndex === null || !items[currentIndex]) return null;
 
   const currentItem = items[currentIndex];
+  const hasMetadata = Boolean(
+    currentItem.title?.trim() ||
+    currentItem.publication?.trim() ||
+    currentItem.date?.trim() ||
+    currentItem.description?.trim() ||
+    currentItem.clippingSnippet?.trim()
+  );
 
   const handleZoomToggle = () => {
-    setZoomLevel((prev) => (prev === 1 ? 1.6 : prev === 1.6 ? 2.2 : 1));
+    setZoomLevel((prev) => (prev === 1 ? 1.5 : 1));
   };
 
   return (
@@ -67,10 +81,12 @@ export const ImageLightbox: React.FC<ImageLightboxProps> = ({
       {/* Top Bar */}
       <div className="h-16 px-4 sm:px-6 flex items-center justify-between border-b border-[#1f3247] bg-[#0d1826]/80 z-20">
         <div className="flex items-center gap-3">
-          <span className="text-xs font-bold uppercase tracking-wider text-[#BD9256] bg-[#1a2d42] px-2.5 py-1 rounded">
-            {currentItem.category}
-          </span>
-          <span className="text-xs text-gray-400 hidden sm:inline">
+          {currentItem.category?.trim() && (
+            <span className="text-xs font-bold uppercase tracking-wider text-[#BD9256] bg-[#1a2d42] px-2.5 py-1 rounded">
+              {currentItem.category}
+            </span>
+          )}
+          <span className="text-xs text-gray-400">
             {currentIndex + 1} of {items.length}
           </span>
         </div>
@@ -88,7 +104,7 @@ export const ImageLightbox: React.FC<ImageLightboxProps> = ({
 
           {/* Direct Image Link */}
           <a
-            href={currentItem.image}
+            href={currentItem.image || currentItem.imageUrl}
             target="_blank"
             rel="noreferrer"
             className="p-2 rounded-lg bg-[#162536] hover:bg-[#BD9256] hover:text-white transition-colors"
@@ -140,38 +156,54 @@ export const ImageLightbox: React.FC<ImageLightboxProps> = ({
         >
           <div className="p-2 bg-white rounded-lg shadow-2xl border-2 border-[#BD9256]/60">
             <img
-              src={currentItem.image}
-              alt={currentItem.title}
+              src={currentItem.image || currentItem.imageUrl}
+              alt={currentItem.title || 'Press Clipping'}
               className="max-h-[66vh] max-w-full object-contain rounded"
             />
           </div>
         </div>
       </div>
 
-      {/* Bottom Info Bar */}
-      <div className="px-6 py-4 bg-[#0d1826]/90 border-t border-[#1f3247] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 z-20">
-        <div>
-          <h3 className="font-serif text-base sm:text-lg font-bold text-white">
-            {currentItem.title}
-          </h3>
-          <div className="flex items-center gap-4 text-xs text-gray-400 mt-1">
-            <span className="flex items-center gap-1.5 font-medium text-gray-300">
-              <Newspaper className="w-3.5 h-3.5 text-[#BD9256]" />
-              {currentItem.publication}
-            </span>
-            <span className="flex items-center gap-1.5">
-              <Calendar className="w-3.5 h-3.5 text-[#BD9256]" />
-              {currentItem.date}
-            </span>
+      {/* Bottom Info Bar (Only shown if title/publication/date/description exist) */}
+      {hasMetadata && (
+        <div className="px-6 py-4 bg-[#0d1826]/90 border-t border-[#1f3247] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 z-20">
+          <div>
+            {currentItem.title?.trim() && (
+              <h3 className="font-serif text-base sm:text-lg font-bold text-white">
+                {currentItem.title}
+              </h3>
+            )}
+            {(currentItem.publication?.trim() || currentItem.date?.trim()) && (
+              <div className="flex items-center gap-4 text-xs text-gray-400 mt-1">
+                {currentItem.publication?.trim() && (
+                  <span className="flex items-center gap-1.5 font-medium text-gray-300">
+                    <Newspaper className="w-3.5 h-3.5 text-[#BD9256]" />
+                    {currentItem.publication}
+                  </span>
+                )}
+                {currentItem.date?.trim() && (
+                  <span className="flex items-center gap-1.5">
+                    <Calendar className="w-3.5 h-3.5 text-[#BD9256]" />
+                    {currentItem.date}
+                  </span>
+                )}
+              </div>
+            )}
+            {currentItem.clippingSnippet?.trim() && (
+              <p className="text-[11px] text-[#BD9256] italic mt-1 font-serif">
+                &ldquo;{currentItem.clippingSnippet}&rdquo;
+              </p>
+            )}
           </div>
-        </div>
 
-        <p className="text-xs text-gray-300 sm:max-w-md hidden md:block">
-          {currentItem.description}
-        </p>
-      </div>
+          {currentItem.description?.trim() && (
+            <p className="text-xs text-gray-300 sm:max-w-md hidden md:block">
+              {currentItem.description}
+            </p>
+          )}
+        </div>
+      )}
 
     </div>
   );
 };
-

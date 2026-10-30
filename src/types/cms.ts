@@ -82,13 +82,15 @@ export interface AboutPageContent {
 
 export interface PrintMediaDoc {
   id: string;
-  title: string;
-  publication: string;
-  date: string;
-  category: 'National Daily' | 'Magazine' | 'Regional' | 'Press Feature';
   image: string;
-  description: string;
-  clippingSnippet: string;
+  imageUrl?: string;
+  publicId?: string;
+  title?: string;
+  publication?: string;
+  date?: string;
+  category?: 'National Daily' | 'Magazine' | 'Regional' | 'Press Feature' | string;
+  description?: string;
+  clippingSnippet?: string;
   order: number;
   isActive: boolean;
   createdAt?: string;
