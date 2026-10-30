@@ -3,20 +3,11 @@ import { GalleryPageLayout } from '../../components/gallery/GalleryPageLayout.ts
 import { GalleryCategoryKey } from '../../types/gallery.ts';
 
 interface VideosPageProps {
-  onSelectCategory: (key: GalleryCategoryKey) => void;
-  onNavigateHome: () => void;
+  onSelectCategory?: (key: GalleryCategoryKey) => void;
+  onNavigateHome?: () => void;
 }
 
-export const VideosPage: React.FC<VideosPageProps> = ({
-  onSelectCategory,
-  onNavigateHome,
-}) => {
-  return (
-    <GalleryPageLayout
-      category="videos"
-      onSelectCategory={onSelectCategory}
-      onNavigateHome={onNavigateHome}
-    />
-  );
+export const VideosPage: React.FC<VideosPageProps> = () => {
+  return <GalleryPageLayout category="videos" />;
 };
 

@@ -8,7 +8,7 @@ import {
 export const GALLERY_CATEGORIES: Record<GalleryCategoryKey, GalleryCategoryMeta> = {
   awards: {
     key: 'awards',
-    route: 'gallery-awards',
+    route: '/gallery/awards',
     navLabel: 'Awards',
     eyebrow: 'HONOURS & RECOGNITION',
     heading: 'Awards & Recognitions',
@@ -18,7 +18,7 @@ export const GALLERY_CATEGORIES: Record<GalleryCategoryKey, GalleryCategoryMeta>
   },
   celebrities: {
     key: 'celebrities',
-    route: 'gallery-celebrities',
+    route: '/gallery/celebrity',
     navLabel: 'Pictures With Celebrities',
     eyebrow: 'VIP & PUBLIC FIGURES',
     heading: 'Moments With Distinguished Personalities',
@@ -28,7 +28,7 @@ export const GALLERY_CATEGORIES: Record<GalleryCategoryKey, GalleryCategoryMeta>
   },
   social: {
     key: 'social',
-    route: 'gallery-social',
+    route: '/gallery/social-events',
     navLabel: 'Social Events',
     eyebrow: 'COMMUNITY & SERVICE',
     heading: 'Social Events & Initiatives',
@@ -38,7 +38,7 @@ export const GALLERY_CATEGORIES: Record<GalleryCategoryKey, GalleryCategoryMeta>
   },
   invitations: {
     key: 'invitations',
-    route: 'gallery-invitations',
+    route: '/gallery/invitations',
     navLabel: 'Program Invitations',
     eyebrow: 'EVENTS & CONVENTIONS',
     heading: 'Events & Invitations',
@@ -48,7 +48,7 @@ export const GALLERY_CATEGORIES: Record<GalleryCategoryKey, GalleryCategoryMeta>
   },
   videos: {
     key: 'videos',
-    route: 'gallery-videos',
+    route: '/gallery/videos',
     navLabel: 'Videos',
     eyebrow: 'BROADCASTS & FOOTAGE',
     heading: 'Videos & Memories',
@@ -58,7 +58,7 @@ export const GALLERY_CATEGORIES: Record<GalleryCategoryKey, GalleryCategoryMeta>
   },
   personal: {
     key: 'personal',
-    route: 'gallery-personal',
+    route: '/gallery/personal',
     navLabel: 'Personal Pictures',
     eyebrow: 'MEMORIES & REFLECTIONS',
     heading: 'Personal Moments',

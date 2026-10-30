@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AboutHero } from '../components/about/AboutHero.tsx';
 import { AboutStory } from '../components/about/AboutStory.tsx';
 import { AboutTimeline } from '../components/about/AboutTimeline.tsx';
@@ -10,13 +11,16 @@ import { AboutFinalCTA } from '../components/about/AboutFinalCTA.tsx';
 
 interface AboutPageProps {
   onOpenAppointment: () => void;
-  onOpenContact: () => void;
+  onOpenContact?: () => void;
 }
 
 export const AboutPage: React.FC<AboutPageProps> = ({
   onOpenAppointment,
   onOpenContact,
 }) => {
+  const navigate = useNavigate();
+  const handleOpenContact = onOpenContact || (() => navigate('/contact'));
+
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     document.title = 'About Us | Devendra Kumar Jha (Deven Jha)';
@@ -48,7 +52,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({
       {/* 9. Final CTA Photographic Banner */}
       <AboutFinalCTA
         onOpenAppointment={onOpenAppointment}
-        onOpenContact={onOpenContact}
+        onOpenContact={handleOpenContact}
       />
     </div>
   );

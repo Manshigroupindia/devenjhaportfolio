@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import {
   Calendar,
   MapPin,
@@ -25,14 +26,12 @@ import { VideoPlayerModal, DigitalMediaItem } from '../media/VideoPlayerModal.ts
 
 interface GalleryPageLayoutProps {
   category: GalleryCategoryKey;
-  onSelectCategory: (key: GalleryCategoryKey) => void;
-  onNavigateHome: () => void;
+  onSelectCategory?: (key: GalleryCategoryKey) => void;
+  onNavigateHome?: () => void;
 }
 
 export const GalleryPageLayout: React.FC<GalleryPageLayoutProps> = ({
   category,
-  onSelectCategory,
-  onNavigateHome,
 }) => {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [activeVideo, setActiveVideo] = useState<DigitalMediaItem | null>(null);
@@ -55,11 +54,7 @@ export const GalleryPageLayout: React.FC<GalleryPageLayoutProps> = ({
     <div className="bg-[#FFFFFF] animate-fadeIn min-h-screen flex flex-col justify-between">
       <div>
         {/* Category Hero Banner with Switcher */}
-        <GalleryHero
-          currentCategory={category}
-          onSelectCategory={onSelectCategory}
-          onNavigateHome={onNavigateHome}
-        />
+        <GalleryHero currentCategory={category} />
 
         {/* Gallery Content Area */}
         <section className="py-12 sm:py-16">
@@ -77,12 +72,12 @@ export const GalleryPageLayout: React.FC<GalleryPageLayoutProps> = ({
                     <p className="text-xs sm:text-sm text-[#777777] mb-6">
                       Archival recordings and public footage are currently being cataloged.
                     </p>
-                    <button
-                      onClick={() => onSelectCategory('awards')}
-                      className="px-5 py-2.5 bg-[#BD9256] text-white text-xs font-semibold rounded-lg shadow-sm"
+                    <Link
+                      to="/gallery/awards"
+                      className="inline-block px-5 py-2.5 bg-[#BD9256] text-white text-xs font-semibold rounded-lg shadow-sm"
                     >
                       Explore Awards &amp; Recognitions
-                    </button>
+                    </Link>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
@@ -184,12 +179,12 @@ export const GalleryPageLayout: React.FC<GalleryPageLayoutProps> = ({
                     <p className="text-xs sm:text-sm text-[#777777] mb-6">
                       Official archival photographs for this section are being verified and uploaded.
                     </p>
-                    <button
-                      onClick={() => onSelectCategory('personal')}
-                      className="px-5 py-2.5 bg-[#BD9256] text-white text-xs font-semibold rounded-lg shadow-sm"
+                    <Link
+                      to="/gallery/personal"
+                      className="inline-block px-5 py-2.5 bg-[#BD9256] text-white text-xs font-semibold rounded-lg shadow-sm"
                     >
                       View Personal Moments
-                    </button>
+                    </Link>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">

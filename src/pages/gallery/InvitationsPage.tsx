@@ -3,20 +3,11 @@ import { GalleryPageLayout } from '../../components/gallery/GalleryPageLayout.ts
 import { GalleryCategoryKey } from '../../types/gallery.ts';
 
 interface InvitationsPageProps {
-  onSelectCategory: (key: GalleryCategoryKey) => void;
-  onNavigateHome: () => void;
+  onSelectCategory?: (key: GalleryCategoryKey) => void;
+  onNavigateHome?: () => void;
 }
 
-export const InvitationsPage: React.FC<InvitationsPageProps> = ({
-  onSelectCategory,
-  onNavigateHome,
-}) => {
-  return (
-    <GalleryPageLayout
-      category="invitations"
-      onSelectCategory={onSelectCategory}
-      onNavigateHome={onNavigateHome}
-    />
-  );
+export const InvitationsPage: React.FC<InvitationsPageProps> = () => {
+  return <GalleryPageLayout category="invitations" />;
 };
 

@@ -3,20 +3,11 @@ import { GalleryPageLayout } from '../../components/gallery/GalleryPageLayout.ts
 import { GalleryCategoryKey } from '../../types/gallery.ts';
 
 interface CelebritiesPageProps {
-  onSelectCategory: (key: GalleryCategoryKey) => void;
-  onNavigateHome: () => void;
+  onSelectCategory?: (key: GalleryCategoryKey) => void;
+  onNavigateHome?: () => void;
 }
 
-export const CelebritiesPage: React.FC<CelebritiesPageProps> = ({
-  onSelectCategory,
-  onNavigateHome,
-}) => {
-  return (
-    <GalleryPageLayout
-      category="celebrities"
-      onSelectCategory={onSelectCategory}
-      onNavigateHome={onNavigateHome}
-    />
-  );
+export const CelebritiesPage: React.FC<CelebritiesPageProps> = () => {
+  return <GalleryPageLayout category="celebrities" />;
 };
 

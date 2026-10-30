@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { ChevronDown, Menu, X, Globe, PhoneCall } from 'lucide-react';
 import { ReusableSocialGrid } from './common/ReusableSocialGrid.tsx';
 
@@ -23,14 +24,14 @@ interface NavbarProps {
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
-  currentPage = 'home',
-  onNavigate,
   onOpenAppointment,
 }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const location = useLocation();
+  const currentPath = location.pathname;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -51,32 +52,22 @@ export const Navbar: React.FC<NavbarProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Close mobile menu and dropdown on route change
+  useEffect(() => {
+    setMobileMenuOpen(false);
+    setActiveDropdown(null);
+  }, [location.pathname]);
+
   const toggleDropdown = (name: string) => {
     setActiveDropdown(activeDropdown === name ? null : name);
   };
 
-  const handleLinkClick = (page: PageType, hash?: string) => {
-    setMobileMenuOpen(false);
-    setActiveDropdown(null);
-    if (onNavigate) {
-      onNavigate(page);
-    }
-    if (hash) {
-      setTimeout(() => {
-        const elem = document.querySelector(hash);
-        if (elem) {
-          elem.scrollIntoView({ behavior: 'smooth' });
-        }
-      }, 100);
-    }
-  };
-
+  const isHomeActive = currentPath === '/';
+  const isAboutActive = currentPath === '/about';
   const isMediaActive =
-    currentPage === 'media' ||
-    currentPage === 'media-print' ||
-    currentPage === 'media-digital';
-
-  const isGalleryActive = currentPage.startsWith('gallery-');
+    currentPath.startsWith('/media-coverage') || currentPath.startsWith('/media');
+  const isGalleryActive = currentPath.startsWith('/gallery');
+  const isContactActive = currentPath === '/contact';
 
   return (
     <header
@@ -90,8 +81,12 @@ export const Navbar: React.FC<NavbarProps> = ({
       <div className="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-[72px]">
           {/* Logo */}
-          <button
-            onClick={() => handleLinkClick('home')}
+          <Link
+            to="/"
+            onClick={() => {
+              setMobileMenuOpen(false);
+              setActiveDropdown(null);
+            }}
             className="flex flex-col group cursor-pointer text-left"
           >
             <span className="font-serif text-[22px] sm:text-[24px] font-bold text-[#0d1826] tracking-[0.08em] group-hover:text-[#a87932] transition-colors leading-tight">
@@ -100,33 +95,33 @@ export const Navbar: React.FC<NavbarProps> = ({
             <span className="text-[8.5px] sm:text-[9.5px] font-semibold tracking-[0.18em] text-[#64748b] uppercase mt-[1px]">
               SOCIAL WORKER | ENTREPRENEUR | LEADER
             </span>
-          </button>
+          </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center space-x-1 xl:space-x-2 text-[13.5px] font-medium text-[#2d3748]">
             {/* Home */}
-            <button
-              onClick={() => handleLinkClick('home')}
+            <Link
+              to="/"
               className={`px-3 py-1.5 transition-colors cursor-pointer ${
-                currentPage === 'home'
+                isHomeActive
                   ? 'text-[#a87932] font-semibold border-b-2 border-[#a87932]'
                   : 'hover:text-[#a87932]'
               }`}
             >
               Home
-            </button>
+            </Link>
 
             {/* About Us */}
-            <button
-              onClick={() => handleLinkClick('about')}
+            <Link
+              to="/about"
               className={`px-3 py-1.5 transition-colors cursor-pointer ${
-                currentPage === 'about'
+                isAboutActive
                   ? 'text-[#a87932] font-semibold border-b-2 border-[#a87932]'
                   : 'hover:text-[#a87932]'
               }`}
             >
               About Us
-            </button>
+            </Link>
 
             {/* Media Coverage Dropdown */}
             <div
@@ -134,8 +129,8 @@ export const Navbar: React.FC<NavbarProps> = ({
               onMouseEnter={() => setActiveDropdown('media')}
               onMouseLeave={() => setActiveDropdown(null)}
             >
-              <button
-                onClick={() => handleLinkClick('media')}
+              <Link
+                to="/media-coverage"
                 className={`flex items-center gap-1 px-3 py-1.5 transition-colors focus:outline-none cursor-pointer ${
                   isMediaActive
                     ? 'text-[#a87932] font-semibold border-b-2 border-[#a87932]'
@@ -144,28 +139,31 @@ export const Navbar: React.FC<NavbarProps> = ({
               >
                 <span>Media Coverage</span>
                 <ChevronDown className="w-3.5 h-3.5 opacity-70 transition-transform duration-200" />
-              </button>
+              </Link>
 
               {activeDropdown === 'media' && (
                 <div className="absolute top-full left-0 w-56 bg-white rounded-lg shadow-lg border border-[#ede5d8] py-2 z-50 animate-fadeIn">
-                  <button
-                    onClick={() => handleLinkClick('media')}
+                  <Link
+                    to="/media-coverage"
+                    onClick={() => setActiveDropdown(null)}
                     className="block w-full text-left px-4 py-2 text-xs text-[#334155] hover:bg-[#faf7f0] hover:text-[#a87932] transition-colors cursor-pointer font-medium"
                   >
                     Media Overview Hub
-                  </button>
-                  <button
-                    onClick={() => handleLinkClick('media-print')}
+                  </Link>
+                  <Link
+                    to="/media-coverage/print"
+                    onClick={() => setActiveDropdown(null)}
                     className="block w-full text-left px-4 py-2 text-xs text-[#334155] hover:bg-[#faf7f0] hover:text-[#a87932] transition-colors cursor-pointer"
                   >
                     Print Media (Newspapers)
-                  </button>
-                  <button
-                    onClick={() => handleLinkClick('media-digital')}
+                  </Link>
+                  <Link
+                    to="/media-coverage/digital"
+                    onClick={() => setActiveDropdown(null)}
                     className="block w-full text-left px-4 py-2 text-xs text-[#334155] hover:bg-[#faf7f0] hover:text-[#a87932] transition-colors cursor-pointer"
                   >
                     Digital &amp; TV Interviews
-                  </button>
+                  </Link>
                 </div>
               )}
             </div>
@@ -176,8 +174,8 @@ export const Navbar: React.FC<NavbarProps> = ({
               onMouseEnter={() => setActiveDropdown('gallery')}
               onMouseLeave={() => setActiveDropdown(null)}
             >
-              <button
-                onClick={() => handleLinkClick('gallery-awards')}
+              <Link
+                to="/gallery/awards"
                 className={`flex items-center gap-1 px-3 py-1.5 transition-colors focus:outline-none cursor-pointer ${
                   isGalleryActive
                     ? 'text-[#a87932] font-semibold border-b-2 border-[#a87932]'
@@ -186,70 +184,76 @@ export const Navbar: React.FC<NavbarProps> = ({
               >
                 <span>Gallery</span>
                 <ChevronDown className="w-3.5 h-3.5 opacity-70 transition-transform duration-200" />
-              </button>
+              </Link>
 
               {activeDropdown === 'gallery' && (
                 <div className="absolute top-full left-0 w-60 bg-white rounded-lg shadow-lg border border-[#ede5d8] py-2 z-50 animate-fadeIn">
-                  <button
-                    onClick={() => handleLinkClick('gallery-awards')}
+                  <Link
+                    to="/gallery/awards"
+                    onClick={() => setActiveDropdown(null)}
                     className={`block w-full text-left px-4 py-2 text-xs hover:bg-[#faf7f0] transition-colors cursor-pointer ${
-                      currentPage === 'gallery-awards'
+                      currentPath === '/gallery/awards'
                         ? 'text-[#a87932] font-bold bg-[#faf7f0]'
                         : 'text-[#334155] hover:text-[#a87932]'
                     }`}
                   >
                     1. Awards
-                  </button>
-                  <button
-                    onClick={() => handleLinkClick('gallery-celebrities')}
+                  </Link>
+                  <Link
+                    to="/gallery/celebrity"
+                    onClick={() => setActiveDropdown(null)}
                     className={`block w-full text-left px-4 py-2 text-xs hover:bg-[#faf7f0] transition-colors cursor-pointer ${
-                      currentPage === 'gallery-celebrities'
+                      currentPath === '/gallery/celebrity'
                         ? 'text-[#a87932] font-bold bg-[#faf7f0]'
                         : 'text-[#334155] hover:text-[#a87932]'
                     }`}
                   >
                     2. Pictures With Celebrities
-                  </button>
-                  <button
-                    onClick={() => handleLinkClick('gallery-social')}
+                  </Link>
+                  <Link
+                    to="/gallery/social-events"
+                    onClick={() => setActiveDropdown(null)}
                     className={`block w-full text-left px-4 py-2 text-xs hover:bg-[#faf7f0] transition-colors cursor-pointer ${
-                      currentPage === 'gallery-social'
+                      currentPath === '/gallery/social-events'
                         ? 'text-[#a87932] font-bold bg-[#faf7f0]'
                         : 'text-[#334155] hover:text-[#a87932]'
                     }`}
                   >
                     3. Social Events
-                  </button>
-                  <button
-                    onClick={() => handleLinkClick('gallery-invitations')}
+                  </Link>
+                  <Link
+                    to="/gallery/invitations"
+                    onClick={() => setActiveDropdown(null)}
                     className={`block w-full text-left px-4 py-2 text-xs hover:bg-[#faf7f0] transition-colors cursor-pointer ${
-                      currentPage === 'gallery-invitations'
+                      currentPath === '/gallery/invitations'
                         ? 'text-[#a87932] font-bold bg-[#faf7f0]'
                         : 'text-[#334155] hover:text-[#a87932]'
                     }`}
                   >
                     4. Program Invitations
-                  </button>
-                  <button
-                    onClick={() => handleLinkClick('gallery-videos')}
+                  </Link>
+                  <Link
+                    to="/gallery/videos"
+                    onClick={() => setActiveDropdown(null)}
                     className={`block w-full text-left px-4 py-2 text-xs hover:bg-[#faf7f0] transition-colors cursor-pointer ${
-                      currentPage === 'gallery-videos'
+                      currentPath === '/gallery/videos'
                         ? 'text-[#a87932] font-bold bg-[#faf7f0]'
                         : 'text-[#334155] hover:text-[#a87932]'
                     }`}
                   >
                     5. Videos
-                  </button>
-                  <button
-                    onClick={() => handleLinkClick('gallery-personal')}
+                  </Link>
+                  <Link
+                    to="/gallery/personal"
+                    onClick={() => setActiveDropdown(null)}
                     className={`block w-full text-left px-4 py-2 text-xs hover:bg-[#faf7f0] transition-colors cursor-pointer ${
-                      currentPage === 'gallery-personal'
+                      currentPath === '/gallery/personal'
                         ? 'text-[#a87932] font-bold bg-[#faf7f0]'
                         : 'text-[#334155] hover:text-[#a87932]'
                     }`}
                   >
                     6. Personal Pictures
-                  </button>
+                  </Link>
                 </div>
               )}
             </div>
@@ -281,16 +285,16 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
 
             {/* Contact Us */}
-            <button
-              onClick={() => handleLinkClick('contact')}
+            <Link
+              to="/contact"
               className={`px-3 py-1.5 transition-colors cursor-pointer ${
-                currentPage === 'contact'
+                isContactActive
                   ? 'text-[#a87932] font-semibold border-b-2 border-[#a87932]'
                   : 'hover:text-[#a87932]'
               }`}
             >
               Contact Us
-            </button>
+            </Link>
           </nav>
 
           {/* Right actions: Google Translate & Appointment CTA */}
@@ -304,18 +308,26 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Appointment Button */}
             <button
               onClick={onOpenAppointment}
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#b8863b] hover:bg-[#a37430] active:scale-[0.98] text-white text-[13px] font-medium tracking-wide rounded-md shadow-sm transition-all duration-200 cursor-pointer"
+              className="hidden xl:inline-flex items-center gap-2 px-5 py-2.5 bg-[#b8863b] hover:bg-[#a37430] active:scale-[0.98] text-white text-xs font-semibold rounded-md shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer"
             >
               <PhoneCall className="w-3.5 h-3.5" />
-              <span>Take an Appointment</span>
+              <span>Take an Appointment:</span>
+            </button>
+
+            <button
+              onClick={onOpenAppointment}
+              className="xl:hidden inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#b8863b] hover:bg-[#a37430] text-white text-xs font-semibold rounded-md shadow-xs transition"
+            >
+              <PhoneCall className="w-3.5 h-3.5" />
+              Appointment
             </button>
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* Mobile Right Controls: Translate & Hamburger */}
           <div className="flex sm:hidden items-center gap-2">
             <button
               onClick={onOpenAppointment}
-              className="px-2.5 py-1.5 bg-[#b8863b] text-white text-xs font-medium rounded-md shadow-sm"
+              className="px-2.5 py-1.5 bg-[#b8863b] text-white text-[11px] font-semibold rounded shadow-xs"
             >
               Appointment
             </button>
@@ -333,45 +345,50 @@ export const Navbar: React.FC<NavbarProps> = ({
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
         <div className="lg:hidden bg-white border-b border-[#ebdcc9] px-4 pt-3 pb-6 space-y-3 animate-fadeIn">
-          <button
-            onClick={() => handleLinkClick('home')}
+          <Link
+            to="/"
+            onClick={() => setMobileMenuOpen(false)}
             className={`block w-full text-left py-2 font-semibold border-b border-gray-100 ${
-              currentPage === 'home' ? 'text-[#a87932]' : 'text-[#2d3748]'
+              isHomeActive ? 'text-[#a87932]' : 'text-[#2d3748]'
             }`}
           >
             Home
-          </button>
-          <button
-            onClick={() => handleLinkClick('about')}
+          </Link>
+          <Link
+            to="/about"
+            onClick={() => setMobileMenuOpen(false)}
             className={`block w-full text-left py-2 font-semibold border-b border-gray-100 ${
-              currentPage === 'about' ? 'text-[#a87932]' : 'text-[#2d3748]'
+              isAboutActive ? 'text-[#a87932]' : 'text-[#2d3748]'
             }`}
           >
             About Us
-          </button>
+          </Link>
           
           {/* Media Coverage */}
-          <button
-            onClick={() => handleLinkClick('media')}
+          <Link
+            to="/media-coverage"
+            onClick={() => setMobileMenuOpen(false)}
             className={`block w-full text-left py-2 font-semibold border-b border-gray-100 ${
               isMediaActive ? 'text-[#a87932]' : 'text-[#2d3748]'
             }`}
           >
             Media Coverage
-          </button>
+          </Link>
           <div className="pl-4 space-y-1.5 border-b border-gray-100 pb-2">
-            <button
-              onClick={() => handleLinkClick('media-print')}
+            <Link
+              to="/media-coverage/print"
+              onClick={() => setMobileMenuOpen(false)}
               className="block w-full text-left py-1 text-xs text-[#64748b] hover:text-[#a87932]"
             >
               • Print Media (Newspapers)
-            </button>
-            <button
-              onClick={() => handleLinkClick('media-digital')}
+            </Link>
+            <Link
+              to="/media-coverage/digital"
+              onClick={() => setMobileMenuOpen(false)}
               className="block w-full text-left py-1 text-xs text-[#64748b] hover:text-[#a87932]"
             >
               • Digital &amp; TV Interviews
-            </button>
+            </Link>
           </div>
 
           {/* Gallery with 6 items */}
@@ -380,42 +397,48 @@ export const Navbar: React.FC<NavbarProps> = ({
               Gallery Archives
             </span>
             <div className="pl-4 space-y-1.5">
-              <button
-                onClick={() => handleLinkClick('gallery-awards')}
+              <Link
+                to="/gallery/awards"
+                onClick={() => setMobileMenuOpen(false)}
                 className="block w-full text-left py-1 text-xs text-[#64748b] hover:text-[#a87932]"
               >
                 1. Awards
-              </button>
-              <button
-                onClick={() => handleLinkClick('gallery-celebrities')}
+              </Link>
+              <Link
+                to="/gallery/celebrity"
+                onClick={() => setMobileMenuOpen(false)}
                 className="block w-full text-left py-1 text-xs text-[#64748b] hover:text-[#a87932]"
               >
                 2. Pictures With Celebrities
-              </button>
-              <button
-                onClick={() => handleLinkClick('gallery-social')}
+              </Link>
+              <Link
+                to="/gallery/social-events"
+                onClick={() => setMobileMenuOpen(false)}
                 className="block w-full text-left py-1 text-xs text-[#64748b] hover:text-[#a87932]"
               >
                 3. Social Events
-              </button>
-              <button
-                onClick={() => handleLinkClick('gallery-invitations')}
+              </Link>
+              <Link
+                to="/gallery/invitations"
+                onClick={() => setMobileMenuOpen(false)}
                 className="block w-full text-left py-1 text-xs text-[#64748b] hover:text-[#a87932]"
               >
                 4. Program Invitations
-              </button>
-              <button
-                onClick={() => handleLinkClick('gallery-videos')}
+              </Link>
+              <Link
+                to="/gallery/videos"
+                onClick={() => setMobileMenuOpen(false)}
                 className="block w-full text-left py-1 text-xs text-[#64748b] hover:text-[#a87932]"
               >
                 5. Videos
-              </button>
-              <button
-                onClick={() => handleLinkClick('gallery-personal')}
+              </Link>
+              <Link
+                to="/gallery/personal"
+                onClick={() => setMobileMenuOpen(false)}
                 className="block w-full text-left py-1 text-xs text-[#64748b] hover:text-[#a87932]"
               >
                 6. Personal Pictures
-              </button>
+              </Link>
             </div>
           </div>
 
@@ -427,16 +450,15 @@ export const Navbar: React.FC<NavbarProps> = ({
             />
           </div>
 
-          <button
-            onClick={() => handleLinkClick('contact')}
+          <Link
+            to="/contact"
+            onClick={() => setMobileMenuOpen(false)}
             className={`block w-full text-left py-2 font-medium border-b border-gray-100 ${
-              currentPage === 'contact'
-                ? 'text-[#a87932] font-bold'
-                : 'text-[#2d3748] hover:text-[#a87932]'
+              isContactActive ? 'text-[#a87932] font-bold' : 'text-[#2d3748] hover:text-[#a87932]'
             }`}
           >
             Contact Us
-          </button>
+          </Link>
 
           <div className="pt-2">
             <button

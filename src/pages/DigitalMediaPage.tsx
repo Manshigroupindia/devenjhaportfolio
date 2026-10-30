@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import {
   Search,
   Tv,
@@ -96,7 +97,7 @@ const digitalMediaData: DigitalMediaItem[] = [
 const categories = ['All', 'Television Interview', 'Digital Broadcast', 'News Coverage', 'Documentary'];
 
 interface DigitalMediaPageProps {
-  onNavigateBack: () => void;
+  onNavigateBack?: () => void;
 }
 
 export const DigitalMediaPage: React.FC<DigitalMediaPageProps> = ({ onNavigateBack }) => {
@@ -129,13 +130,14 @@ export const DigitalMediaPage: React.FC<DigitalMediaPageProps> = ({ onNavigateBa
         <div className="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           
           {/* Back button */}
-          <button
+          <Link
+            to="/media-coverage"
             onClick={onNavigateBack}
             className="inline-flex items-center gap-2 text-xs font-semibold text-[#BD9256] hover:text-white transition-colors mb-6 cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Back to Media Overview</span>
-          </button>
+          </Link>
 
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#BD9256]/20 border border-[#BD9256]/40 rounded-full mb-3">

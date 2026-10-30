@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Navbar, PageType } from './components/Navbar.tsx';
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+  useNavigate,
+} from 'react-router-dom';
+import { Navbar } from './components/Navbar.tsx';
 import { Footer } from './components/Footer.tsx';
 import { BackToTop } from './components/BackToTop.tsx';
 import { AppointmentModal } from './components/AppointmentModal.tsx';
@@ -18,210 +26,129 @@ import { VideosPage } from './pages/gallery/VideosPage.tsx';
 import { PersonalPicturesPage } from './pages/gallery/PersonalPicturesPage.tsx';
 import { ContactPage } from './pages/ContactPage.tsx';
 import { MediaItem } from './components/MediaCoverage.tsx';
-import { GalleryCategoryKey } from './types/gallery.ts';
 
-export function App() {
-  const [currentPage, setCurrentPage] = useState<PageType>(() => {
-    const hash = window.location.hash.toLowerCase();
-    const path = window.location.pathname.toLowerCase();
+// Scroll to top on route change or scroll to hash target
+function ScrollToTop() {
+  const { pathname, hash } = useLocation();
 
-    if (hash === '#/about' || hash === '#about' || path.endsWith('/about')) return 'about';
-    if (hash === '#/media' || hash === '#media' || path.endsWith('/media')) return 'media';
-    if (hash === '#/media/print' || hash === '#media-print') return 'media-print';
-    if (hash === '#/media/digital' || hash === '#media-digital') return 'media-digital';
+  useEffect(() => {
+    if (hash) {
+      setTimeout(() => {
+        const id = hash.replace(/^#/, '');
+        const elem = document.getElementById(id);
+        if (elem) {
+          elem.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 120);
+    } else {
+      window.scrollTo(0, 0);
+    }
+  }, [pathname, hash]);
 
-    if (hash === '#/gallery/awards' || hash === '#gallery-awards') return 'gallery-awards';
-    if (hash === '#/gallery/celebrities' || hash === '#gallery-celebrities') return 'gallery-celebrities';
-    if (hash === '#/gallery/social' || hash === '#gallery-social') return 'gallery-social';
-    if (hash === '#/gallery/invitations' || hash === '#gallery-invitations') return 'gallery-invitations';
-    if (hash === '#/gallery/videos' || hash === '#gallery-videos') return 'gallery-videos';
-    if (hash === '#/gallery/personal' || hash === '#gallery-personal') return 'gallery-personal';
-    if (hash === '#/contact' || hash === '#contact' || path.endsWith('/contact')) return 'contact';
+  return null;
+}
 
-    return 'home';
-  });
+// Redirect any legacy /#/ URLs to clean BrowserRouter paths
+function LegacyHashRedirect() {
+  const navigate = useNavigate();
 
+  useEffect(() => {
+    const rawHash = window.location.hash;
+    if (rawHash && rawHash.startsWith('#/')) {
+      const cleanPath = rawHash.replace(/^#\/?/, '/');
+      let target = cleanPath;
+      if (cleanPath === '/media') target = '/media-coverage';
+      else if (cleanPath === '/media/print') target = '/media-coverage/print';
+      else if (cleanPath === '/media/digital') target = '/media-coverage/digital';
+      else if (cleanPath === '/gallery/celebrities') target = '/gallery/celebrity';
+      else if (cleanPath === '/gallery/social') target = '/gallery/social-events';
+      navigate(target, { replace: true });
+    }
+  }, [navigate]);
+
+  return null;
+}
+
+function AppContent() {
   const [isAppointmentOpen, setIsAppointmentOpen] = useState(false);
   const [selectedMedia, setSelectedMedia] = useState<MediaItem | null>(null);
   const [isAllMediaOpen, setIsAllMediaOpen] = useState(false);
 
-  // Sync with browser back/forward history & hash
-  useEffect(() => {
-    const handleHashChange = () => {
-      const hash = window.location.hash.toLowerCase();
-      if (hash === '#/about' || hash === '#about') setCurrentPage('about');
-      else if (hash === '#/media' || hash === '#media') setCurrentPage('media');
-      else if (hash === '#/media/print' || hash === '#media-print') setCurrentPage('media-print');
-      else if (hash === '#/media/digital' || hash === '#media-digital') setCurrentPage('media-digital');
-      else if (hash === '#/gallery/awards' || hash === '#gallery-awards') setCurrentPage('gallery-awards');
-      else if (hash === '#/gallery/celebrities' || hash === '#gallery-celebrities') setCurrentPage('gallery-celebrities');
-      else if (hash === '#/gallery/social' || hash === '#gallery-social') setCurrentPage('gallery-social');
-      else if (hash === '#/gallery/invitations' || hash === '#gallery-invitations') setCurrentPage('gallery-invitations');
-      else if (hash === '#/gallery/videos' || hash === '#gallery-videos') setCurrentPage('gallery-videos');
-      else if (hash === '#/gallery/personal' || hash === '#gallery-personal') setCurrentPage('gallery-personal');
-      else if (hash === '#/contact' || hash === '#contact') setCurrentPage('contact');
-      else if (hash === '' || hash === '#' || hash === '#/') setCurrentPage('home');
-    };
-
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
-  }, []);
-
-  const navigateToPage = (page: PageType) => {
-    setCurrentPage(page);
-    switch (page) {
-      case 'about':
-        window.location.hash = '#/about';
-        break;
-      case 'media':
-        window.location.hash = '#/media';
-        break;
-      case 'media-print':
-        window.location.hash = '#/media/print';
-        break;
-      case 'media-digital':
-        window.location.hash = '#/media/digital';
-        break;
-      case 'gallery-awards':
-        window.location.hash = '#/gallery/awards';
-        break;
-      case 'gallery-celebrities':
-        window.location.hash = '#/gallery/celebrities';
-        break;
-      case 'gallery-social':
-        window.location.hash = '#/gallery/social';
-        break;
-      case 'gallery-invitations':
-        window.location.hash = '#/gallery/invitations';
-        break;
-      case 'gallery-videos':
-        window.location.hash = '#/gallery/videos';
-        break;
-      case 'gallery-personal':
-        window.location.hash = '#/gallery/personal';
-        break;
-      case 'contact':
-        window.location.hash = '#/contact';
-        break;
-      default:
-        window.location.hash = '#/';
-        break;
-    }
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const handleSelectGalleryCategory = (key: GalleryCategoryKey) => {
-    navigateToPage(`gallery-${key}` as PageType);
-  };
-
-  const handleOpenContact = () => {
-    navigateToPage('contact');
-  };
-
   return (
     <div className="min-h-screen flex flex-col bg-[#faf8f5] text-[#1c2430]">
+      <ScrollToTop />
+      <LegacyHashRedirect />
+
       {/* 1. Premium Sticky Navbar */}
-      <Navbar
-        currentPage={currentPage}
-        onNavigate={navigateToPage}
-        onOpenAppointment={() => setIsAppointmentOpen(true)}
-      />
+      <Navbar onOpenAppointment={() => setIsAppointmentOpen(true)} />
 
       <main className="flex-1">
-        {/* Homepage */}
-        {currentPage === 'home' && (
-          <HomePage
-            onOpenAppointment={() => setIsAppointmentOpen(true)}
-            onSelectMedia={(item) => setSelectedMedia(item)}
-            onViewAllMedia={() => navigateToPage('media')}
-            onNavigateAbout={() => navigateToPage('about')}
+        <Routes>
+          {/* Home */}
+          <Route
+            path="/"
+            element={
+              <HomePage
+                onOpenAppointment={() => setIsAppointmentOpen(true)}
+                onSelectMedia={(item) => setSelectedMedia(item)}
+              />
+            }
           />
-        )}
 
-        {/* About Us Page */}
-        {currentPage === 'about' && (
-          <AboutPage
-            onOpenAppointment={() => setIsAppointmentOpen(true)}
-            onOpenContact={handleOpenContact}
+          {/* About Us */}
+          <Route
+            path="/about"
+            element={
+              <AboutPage
+                onOpenAppointment={() => setIsAppointmentOpen(true)}
+              />
+            }
           />
-        )}
 
-        {/* Media Coverage Main Hub */}
-        {currentPage === 'media' && (
-          <MediaPage
-            onNavigatePrint={() => navigateToPage('media-print')}
-            onNavigateDigital={() => navigateToPage('media-digital')}
-            onOpenAppointment={() => setIsAppointmentOpen(true)}
+          {/* Media Coverage Hub & Subpages */}
+          <Route
+            path="/media-coverage"
+            element={
+              <MediaPage
+                onOpenAppointment={() => setIsAppointmentOpen(true)}
+              />
+            }
           />
-        )}
+          <Route path="/media-coverage/print" element={<PrintMediaPage />} />
+          <Route path="/media-coverage/digital" element={<DigitalMediaPage />} />
 
-        {/* Dedicated Print Media Page */}
-        {currentPage === 'media-print' && (
-          <PrintMediaPage
-            onNavigateBack={() => navigateToPage('media')}
-          />
-        )}
+          {/* 6 Dedicated Individual Gallery Pages */}
+          <Route path="/gallery/awards" element={<AwardsPage />} />
+          <Route path="/gallery/celebrity" element={<CelebritiesPage />} />
+          <Route path="/gallery/social-events" element={<SocialEventsPage />} />
+          <Route path="/gallery/invitations" element={<InvitationsPage />} />
+          <Route path="/gallery/videos" element={<VideosPage />} />
+          <Route path="/gallery/personal" element={<PersonalPicturesPage />} />
 
-        {/* Dedicated Digital Media Page */}
-        {currentPage === 'media-digital' && (
-          <DigitalMediaPage
-            onNavigateBack={() => navigateToPage('media')}
+          {/* Contact Us */}
+          <Route
+            path="/contact"
+            element={
+              <ContactPage
+                onOpenAppointment={() => setIsAppointmentOpen(true)}
+              />
+            }
           />
-        )}
 
-        {/* 6 Dedicated Gallery Pages */}
-        {currentPage === 'gallery-awards' && (
-          <AwardsPage
-            onSelectCategory={handleSelectGalleryCategory}
-            onNavigateHome={() => navigateToPage('home')}
-          />
-        )}
+          {/* Legacy Aliases & Fallbacks */}
+          <Route path="/media" element={<Navigate to="/media-coverage" replace />} />
+          <Route path="/media/print" element={<Navigate to="/media-coverage/print" replace />} />
+          <Route path="/media/digital" element={<Navigate to="/media-coverage/digital" replace />} />
+          <Route path="/gallery/celebrities" element={<Navigate to="/gallery/celebrity" replace />} />
+          <Route path="/gallery/social" element={<Navigate to="/gallery/social-events" replace />} />
 
-        {currentPage === 'gallery-celebrities' && (
-          <CelebritiesPage
-            onSelectCategory={handleSelectGalleryCategory}
-            onNavigateHome={() => navigateToPage('home')}
-          />
-        )}
-
-        {currentPage === 'gallery-social' && (
-          <SocialEventsPage
-            onSelectCategory={handleSelectGalleryCategory}
-            onNavigateHome={() => navigateToPage('home')}
-          />
-        )}
-
-        {currentPage === 'gallery-invitations' && (
-          <InvitationsPage
-            onSelectCategory={handleSelectGalleryCategory}
-            onNavigateHome={() => navigateToPage('home')}
-          />
-        )}
-
-        {currentPage === 'gallery-videos' && (
-          <VideosPage
-            onSelectCategory={handleSelectGalleryCategory}
-            onNavigateHome={() => navigateToPage('home')}
-          />
-        )}
-
-        {currentPage === 'gallery-personal' && (
-          <PersonalPicturesPage
-            onSelectCategory={handleSelectGalleryCategory}
-            onNavigateHome={() => navigateToPage('home')}
-          />
-        )}
-
-        {/* Contact Us Page */}
-        {currentPage === 'contact' && (
-          <ContactPage
-            onOpenAppointment={() => setIsAppointmentOpen(true)}
-          />
-        )}
+          {/* Catch-all redirect to home */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
       </main>
 
       {/* 10. Premium Navy Footer */}
-      <Footer onNavigate={navigateToPage} />
+      <Footer />
 
       {/* Floating Back to Top Button */}
       <BackToTop />
@@ -242,6 +169,14 @@ export function App() {
         onClose={() => setIsAllMediaOpen(false)}
       />
     </div>
+  );
+}
+
+export function App() {
+  return (
+    <BrowserRouter>
+      <AppContent />
+    </BrowserRouter>
   );
 }
 

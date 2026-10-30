@@ -3,20 +3,11 @@ import { GalleryPageLayout } from '../../components/gallery/GalleryPageLayout.ts
 import { GalleryCategoryKey } from '../../types/gallery.ts';
 
 interface PersonalPicturesPageProps {
-  onSelectCategory: (key: GalleryCategoryKey) => void;
-  onNavigateHome: () => void;
+  onSelectCategory?: (key: GalleryCategoryKey) => void;
+  onNavigateHome?: () => void;
 }
 
-export const PersonalPicturesPage: React.FC<PersonalPicturesPageProps> = ({
-  onSelectCategory,
-  onNavigateHome,
-}) => {
-  return (
-    <GalleryPageLayout
-      category="personal"
-      onSelectCategory={onSelectCategory}
-      onNavigateHome={onNavigateHome}
-    />
-  );
+export const PersonalPicturesPage: React.FC<PersonalPicturesPageProps> = () => {
+  return <GalleryPageLayout category="personal" />;
 };
 

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import {
   Phone,
   Mail,
@@ -12,25 +13,9 @@ interface FooterProps {
   onNavigate?: (page: PageType) => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
+export const Footer: React.FC<FooterProps> = () => {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const handleLink = (page: PageType, hash?: string) => {
-    if (onNavigate) {
-      onNavigate(page);
-    }
-    if (hash) {
-      setTimeout(() => {
-        const elem = document.querySelector(hash);
-        if (elem) {
-          elem.scrollIntoView({ behavior: 'smooth' });
-        }
-      }, 100);
-    } else {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
   };
 
   return (
@@ -109,52 +94,52 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             </h4>
             <ul className="space-y-2 text-[11.5px] text-gray-400">
               <li>
-                <button
-                  onClick={() => handleLink('home')}
-                  className="hover:text-[#b8863b] transition-colors cursor-pointer text-left"
+                <Link
+                  to="/"
+                  className="hover:text-[#b8863b] transition-colors cursor-pointer text-left block"
                 >
                   Home
-                </button>
+                </Link>
               </li>
               <li>
-                <button
-                  onClick={() => handleLink('about')}
-                  className="hover:text-[#b8863b] transition-colors cursor-pointer text-left"
+                <Link
+                  to="/about"
+                  className="hover:text-[#b8863b] transition-colors cursor-pointer text-left block"
                 >
                   About Us
-                </button>
+                </Link>
               </li>
               <li>
-                <button
-                  onClick={() => handleLink('media')}
-                  className="hover:text-[#b8863b] transition-colors cursor-pointer text-left"
+                <Link
+                  to="/media-coverage"
+                  className="hover:text-[#b8863b] transition-colors cursor-pointer text-left block"
                 >
                   Media Coverage
-                </button>
+                </Link>
               </li>
               <li>
-                <button
-                  onClick={() => handleLink('gallery-awards')}
-                  className="hover:text-[#b8863b] transition-colors cursor-pointer text-left"
+                <Link
+                  to="/gallery/awards"
+                  className="hover:text-[#b8863b] transition-colors cursor-pointer text-left block"
                 >
                   Gallery
-                </button>
+                </Link>
               </li>
               <li>
-                <button
-                  onClick={() => handleLink('home', '#businesses')}
-                  className="hover:text-[#b8863b] transition-colors cursor-pointer text-left"
+                <Link
+                  to="/#businesses"
+                  className="hover:text-[#b8863b] transition-colors cursor-pointer text-left block"
                 >
                   Connect Me
-                </button>
+                </Link>
               </li>
               <li>
-                <button
-                  onClick={() => handleLink('contact')}
-                  className="hover:text-[#b8863b] transition-colors cursor-pointer text-left"
+                <Link
+                  to="/contact"
+                  className="hover:text-[#b8863b] transition-colors cursor-pointer text-left block"
                 >
                   Contact Us
-                </button>
+                </Link>
               </li>
             </ul>
           </div>
@@ -166,28 +151,28 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             </h4>
             <ul className="space-y-2 text-[11.5px] text-gray-400">
               <li>
-                <button
-                  onClick={() => handleLink('media-print')}
-                  className="hover:text-[#b8863b] transition-colors cursor-pointer text-left"
+                <Link
+                  to="/media-coverage/print"
+                  className="hover:text-[#b8863b] transition-colors cursor-pointer text-left block"
                 >
                   Print Media
-                </button>
+                </Link>
               </li>
               <li>
-                <button
-                  onClick={() => handleLink('media-digital')}
-                  className="hover:text-[#b8863b] transition-colors cursor-pointer text-left"
+                <Link
+                  to="/media-coverage/digital"
+                  className="hover:text-[#b8863b] transition-colors cursor-pointer text-left block"
                 >
                   Digital Media
-                </button>
+                </Link>
               </li>
               <li>
-                <button
-                  onClick={() => handleLink('media')}
-                  className="hover:text-[#b8863b] transition-colors cursor-pointer text-left"
+                <Link
+                  to="/media-coverage"
+                  className="hover:text-[#b8863b] transition-colors cursor-pointer text-left block"
                 >
                   Press Releases
-                </button>
+                </Link>
               </li>
             </ul>
           </div>
@@ -199,52 +184,52 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             </h4>
             <ul className="space-y-2 text-[11.5px] text-gray-400">
               <li>
-                <button
-                  onClick={() => handleLink('gallery-awards')}
-                  className="hover:text-[#b8863b] transition-colors cursor-pointer text-left"
+                <Link
+                  to="/gallery/awards"
+                  className="hover:text-[#b8863b] transition-colors cursor-pointer text-left block"
                 >
                   Awards
-                </button>
+                </Link>
               </li>
               <li>
-                <button
-                  onClick={() => handleLink('gallery-celebrities')}
-                  className="hover:text-[#b8863b] transition-colors cursor-pointer text-left"
+                <Link
+                  to="/gallery/celebrity"
+                  className="hover:text-[#b8863b] transition-colors cursor-pointer text-left block"
                 >
                   Pictures With Celebrities
-                </button>
+                </Link>
               </li>
               <li>
-                <button
-                  onClick={() => handleLink('gallery-social')}
-                  className="hover:text-[#b8863b] transition-colors cursor-pointer text-left"
+                <Link
+                  to="/gallery/social-events"
+                  className="hover:text-[#b8863b] transition-colors cursor-pointer text-left block"
                 >
                   Social Events
-                </button>
+                </Link>
               </li>
               <li>
-                <button
-                  onClick={() => handleLink('gallery-invitations')}
-                  className="hover:text-[#b8863b] transition-colors cursor-pointer text-left"
+                <Link
+                  to="/gallery/invitations"
+                  className="hover:text-[#b8863b] transition-colors cursor-pointer text-left block"
                 >
                   Program Invitations
-                </button>
+                </Link>
               </li>
               <li>
-                <button
-                  onClick={() => handleLink('gallery-videos')}
-                  className="hover:text-[#b8863b] transition-colors cursor-pointer text-left"
+                <Link
+                  to="/gallery/videos"
+                  className="hover:text-[#b8863b] transition-colors cursor-pointer text-left block"
                 >
                   Videos
-                </button>
+                </Link>
               </li>
               <li>
-                <button
-                  onClick={() => handleLink('gallery-personal')}
-                  className="hover:text-[#b8863b] transition-colors cursor-pointer text-left"
+                <Link
+                  to="/gallery/personal"
+                  className="hover:text-[#b8863b] transition-colors cursor-pointer text-left block"
                 >
                   Personal Pictures
-                </button>
+                </Link>
               </li>
             </ul>
           </div>
@@ -260,7 +245,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                   href="https://peoplesassociation.org"
                   target="_blank"
                   rel="noreferrer"
-                  className="hover:text-[#b8863b] transition-colors"
+                  className="hover:text-[#b8863b] transition-colors block"
                 >
                   People&apos;s Association
                 </a>
@@ -270,36 +255,36 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                   href="https://www.youtube.com/c/jantalivenews/"
                   target="_blank"
                   rel="noreferrer"
-                  className="hover:text-[#b8863b] transition-colors"
+                  className="hover:text-[#b8863b] transition-colors block"
                 >
                   Janta Live
                 </a>
               </li>
               <li>
-                <button
-                  onClick={() => handleLink('home', '#businesses')}
-                  className="hover:text-[#b8863b] transition-colors cursor-pointer text-left"
+                <Link
+                  to="/#businesses"
+                  className="hover:text-[#b8863b] transition-colors cursor-pointer text-left block"
                 >
                   Production House
-                </button>
+                </Link>
               </li>
               <li>
                 <a
                   href="https://celebritybulaye.com"
                   target="_blank"
                   rel="noreferrer"
-                  className="hover:text-[#b8863b] transition-colors"
+                  className="hover:text-[#b8863b] transition-colors block"
                 >
                   Celebrity Bulaye
                 </a>
               </li>
               <li>
-                <button
-                  onClick={() => handleLink('home', '#businesses')}
-                  className="hover:text-[#b8863b] transition-colors cursor-pointer text-left"
+                <Link
+                  to="/#businesses"
+                  className="hover:text-[#b8863b] transition-colors cursor-pointer text-left block"
                 >
                   More Businesses
-                </button>
+                </Link>
               </li>
             </ul>
           </div>

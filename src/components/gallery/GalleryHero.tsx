@@ -1,18 +1,17 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Sparkles, ArrowLeft } from 'lucide-react';
-import { GalleryCategoryKey, GalleryCategoryMeta } from '../../types/gallery.ts';
+import { GalleryCategoryKey } from '../../types/gallery.ts';
 import { GALLERY_CATEGORIES } from '../../data/galleryData.ts';
 
 interface GalleryHeroProps {
   currentCategory: GalleryCategoryKey;
-  onSelectCategory: (key: GalleryCategoryKey) => void;
-  onNavigateHome: () => void;
+  onSelectCategory?: (key: GalleryCategoryKey) => void;
+  onNavigateHome?: () => void;
 }
 
 export const GalleryHero: React.FC<GalleryHeroProps> = ({
   currentCategory,
-  onSelectCategory,
-  onNavigateHome,
 }) => {
   const meta = GALLERY_CATEGORIES[currentCategory];
 
@@ -24,13 +23,13 @@ export const GalleryHero: React.FC<GalleryHeroProps> = ({
       <div className="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* Navigation Breadcrumb / Back Link */}
-        <button
-          onClick={onNavigateHome}
+        <Link
+          to="/"
           className="inline-flex items-center gap-2 text-xs font-semibold text-[#BD9256] hover:text-white transition-colors mb-6 cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back to Homepage</span>
-        </button>
+        </Link>
 
         <div className="max-w-3xl mb-8">
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#BD9256]/20 border border-[#BD9256]/40 rounded-full mb-3">
@@ -59,9 +58,9 @@ export const GalleryHero: React.FC<GalleryHeroProps> = ({
             const cat = GALLERY_CATEGORIES[key];
             const isActive = currentCategory === key;
             return (
-              <button
+              <Link
                 key={key}
-                onClick={() => onSelectCategory(key)}
+                to={cat.route}
                 className={`px-4 py-2 text-xs font-semibold rounded-full transition-all cursor-pointer whitespace-nowrap ${
                   isActive
                     ? 'bg-[#BD9256] text-white shadow-md'
@@ -69,7 +68,7 @@ export const GalleryHero: React.FC<GalleryHeroProps> = ({
                 }`}
               >
                 {cat.navLabel}
-              </button>
+              </Link>
             );
           })}
         </div>
