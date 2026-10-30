@@ -1,11 +1,20 @@
 import React from 'react';
 import { ArrowDown, MapPin, Sparkles, Heart } from 'lucide-react';
+import { AboutPageContent } from '../../types/cms.ts';
 
 interface AboutHeroProps {
   onOpenAppointment: () => void;
+  content?: AboutPageContent['hero'];
 }
 
-export const AboutHero: React.FC<AboutHeroProps> = ({ onOpenAppointment }) => {
+export const AboutHero: React.FC<AboutHeroProps> = ({ onOpenAppointment, content }) => {
+  const eyebrow = content?.eyebrow || 'GET TO KNOW ME';
+  const heading = content?.heading || 'The Journey Behind The Purpose.';
+  const description =
+    content?.description ||
+    'Every journey begins with a purpose. Mine began with a deep desire to serve people and bring positive change in society. Over the past two decades, this journey has evolved into meaningful social welfare initiatives, community leadership, and impactful ventures.';
+  const heroImage = content?.heroImage || '/images/hero-portrait.png';
+
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-[#F8F6F0] via-[#FAF7F2] to-[#F4EDE0] pt-10 pb-16 sm:pt-14 sm:pb-20 lg:pt-20 lg:pb-24 border-b border-[#ebdcc9]">
       {/* Decorative ambient background glows */}
@@ -25,22 +34,18 @@ export const AboutHero: React.FC<AboutHeroProps> = ({ onOpenAppointment }) => {
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#BD9256]/10 border border-[#BD9256]/30 rounded-full mb-5">
               <Sparkles className="w-3.5 h-3.5 text-[#BD9256]" />
               <span className="text-[11px] sm:text-[11.5px] font-bold tracking-[0.22em] text-[#BD9256] uppercase">
-                GET TO KNOW ME
+                {eyebrow}
               </span>
             </div>
 
             {/* Main Heading */}
             <h1 className="font-serif text-[36px] sm:text-[46px] lg:text-[54px] xl:text-[58px] font-bold text-[#14283B] leading-[1.14] tracking-[-0.015em] mb-6">
-              The Journey Behind <br />
-              <span className="font-serif italic text-[#BD9256] relative">
-                The Purpose.
-                <span className="absolute -bottom-1 left-0 w-full h-[2.5px] bg-[#BD9256]/40 rounded-full" />
-              </span>
+              {heading}
             </h1>
 
             {/* Supporting Text */}
             <p className="font-serif italic text-[17px] sm:text-[19px] lg:text-[20px] text-[#2c3e50] leading-relaxed max-w-xl mb-7 border-l-2 border-[#BD9256] pl-4">
-              &ldquo;Every journey begins with a purpose. Mine began with a simple belief — that meaningful change starts when we choose to serve others.&rdquo;
+              &ldquo;{description}&rdquo;
             </p>
 
             {/* Name & Persona Callout */}
@@ -89,7 +94,7 @@ export const AboutHero: React.FC<AboutHeroProps> = ({ onOpenAppointment }) => {
               {/* Main Photo Card */}
               <div className="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-white bg-white">
                 <img
-                  src="/images/hero-portrait.png"
+                  src={heroImage}
                   alt="Devendra Kumar Jha (Deven Jha) - Social Worker & Leader"
                   className="w-full h-auto object-cover object-center transform group-hover:scale-[1.02] transition-transform duration-500"
                 />
@@ -131,4 +136,3 @@ export const AboutHero: React.FC<AboutHeroProps> = ({ onOpenAppointment }) => {
     </section>
   );
 };
-

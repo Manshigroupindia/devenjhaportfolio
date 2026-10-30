@@ -1,5 +1,6 @@
 import React from 'react';
 import { Flag, Building2, Globe2, Sparkles, Calendar, ArrowRight } from 'lucide-react';
+import { TimelineItemDoc } from '../../types/cms.ts';
 
 interface Milestone {
   year: string;
@@ -11,7 +12,7 @@ interface Milestone {
   tagline: string;
 }
 
-const milestones: Milestone[] = [
+const defaultMilestones: Milestone[] = [
   {
     year: '2004',
     badge: 'A New Beginning',
@@ -44,7 +45,26 @@ const milestones: Milestone[] = [
   },
 ];
 
-export const AboutTimeline: React.FC = () => {
+interface AboutTimelineProps {
+  timeline?: TimelineItemDoc[];
+}
+
+export const AboutTimeline: React.FC<AboutTimelineProps> = ({ timeline }) => {
+  const displayMilestones = React.useMemo(() => {
+    if (timeline && timeline.length) {
+      return timeline.map((t, idx) => ({
+        year: t.year,
+        badge: t.tag || 'Milestone',
+        title: t.title,
+        description: t.description || t.subtitle,
+        icon: idx === 0 ? <Flag className="w-5 h-5 text-[#BD9256]" /> : idx === 1 ? <Building2 className="w-5 h-5 text-[#BD9256]" /> : <Globe2 className="w-5 h-5 text-[#BD9256]" />,
+        image: idx === 0 ? '/images/hero-portrait.png' : idx === 1 ? '/images/about-group.png' : '/images/about-portrait.png',
+        tagline: t.subtitle || 'Milestone Record',
+      }));
+    }
+    return defaultMilestones;
+  }, [timeline]);
+
   return (
     <section className="py-20 lg:py-28 bg-[#14283B] text-white relative overflow-hidden border-b border-[#223b54]">
       {/* Subtle background ambient lights */}
@@ -77,9 +97,9 @@ export const AboutTimeline: React.FC = () => {
           {/* Continuous Gold Connecting Line */}
           <div className="absolute top-[48px] left-[10%] right-[10%] h-[3px] bg-gradient-to-r from-[#BD9256]/40 via-[#BD9256] to-[#BD9256]/40 z-0" />
 
-          {/* 3 Horizontal Milestone Columns */}
-          <div className="grid grid-cols-3 gap-8 relative z-10">
-            {milestones.map((item, index) => (
+          {/* Horizontal Milestone Columns */}
+          <div className={`grid grid-cols-${Math.min(displayMilestones.length, 3)} gap-8 relative z-10`}>
+            {displayMilestones.slice(0, 3).map((item, index) => (
               <div key={index} className="flex flex-col items-center group">
                 
                 {/* Node indicator */}
@@ -145,51 +165,30 @@ export const AboutTimeline: React.FC = () => {
 
         {/* Mobile & Tablet Vertical Timeline (Visible on < lg) */}
         <div className="lg:hidden relative pl-6 border-l-2 border-[#BD9256]/60 space-y-10 ml-4 sm:ml-8">
-          {milestones.map((item, index) => (
+          {displayMilestones.map((item, index) => (
             <div key={index} className="relative group">
               
-              {/* Vertical timeline node */}
-              <div className="absolute -left-[35px] top-1.5 w-9 h-9 rounded-full bg-[#14283B] border-2 border-[#BD9256] flex items-center justify-center">
-                {item.icon}
+              {/* Vertical bullet */}
+              <div className="absolute -left-[33px] top-1.5 w-5 h-5 rounded-full bg-[#14283B] border-2 border-[#BD9256] flex items-center justify-center">
+                <div className="w-2 h-2 rounded-full bg-[#BD9256]" />
               </div>
 
-              {/* Milestone Card */}
+              {/* Card */}
               <div className="bg-[#1b334d] border border-[#2a496b] rounded-xl p-5 shadow-lg">
                 <div className="flex items-center justify-between mb-2">
                   <span className="font-serif text-2xl font-bold text-[#BD9256]">
                     {item.year}
                   </span>
-                  <span className="text-[9.5px] font-bold tracking-wider uppercase text-gray-300 bg-[#254668] px-2 py-0.5 rounded">
+                  <span className="text-[10px] font-bold text-gray-300 bg-[#254668] px-2 py-0.5 rounded uppercase">
                     {item.badge}
                   </span>
                 </div>
-
                 <h3 className="font-serif text-base font-bold text-white mb-2">
                   {item.title}
                 </h3>
-                <p className="text-xs text-gray-300 leading-relaxed mb-4">
+                <p className="text-xs text-gray-300 leading-relaxed">
                   {item.description}
                 </p>
-
-                {item.image && (
-                  <div className="flex items-center gap-3 pt-3 border-t border-[#2d4d70]">
-                    <div className="w-12 h-12 rounded-lg overflow-hidden border border-[#BD9256]/50 shrink-0">
-                      <img
-                        src={item.image}
-                        alt={item.title}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div>
-                      <span className="text-[10px] text-[#BD9256] font-semibold tracking-wide uppercase block">
-                        Record
-                      </span>
-                      <span className="text-xs text-gray-200">
-                        {item.tagline}
-                      </span>
-                    </div>
-                  </div>
-                )}
               </div>
 
             </div>
@@ -200,4 +199,3 @@ export const AboutTimeline: React.FC = () => {
     </section>
   );
 };
-

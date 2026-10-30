@@ -6,13 +6,28 @@ import {
   Navigate,
   useLocation,
   useNavigate,
+  Outlet,
 } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext.tsx';
+import { ProtectedRoute } from './components/admin/ProtectedRoute.tsx';
+import { AdminLayout } from './components/admin/AdminLayout.tsx';
+import { AdminLogin } from './pages/admin/AdminLogin.tsx';
+import { DashboardOverview } from './pages/admin/DashboardOverview.tsx';
+import { HomeCMS } from './pages/admin/HomeCMS.tsx';
+import { AboutCMS } from './pages/admin/AboutCMS.tsx';
+import { PrintMediaCMS } from './pages/admin/PrintMediaCMS.tsx';
+import { DigitalMediaCMS } from './pages/admin/DigitalMediaCMS.tsx';
+import { ConnectMeCMS } from './pages/admin/ConnectMeCMS.tsx';
+import { MyBusinessCMS } from './pages/admin/MyBusinessCMS.tsx';
+import { ContactDetailsCMS } from './pages/admin/ContactDetailsCMS.tsx';
+
 import { Navbar } from './components/Navbar.tsx';
 import { Footer } from './components/Footer.tsx';
 import { BackToTop } from './components/BackToTop.tsx';
 import { AppointmentModal } from './components/AppointmentModal.tsx';
 import { MediaModal } from './components/MediaModal.tsx';
 import { AllMediaModal } from './components/AllMediaModal.tsx';
+
 import { HomePage } from './pages/HomePage.tsx';
 import { AboutPage } from './pages/AboutPage.tsx';
 import { MediaPage } from './pages/MediaPage.tsx';
@@ -26,6 +41,7 @@ import { VideosPage } from './pages/gallery/VideosPage.tsx';
 import { PersonalPicturesPage } from './pages/gallery/PersonalPicturesPage.tsx';
 import { ContactPage } from './pages/ContactPage.tsx';
 import { MediaItem } from './components/MediaCoverage.tsx';
+import { checkMigrationStatus, runMigration } from './services/migrationService.ts';
 
 // Scroll to top on route change or scroll to hash target
 function ScrollToTop() {
@@ -69,21 +85,80 @@ function LegacyHashRedirect() {
   return null;
 }
 
-function AppContent() {
+// Public Website Layout wrapper (Navbar + Main + Footer + Modals)
+function PublicLayout({
+  onOpenAppointment,
+}: {
+  onOpenAppointment: () => void;
+}) {
+  return (
+    <div className="min-h-screen flex flex-col bg-[#faf8f5] text-[#1c2430]">
+      {/* 1. Premium Sticky Navbar */}
+      <Navbar onOpenAppointment={onOpenAppointment} />
+
+      <main className="flex-1">
+        <Outlet />
+      </main>
+
+      {/* 10. Premium Navy Footer */}
+      <Footer />
+
+      {/* Floating Back to Top Button */}
+      <BackToTop />
+    </div>
+  );
+}
+
+function AppRoutes() {
   const [isAppointmentOpen, setIsAppointmentOpen] = useState(false);
   const [selectedMedia, setSelectedMedia] = useState<MediaItem | null>(null);
   const [isAllMediaOpen, setIsAllMediaOpen] = useState(false);
 
+  // Background check for one-time automatic data seed
+  useEffect(() => {
+    checkMigrationStatus().then((status) => {
+      if (!status.completed) {
+        runMigration(false).then((res) => {
+          if (res.success) {
+            console.log('Portfolio initial seed completed:', res.message);
+          }
+        });
+      }
+    });
+  }, []);
+
   return (
-    <div className="min-h-screen flex flex-col bg-[#faf8f5] text-[#1c2430]">
+    <>
       <ScrollToTop />
       <LegacyHashRedirect />
 
-      {/* 1. Premium Sticky Navbar */}
-      <Navbar onOpenAppointment={() => setIsAppointmentOpen(true)} />
+      <Routes>
+        {/* ================= ADMIN CMS ROUTES ================= */}
+        {/* Admin Login */}
+        <Route path="/admin/login" element={<AdminLogin />} />
 
-      <main className="flex-1">
-        <Routes>
+        {/* Protected Admin CMS Suite */}
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute>
+              <AdminLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<DashboardOverview />} />
+          <Route path="dashboard" element={<DashboardOverview />} />
+          <Route path="home" element={<HomeCMS />} />
+          <Route path="about" element={<AboutCMS />} />
+          <Route path="print-media" element={<PrintMediaCMS />} />
+          <Route path="digital-media" element={<DigitalMediaCMS />} />
+          <Route path="connect-me" element={<ConnectMeCMS />} />
+          <Route path="my-business" element={<MyBusinessCMS />} />
+          <Route path="contact-details" element={<ContactDetailsCMS />} />
+        </Route>
+
+        {/* ================= PUBLIC WEBSITE ROUTES ================= */}
+        <Route element={<PublicLayout onOpenAppointment={() => setIsAppointmentOpen(true)} />}>
           {/* Home */}
           <Route
             path="/"
@@ -144,16 +219,10 @@ function AppContent() {
 
           {/* Catch-all redirect to home */}
           <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </main>
+        </Route>
+      </Routes>
 
-      {/* 10. Premium Navy Footer */}
-      <Footer />
-
-      {/* Floating Back to Top Button */}
-      <BackToTop />
-
-      {/* Interactive Modals */}
+      {/* Interactive Global Modals */}
       <AppointmentModal
         isOpen={isAppointmentOpen}
         onClose={() => setIsAppointmentOpen(false)}
@@ -168,14 +237,16 @@ function AppContent() {
         isOpen={isAllMediaOpen}
         onClose={() => setIsAllMediaOpen(false)}
       />
-    </div>
+    </>
   );
 }
 
 export function App() {
   return (
     <BrowserRouter>
-      <AppContent />
+      <AuthProvider>
+        <AppRoutes />
+      </AuthProvider>
     </BrowserRouter>
   );
 }

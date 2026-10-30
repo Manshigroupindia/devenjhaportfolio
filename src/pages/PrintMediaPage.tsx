@@ -12,6 +12,7 @@ import {
   FileText,
 } from 'lucide-react';
 import { ImageLightbox, PrintMediaItem } from '../components/media/ImageLightbox.tsx';
+import { usePrintMedia } from '../hooks/useCMSContent.ts';
 
 const printMediaData: PrintMediaItem[] = [
   {
@@ -89,6 +90,9 @@ interface PrintMediaPageProps {
 }
 
 export const PrintMediaPage: React.FC<PrintMediaPageProps> = ({ onNavigateBack }) => {
+  const { data: remoteData } = usePrintMedia(true);
+  const activeData: PrintMediaItem[] = (remoteData.length ? remoteData : printMediaData) as PrintMediaItem[];
+
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
@@ -99,7 +103,7 @@ export const PrintMediaPage: React.FC<PrintMediaPageProps> = ({ onNavigateBack }
     document.title = 'Print Media Coverage | Devendra Kumar Jha (Deven Jha)';
   }, []);
 
-  const filteredItems = printMediaData.filter((item) => {
+  const filteredItems = activeData.filter((item) => {
     const matchesCategory =
       selectedCategory === 'All' || item.category === selectedCategory;
     const matchesSearch =

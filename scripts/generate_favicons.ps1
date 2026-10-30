@@ -123,3 +123,4 @@ $writer.Dispose()
 $stream.Dispose()
 
 Write-Host "Favicon suite successfully generated in public directory!"
+

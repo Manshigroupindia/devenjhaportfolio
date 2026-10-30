@@ -1,43 +1,45 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Users, Smile, Coffee, Calendar } from 'lucide-react';
+import { Users, Smile, Coffee, Calendar, Award, Heart } from 'lucide-react';
+import { StatItemDoc } from '../types/cms.ts';
 
-interface StatItem {
-  icon: React.ReactNode;
-  target: number;
-  suffix?: string;
-  formattedTarget: string;
-  label: string;
+interface ImpactStatsProps {
+  stats?: StatItemDoc[];
 }
 
-const statsData: StatItem[] = [
+const defaultStats: StatItemDoc[] = [
   {
-    icon: <Users className="w-6 h-6 sm:w-7 sm:h-7 text-[#b8863b]" strokeWidth={1.5} />,
+    id: 'stat-1',
+    iconName: 'Users',
     target: 412,
     formattedTarget: '412',
     label: 'Social Events',
   },
   {
-    icon: <Smile className="w-6 h-6 sm:w-7 sm:h-7 text-[#b8863b]" strokeWidth={1.5} />,
+    id: 'stat-2',
+    iconName: 'Smile',
     target: 33458,
     formattedTarget: '33,458',
     label: 'Happy Peoples',
   },
   {
-    icon: <Coffee className="w-6 h-6 sm:w-7 sm:h-7 text-[#b8863b]" strokeWidth={1.5} />,
+    id: 'stat-3',
+    iconName: 'Coffee',
     target: 4124,
     formattedTarget: '4,124',
     label: 'Cups of Coffee',
   },
   {
-    icon: <Calendar className="w-6 h-6 sm:w-7 sm:h-7 text-[#b8863b]" strokeWidth={1.5} />,
+    id: 'stat-4',
+    iconName: 'Calendar',
     target: 2051,
     formattedTarget: '2,051',
     label: 'Total Events',
   },
 ];
 
-export const ImpactStats: React.FC = () => {
-  const [counts, setCounts] = useState<number[]>([0, 0, 0, 0]);
+export const ImpactStats: React.FC<ImpactStatsProps> = ({ stats }) => {
+  const activeStats = stats && stats.length ? stats : defaultStats;
+  const [counts, setCounts] = useState<number[]>(activeStats.map(() => 0));
   const [hasAnimated, setHasAnimated] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
 
@@ -57,12 +59,12 @@ export const ImpactStats: React.FC = () => {
             const easeOutProgress = 1 - Math.pow(1 - progress, 3);
 
             setCounts(
-              statsData.map((stat) => Math.round(stat.target * easeOutProgress))
+              activeStats.map((stat) => Math.round(stat.target * easeOutProgress))
             );
 
             if (currentStep >= steps) {
               clearInterval(timer);
-              setCounts(statsData.map((stat) => stat.target));
+              setCounts(activeStats.map((stat) => stat.target));
             }
           }, stepTime);
         }
@@ -75,7 +77,25 @@ export const ImpactStats: React.FC = () => {
     }
 
     return () => observer.disconnect();
-  }, [hasAnimated]);
+  }, [hasAnimated, activeStats]);
+
+  const renderIcon = (name: string) => {
+    switch (name) {
+      case 'Smile':
+        return <Smile className="w-6 h-6 sm:w-7 sm:h-7 text-[#b8863b]" strokeWidth={1.5} />;
+      case 'Coffee':
+        return <Coffee className="w-6 h-6 sm:w-7 sm:h-7 text-[#b8863b]" strokeWidth={1.5} />;
+      case 'Calendar':
+        return <Calendar className="w-6 h-6 sm:w-7 sm:h-7 text-[#b8863b]" strokeWidth={1.5} />;
+      case 'Award':
+        return <Award className="w-6 h-6 sm:w-7 sm:h-7 text-[#b8863b]" strokeWidth={1.5} />;
+      case 'Heart':
+        return <Heart className="w-6 h-6 sm:w-7 sm:h-7 text-[#b8863b]" strokeWidth={1.5} />;
+      case 'Users':
+      default:
+        return <Users className="w-6 h-6 sm:w-7 sm:h-7 text-[#b8863b]" strokeWidth={1.5} />;
+    }
+  };
 
   return (
     <section
@@ -93,21 +113,21 @@ export const ImpactStats: React.FC = () => {
 
         {/* 4 Stats Grid with elegant dividers */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 divide-y lg:divide-y-0 lg:divide-x divide-[#e2d5c2]">
-          {statsData.map((item, index) => (
+          {activeStats.map((item, index) => (
             <div
-              key={index}
+              key={item.id || index}
               className={`flex flex-col items-center text-center px-4 ${
                 index > 0 ? 'pt-6 lg:pt-0' : ''
               }`}
             >
               {/* Icon */}
               <div className="w-12 h-12 rounded-full bg-[#f2e7d5] flex items-center justify-center mb-3 transition-transform duration-300 hover:scale-110">
-                {item.icon}
+                {renderIcon(item.iconName)}
               </div>
 
               {/* Counter Display */}
               <div className="font-serif text-[28px] sm:text-[34px] lg:text-[38px] font-bold text-[#111c2a] tracking-tight leading-none mb-1">
-                {hasAnimated ? counts[index].toLocaleString() : item.formattedTarget}
+                {hasAnimated ? counts[index]?.toLocaleString() || item.target.toLocaleString() : item.formattedTarget}
               </div>
 
               {/* Label */}
@@ -122,4 +142,3 @@ export const ImpactStats: React.FC = () => {
     </section>
   );
 };
-

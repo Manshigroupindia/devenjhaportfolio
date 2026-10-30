@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { Phone, Mail, MapPin, Send, CheckCircle2, Copy, Check } from 'lucide-react';
+import { doc, setDoc } from 'firebase/firestore';
+import { db } from '../lib/firebase.ts';
+import { useContactSettings } from '../hooks/useCMSContent.ts';
 
 const indianStates = [
   'Delhi (NCR)',
@@ -30,6 +33,8 @@ const purposeOptions = [
 ];
 
 export const ContactSection: React.FC = () => {
+  const { data: contactSettings } = useContactSettings();
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -40,6 +45,7 @@ export const ContactSection: React.FC = () => {
     honeypot: '',
   });
 
+  const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [referenceId, setReferenceId] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
@@ -52,7 +58,7 @@ export const ContactSection: React.FC = () => {
     if (errorMsg) setErrorMsg('');
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (formData.honeypot.trim() !== '') {
@@ -79,25 +85,39 @@ export const ContactSection: React.FC = () => {
 
     const refId = `DJ-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`;
     setReferenceId(refId);
+    setSubmitting(true);
 
+    const submissionPayload = {
+      id: refId,
+      name: formData.name.trim(),
+      email: formData.email.trim(),
+      mobile: formData.mobile.trim(),
+      state: formData.state || 'Not Specified',
+      purpose: formData.purpose || 'General Inquiry',
+      message: formData.message.trim(),
+      referenceId: refId,
+      createdAt: new Date().toISOString(),
+      status: 'new',
+    };
+
+    try {
+      // 1. Save to Firebase Firestore
+      await setDoc(doc(db, 'contact_submissions', refId), submissionPayload);
+    } catch (err) {
+      console.warn('Firestore submission fallback notice:', err);
+    }
+
+    // 2. Also save to localStorage as backup
     try {
       const stored = localStorage.getItem('deven_jha_enquiries');
       const list = stored ? JSON.parse(stored) : [];
-      list.unshift({
-        referenceId: refId,
-        fullName: formData.name.trim(),
-        email: formData.email.trim(),
-        mobile: formData.mobile.trim(),
-        state: formData.state || 'Not Specified',
-        purpose: formData.purpose || 'General Inquiry',
-        message: formData.message.trim(),
-        submittedAt: new Date().toISOString(),
-      });
+      list.unshift(submissionPayload);
       localStorage.setItem('deven_jha_enquiries', JSON.stringify(list));
     } catch (err) {
       console.warn('Could not persist enquiry to localStorage:', err);
     }
 
+    setSubmitting(false);
     setSubmitted(true);
   };
 
@@ -123,33 +143,39 @@ export const ContactSection: React.FC = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
+        {/* Content Grid: Form (Left) & Contact Info + Map (Right) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
           
           {/* Left Side: Contact Form (approx 7 cols) */}
-          <div className="lg:col-span-7 bg-white p-6 sm:p-7 rounded-xl border border-[#ebdcc9] shadow-sm">
+          <div className="lg:col-span-7">
             {submitted ? (
-              <div className="py-12 flex flex-col items-center text-center">
-                <CheckCircle2 className="w-14 h-14 text-emerald-600 mb-3" />
-                <h3 className="font-serif text-xl font-bold text-[#111c2a] mb-2">
-                  Thank You for Reaching Out!
+              <div className="bg-white rounded-xl p-8 border border-[#d6c7b3] shadow-sm text-center animate-fadeIn">
+                <div className="w-14 h-14 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-emerald-200">
+                  <CheckCircle2 className="w-8 h-8 text-emerald-600" />
+                </div>
+                
+                <h3 className="font-serif text-xl sm:text-2xl font-bold text-[#111c2a] mb-2">
+                  Thank You for Reaching Out
                 </h3>
-                <p className="text-sm text-[#4a5568] max-w-md mb-4">
-                  Your message has been successfully received. Deven Jha&apos;s team will review your inquiry and get in touch with you shortly.
+                
+                <p className="text-xs sm:text-sm text-[#4a5568] max-w-md mx-auto mb-6 leading-relaxed">
+                  Your message has been successfully received by Deven Jha&apos;s executive office. We review all communications and will respond shortly.
                 </p>
 
-                {referenceId && (
-                  <div className="inline-flex items-center gap-2.5 bg-[#FAF8F5] px-3.5 py-1.5 rounded-md border border-[#ebdcc9] mb-6 text-xs">
-                    <span className="text-gray-500 font-medium">Reference:</span>
-                    <span className="font-mono font-bold text-[#14283B]">{referenceId}</span>
-                    <button
-                      onClick={handleCopyRef}
-                      className="p-1 hover:bg-gray-200 rounded text-gray-500 hover:text-[#14283B] transition"
-                      title="Copy reference code"
-                    >
-                      {copiedRef ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-                    </button>
-                  </div>
-                )}
+                {/* Reference ID Pill */}
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#f8f5ee] border border-[#dfd2be] rounded-lg mb-6">
+                  <span className="text-xs text-[#6b7280]">Tracking Reference:</span>
+                  <span className="font-mono text-xs sm:text-sm font-bold text-[#a87932]">
+                    {referenceId}
+                  </span>
+                  <button
+                    onClick={handleCopyRef}
+                    className="p-1 text-[#6b7280] hover:text-[#a87932] transition-colors cursor-pointer"
+                    title="Copy reference ID"
+                  >
+                    {copiedRef ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                  </button>
+                </div>
 
                 <div>
                   <button
@@ -165,27 +191,28 @@ export const ContactSection: React.FC = () => {
                         honeypot: '',
                       });
                     }}
-                    className="px-5 py-2 bg-[#a87932] hover:bg-[#946927] text-white text-xs font-semibold rounded-md transition"
+                    className="px-5 py-2.5 bg-[#a87932] hover:bg-[#946927] text-white text-xs font-semibold rounded-md shadow-xs transition-all cursor-pointer"
                   >
                     Send Another Message
                   </button>
                 </div>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="space-y-4">
-                {/* Honeypot field for spam prevention */}
-                <div className="hidden" aria-hidden="true">
-                  <input
-                    type="text"
-                    name="honeypot"
-                    tabIndex={-1}
-                    value={formData.honeypot}
-                    onChange={handleChange}
-                  />
-                </div>
+              <form onSubmit={handleSubmit} className="space-y-3.5">
+                {/* Honeypot anti-spam field */}
+                <input
+                  type="text"
+                  name="honeypot"
+                  value={formData.honeypot}
+                  onChange={handleChange}
+                  tabIndex={-1}
+                  autoComplete="off"
+                  className="hidden"
+                  aria-hidden="true"
+                />
 
                 {errorMsg && (
-                  <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-md">
+                  <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-xs">
                     {errorMsg}
                   </div>
                 )}
@@ -249,9 +276,9 @@ export const ContactSection: React.FC = () => {
                       value={formData.state}
                       onChange={handleChange}
                       required
-                      className="w-full px-3 py-2 text-xs bg-[#fdfcf9] border border-[#d9ccb9] rounded-md focus:outline-none focus:border-[#a87932] transition-colors text-[#334155]"
+                      className="w-full px-3 py-2 text-xs bg-[#fdfcf9] border border-[#d9ccb9] rounded-md focus:outline-none focus:border-[#a87932] transition-colors"
                     >
-                      <option value="">Select State</option>
+                      <option value="">Select Your State</option>
                       {indianStates.map((st) => (
                         <option key={st} value={st}>
                           {st}
@@ -262,19 +289,19 @@ export const ContactSection: React.FC = () => {
 
                   <div>
                     <label className="block text-[11.5px] font-medium text-[#4a5568] mb-1">
-                      Select Purpose <span className="text-red-500">*</span>
+                      Purpose of Contact <span className="text-red-500">*</span>
                     </label>
                     <select
                       name="purpose"
                       value={formData.purpose}
                       onChange={handleChange}
                       required
-                      className="w-full px-3 py-2 text-xs bg-[#fdfcf9] border border-[#d9ccb9] rounded-md focus:outline-none focus:border-[#a87932] transition-colors text-[#334155]"
+                      className="w-full px-3 py-2 text-xs bg-[#fdfcf9] border border-[#d9ccb9] rounded-md focus:outline-none focus:border-[#a87932] transition-colors"
                     >
                       <option value="">Select Purpose</option>
-                      {purposeOptions.map((pur) => (
-                        <option key={pur} value={pur}>
-                          {pur}
+                      {purposeOptions.map((opt) => (
+                        <option key={opt} value={opt}>
+                          {opt}
                         </option>
                       ))}
                     </select>
@@ -288,11 +315,11 @@ export const ContactSection: React.FC = () => {
                   </label>
                   <textarea
                     name="message"
-                    rows={3}
                     required
+                    rows={4}
                     value={formData.message}
                     onChange={handleChange}
-                    placeholder="Briefly describe your request, event, or initiative..."
+                    placeholder="Write your thoughts, request or collaboration idea here..."
                     className="w-full px-3 py-2 text-xs bg-[#fdfcf9] border border-[#d9ccb9] rounded-md focus:outline-none focus:border-[#a87932] transition-colors resize-none"
                   />
                 </div>
@@ -301,9 +328,10 @@ export const ContactSection: React.FC = () => {
                 <div className="pt-1">
                   <button
                     type="submit"
-                    className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#a87932] hover:bg-[#946927] active:scale-[0.98] text-white text-xs font-semibold rounded-md shadow-sm transition-all duration-200 cursor-pointer"
+                    disabled={submitting}
+                    className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#a87932] hover:bg-[#946927] active:scale-[0.98] text-white text-xs font-semibold rounded-md shadow-sm transition-all duration-200 cursor-pointer disabled:opacity-50"
                   >
-                    <span>Submit Message</span>
+                    <span>{submitting ? 'Submitting...' : 'Submit Message'}</span>
                     <Send className="w-3.5 h-3.5" />
                   </button>
                 </div>
@@ -322,19 +350,19 @@ export const ContactSection: React.FC = () => {
               <ul className="space-y-2 text-xs text-[#334155]">
                 <li className="flex items-center gap-2.5">
                   <Phone className="w-4 h-4 text-[#a87932] shrink-0" />
-                  <a href="tel:+919876543210" className="hover:text-[#a87932] transition-colors font-medium">
-                    +91 98765 43210
+                  <a href={`tel:${contactSettings.phone.replace(/\s+/g, '')}`} className="hover:text-[#a87932] transition-colors font-medium">
+                    {contactSettings.phone}
                   </a>
                 </li>
                 <li className="flex items-center gap-2.5">
                   <Mail className="w-4 h-4 text-[#a87932] shrink-0" />
-                  <a href="mailto:info@devenjha.com" className="hover:text-[#a87932] transition-colors font-medium">
-                    info@devenjha.com
+                  <a href={`mailto:${contactSettings.email}`} className="hover:text-[#a87932] transition-colors font-medium">
+                    {contactSettings.email}
                   </a>
                 </li>
                 <li className="flex items-center gap-2.5">
                   <MapPin className="w-4 h-4 text-[#a87932] shrink-0" />
-                  <span className="font-medium">New Delhi, India</span>
+                  <span className="font-medium">{contactSettings.cityState}</span>
                 </li>
               </ul>
 
@@ -343,10 +371,10 @@ export const ContactSection: React.FC = () => {
                   Office Location
                 </h4>
                 <p className="text-xs text-[#4a5568]">
-                  New Delhi, India
+                  {contactSettings.addressNote}
                 </p>
-                <p className="text-[11px] text-[#64748b] italic">
-                  (Exact address available on request)
+                <p className="text-[11px] text-[#64748b] italic mt-1">
+                  Hours: {contactSettings.officeHours}
                 </p>
               </div>
             </div>
@@ -354,13 +382,13 @@ export const ContactSection: React.FC = () => {
             {/* Google Map Card Preview */}
             <div className="rounded-xl overflow-hidden border border-[#d8cbba] shadow-sm bg-white relative group">
               <a
-                href="https://maps.google.com/?q=New+Delhi"
+                href={contactSettings.mapsQueryUrl}
                 target="_blank"
                 rel="noreferrer"
                 className="block relative overflow-hidden"
               >
                 <img
-                  src="/images/map-preview.png"
+                  src={contactSettings.mapsPreviewImage || '/images/map-preview.png'}
                   alt="Google Map Location - New Delhi"
                   className="w-full h-[140px] sm:h-[160px] object-cover group-hover:scale-105 transition-transform duration-300"
                 />
@@ -368,7 +396,7 @@ export const ContactSection: React.FC = () => {
                 {/* Overlay badge */}
                 <div className="absolute top-2 left-2 bg-white/95 px-2.5 py-1 rounded shadow-sm text-[11px] font-semibold text-[#111c2a] flex items-center gap-1">
                   <MapPin className="w-3 h-3 text-red-600 fill-red-600" />
-                  <span>New Delhi</span>
+                  <span>{contactSettings.cityState.split(',')[0]}</span>
                 </div>
 
                 <div className="absolute bottom-2 right-2 bg-white/90 px-2 py-0.5 rounded text-[10px] text-[#1e293b] font-medium shadow-xs">
@@ -385,4 +413,3 @@ export const ContactSection: React.FC = () => {
     </section>
   );
 };
-

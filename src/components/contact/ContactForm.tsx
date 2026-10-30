@@ -13,6 +13,8 @@ import {
   Copy,
   Check,
 } from 'lucide-react';
+import { doc, setDoc } from 'firebase/firestore';
+import { db } from '../../lib/firebase.ts';
 
 export const PURPOSE_OPTIONS = [
   'General Enquiry',
@@ -158,6 +160,24 @@ export const ContactForm: React.FC<ContactFormProps> = ({
         localStorage.setItem('deven_jha_enquiries', JSON.stringify(list));
       } catch (err) {
         console.warn('Could not persist enquiry to localStorage:', err);
+      }
+
+      // Persist to Firebase Firestore
+      try {
+        await setDoc(doc(db, 'contact_submissions', referenceId), {
+          id: referenceId,
+          name: newEnquiry.fullName,
+          email: newEnquiry.email,
+          mobile: newEnquiry.mobile,
+          purpose: newEnquiry.purpose,
+          state: 'Not Specified',
+          message: newEnquiry.message,
+          referenceId: referenceId,
+          createdAt: nowIso,
+          status: 'new',
+        });
+      } catch (fsErr) {
+        console.warn('Firestore submission notice:', fsErr);
       }
 
       setSubmittedData(newEnquiry);

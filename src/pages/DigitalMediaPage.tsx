@@ -12,6 +12,7 @@ import {
   Film,
 } from 'lucide-react';
 import { VideoPlayerModal, DigitalMediaItem } from '../components/media/VideoPlayerModal.tsx';
+import { useDigitalMedia } from '../hooks/useCMSContent.ts';
 
 const digitalMediaData: DigitalMediaItem[] = [
   {
@@ -101,6 +102,9 @@ interface DigitalMediaPageProps {
 }
 
 export const DigitalMediaPage: React.FC<DigitalMediaPageProps> = ({ onNavigateBack }) => {
+  const { data: remoteData } = useDigitalMedia(true);
+  const activeData: DigitalMediaItem[] = (remoteData.length ? remoteData : digitalMediaData) as DigitalMediaItem[];
+
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeVideo, setActiveVideo] = useState<DigitalMediaItem | null>(null);
@@ -110,7 +114,7 @@ export const DigitalMediaPage: React.FC<DigitalMediaPageProps> = ({ onNavigateBa
     document.title = 'Digital Media & Interviews | Devendra Kumar Jha (Deven Jha)';
   }, []);
 
-  const filteredVideos = digitalMediaData.filter((item) => {
+  const filteredVideos = activeData.filter((item) => {
     const matchesCategory =
       selectedCategory === 'All' || item.category === selectedCategory;
     const matchesSearch =

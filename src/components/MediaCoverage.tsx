@@ -1,5 +1,6 @@
 import React from 'react';
 import { ArrowRight, Play, ExternalLink } from 'lucide-react';
+import { usePrintMedia, useDigitalMedia } from '../hooks/useCMSContent.ts';
 
 export interface MediaItem {
   id: string;
@@ -16,7 +17,7 @@ interface MediaCoverageProps {
   onViewAll: () => void;
 }
 
-const mediaItems: MediaItem[] = [
+const defaultMediaItems: MediaItem[] = [
   {
     id: 'dainik-jagran',
     image: '/images/media-dainik-jagran.png',
@@ -50,6 +51,45 @@ const mediaItems: MediaItem[] = [
 ];
 
 export const MediaCoverage: React.FC<MediaCoverageProps> = ({ onSelectMedia, onViewAll }) => {
+  const { data: printItems } = usePrintMedia(true);
+  const { data: digitalItems } = useDigitalMedia(true);
+
+  // Combine top 3 print clippings + 1 digital video for the homepage preview
+  const displayItems: MediaItem[] = React.useMemo(() => {
+    if (!printItems.length && !digitalItems.length) {
+      return defaultMediaItems;
+    }
+
+    const items: MediaItem[] = [];
+    // Top print items
+    printItems.slice(0, 3).forEach((p) => {
+      items.push({
+        id: p.id,
+        image: p.image,
+        title: p.publication || p.title,
+        category: p.category || 'Newspaper Publication',
+        date: p.date,
+        isVideo: false,
+      });
+    });
+
+    // Top video item
+    if (digitalItems.length > 0) {
+      const vid = digitalItems[0];
+      items.push({
+        id: vid.id,
+        image: vid.thumbnail || '/images/media-aaj-tak.png',
+        title: vid.channel || vid.title,
+        category: vid.category || 'Digital Media Interview',
+        date: vid.date,
+        isVideo: true,
+        videoUrl: vid.embedUrl,
+      });
+    }
+
+    return items.length ? items : defaultMediaItems;
+  }, [printItems, digitalItems]);
+
   return (
     <section id="media" className="py-14 sm:py-18 bg-[#fdfbf8] border-b border-[#ebdcc9]">
       <div className="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8">
@@ -78,7 +118,7 @@ export const MediaCoverage: React.FC<MediaCoverageProps> = ({ onSelectMedia, onV
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-5">
           
           {/* 4 Regular Media Cards (taking 1 col each on lg) */}
-          {mediaItems.map((item) => (
+          {displayItems.map((item) => (
             <div
               key={item.id}
               onClick={() => onSelectMedia(item)}
@@ -163,4 +203,3 @@ export const MediaCoverage: React.FC<MediaCoverageProps> = ({ onSelectMedia, onV
     </section>
   );
 };
-

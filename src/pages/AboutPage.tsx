@@ -8,6 +8,7 @@ import { AboutPeoplesAssociation } from '../components/about/AboutPeoplesAssocia
 import { AboutBusiness } from '../components/about/AboutBusiness.tsx';
 import { AboutSocialProfiles } from '../components/about/AboutSocialProfiles.tsx';
 import { AboutFinalCTA } from '../components/about/AboutFinalCTA.tsx';
+import { useAboutPageContent } from '../hooks/useCMSContent.ts';
 
 interface AboutPageProps {
   onOpenAppointment: () => void;
@@ -21,6 +22,8 @@ export const AboutPage: React.FC<AboutPageProps> = ({
   const navigate = useNavigate();
   const handleOpenContact = onOpenContact || (() => navigate('/contact'));
 
+  const { data: aboutContent } = useAboutPageContent();
+
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     document.title = 'About Us | Devendra Kumar Jha (Deven Jha)';
@@ -29,13 +32,16 @@ export const AboutPage: React.FC<AboutPageProps> = ({
   return (
     <div className="bg-[#FFFFFF] animate-fadeIn">
       {/* 2. About Page Hero */}
-      <AboutHero onOpenAppointment={onOpenAppointment} />
+      <AboutHero
+        content={aboutContent.hero}
+        onOpenAppointment={onOpenAppointment}
+      />
 
       {/* 3. My Story – Personal Biography */}
       <AboutStory />
 
       {/* 4. My Journey – Timeline */}
-      <AboutTimeline />
+      <AboutTimeline timeline={aboutContent.timeline} />
 
       {/* 5. Mission & Vision */}
       <AboutMissionVision />
@@ -57,4 +63,3 @@ export const AboutPage: React.FC<AboutPageProps> = ({
     </div>
   );
 };
-

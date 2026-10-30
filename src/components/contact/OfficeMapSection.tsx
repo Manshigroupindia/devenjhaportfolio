@@ -1,8 +1,10 @@
 import React from 'react';
 import { MapPin, Navigation, Compass, Building2, Train, Car } from 'lucide-react';
+import { useContactSettings } from '../../hooks/useCMSContent.ts';
 
 export const OfficeMapSection: React.FC = () => {
-  const directionsUrl = 'https://maps.google.com/?q=New+Delhi,+India';
+  const { data: contactSettings } = useContactSettings();
+  const directionsUrl = contactSettings.mapsQueryUrl || 'https://maps.google.com/?q=New+Delhi,+India';
   const embedMapUrl =
     'https://maps.google.com/maps?q=New%20Delhi,%20India&t=&z=12&ie=UTF8&iwloc=&output=embed';
 

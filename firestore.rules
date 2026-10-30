@@ -1,0 +1,54 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Public readable site content
+    match /siteSettings/{settingId} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /media_print/{document=**} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /media_digital/{document=**} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /businesses/{document=**} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /socialProfiles/{document=**} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    // Public visitor submissions for contact form & appointment requests
+    match /contact_submissions/{submissionId} {
+      allow create: if true;
+      allow read, update, delete: if isAuthenticated();
+    }
+
+    // System migration status & bootstrap configuration
+    match /system/{docId} {
+      allow read: if true;
+      allow write: if true; // Allows initial one-time seed migration from frontend
+    }
+
+    // Admin role allowlist
+    match /admins/{adminId} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+  }
+}

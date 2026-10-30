@@ -8,10 +8,16 @@ import {
   Check,
   ExternalLink,
   ShieldCheck,
+  Globe,
 } from 'lucide-react';
 import { OFFICIAL_SOCIAL_PROFILES } from '../../config/socialLinks.tsx';
+import { useContactSettings, useSocialProfiles } from '../../hooks/useCMSContent.ts';
 
 export const ContactInfo: React.FC = () => {
+  const { data: contactSettings } = useContactSettings();
+  const { data: remoteSocials } = useSocialProfiles(true);
+  const socialList = remoteSocials && remoteSocials.length ? remoteSocials : OFFICIAL_SOCIAL_PROFILES;
+
   const [copiedItem, setCopiedItem] = useState<string | null>(null);
 
   const handleCopy = (text: string, key: string) => {
@@ -50,18 +56,18 @@ export const ContactInfo: React.FC = () => {
                     Phone &amp; WhatsApp
                   </span>
                   <a
-                    href="tel:+919876543210"
+                    href={`tel:${contactSettings.phone.replace(/\s+/g, '')}`}
                     className="text-sm sm:text-base font-semibold text-white hover:text-[#BD9256] transition-colors inline-block"
                   >
-                    +91 98765 43210
+                    {contactSettings.phone}
                   </a>
                   <span className="block text-[11px] text-gray-400 mt-0.5">
-                    Mon – Sat, 10:00 AM – 6:00 PM IST
+                    {contactSettings.officeHours}
                   </span>
                 </div>
               </div>
               <button
-                onClick={() => handleCopy('+919876543210', 'phone')}
+                onClick={() => handleCopy(contactSettings.phone, 'phone')}
                 className="p-2 rounded-md hover:bg-[#254566] text-gray-400 hover:text-white transition"
                 title="Copy phone number"
               >
@@ -84,10 +90,10 @@ export const ContactInfo: React.FC = () => {
                     Official Email
                   </span>
                   <a
-                    href="mailto:info@devenjha.com"
+                    href={`mailto:${contactSettings.email}`}
                     className="text-sm sm:text-base font-semibold text-white hover:text-[#BD9256] transition-colors inline-block"
                   >
-                    info@devenjha.com
+                    {contactSettings.email}
                   </a>
                   <span className="block text-[11px] text-gray-400 mt-0.5">
                     Inquiries, press &amp; collaborations
@@ -95,7 +101,7 @@ export const ContactInfo: React.FC = () => {
                 </div>
               </div>
               <button
-                onClick={() => handleCopy('info@devenjha.com', 'email')}
+                onClick={() => handleCopy(contactSettings.email, 'email')}
                 className="p-2 rounded-md hover:bg-[#254566] text-gray-400 hover:text-white transition"
                 title="Copy email address"
               >
@@ -117,10 +123,10 @@ export const ContactInfo: React.FC = () => {
                   Office Location
                 </span>
                 <span className="text-sm sm:text-base font-semibold text-white block">
-                  New Delhi, India
+                  {contactSettings.cityState}
                 </span>
                 <span className="block text-[11px] text-[#BD9256]/90 mt-0.5 italic">
-                  Exact address available on request
+                  {contactSettings.addressNote}
                 </span>
               </div>
             </div>
@@ -135,10 +141,7 @@ export const ContactInfo: React.FC = () => {
                   Working Hours
                 </span>
                 <p className="font-medium text-white">
-                  Monday – Saturday: 10:00 AM – 6:00 PM IST
-                </p>
-                <p className="text-[11px] text-gray-400">
-                  Sunday: Closed (By Prior Appointment Only)
+                  {contactSettings.officeHours}
                 </p>
               </div>
             </div>

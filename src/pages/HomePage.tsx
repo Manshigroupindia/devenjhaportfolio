@@ -7,6 +7,7 @@ import { MediaCoverage, MediaItem } from '../components/MediaCoverage.tsx';
 import { AppointmentBanner } from '../components/AppointmentBanner.tsx';
 import { MyBusiness } from '../components/MyBusiness.tsx';
 import { ContactSection } from '../components/ContactSection.tsx';
+import { useHomePageContent } from '../hooks/useCMSContent.ts';
 
 interface HomePageProps {
   onOpenAppointment: () => void;
@@ -25,6 +26,8 @@ export const HomePage: React.FC<HomePageProps> = ({
   const handleNavigateAbout = onNavigateAbout || (() => navigate('/about'));
   const handleViewAllMedia = onViewAllMedia || (() => navigate('/media-coverage'));
 
+  const { data: homeContent } = useHomePageContent();
+
   useEffect(() => {
     document.title = 'Deven Jha | Social Worker, Entrepreneur & Leader';
   }, []);
@@ -33,15 +36,19 @@ export const HomePage: React.FC<HomePageProps> = ({
     <>
       {/* 2. Hero Section */}
       <Hero
+        content={homeContent.hero}
         onOpenAppointment={onOpenAppointment}
         onExploreJourney={handleNavigateAbout}
       />
 
       {/* 3. About My Journey (with option to explore full story) */}
-      <AboutJourney onOpenAppointment={handleNavigateAbout} />
+      <AboutJourney
+        content={homeContent.aboutPreview}
+        onOpenAppointment={handleNavigateAbout}
+      />
 
       {/* 4. Numbers That Reflect Our Journey (Impact Stats) */}
-      <ImpactStats />
+      <ImpactStats stats={homeContent.impactStats} />
 
       {/* 5. In The Media */}
       <MediaCoverage

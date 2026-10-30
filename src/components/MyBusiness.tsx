@@ -5,57 +5,79 @@ import {
   Film,
   Star,
   LayoutGrid,
+  Building,
+  Briefcase,
+  Globe,
   ArrowRight,
 } from 'lucide-react';
 import { ReusableSocialGrid } from './common/ReusableSocialGrid.tsx';
+import { useBusinesses } from '../hooks/useCMSContent.ts';
+import { BusinessDoc } from '../types/cms.ts';
 
-interface BusinessItem {
-  id: string;
-  name: string;
-  category: string;
-  icon: React.ReactNode;
-  url: string;
-}
-
-const businessVentures: BusinessItem[] = [
+const defaultBusinessVentures = [
   {
     id: 'peoples-association',
     name: "People's Association",
     category: 'Social Welfare & NGO',
-    icon: <Users className="w-5 h-5 text-teal-600" />,
+    iconName: 'Users',
     url: 'https://peoplesassociation.org',
   },
   {
     id: 'janta-live',
     name: 'Janta Live',
     category: 'News & Media',
-    icon: <Tv className="w-5 h-5 text-red-600" />,
+    iconName: 'Tv',
     url: 'https://www.youtube.com/c/jantalivenews/',
   },
   {
     id: 'production-house',
     name: 'Production House',
     category: 'Media Production',
-    icon: <Film className="w-5 h-5 text-cyan-700" />,
+    iconName: 'Film',
     url: '#',
   },
   {
     id: 'celebrity-bulaye',
     name: 'Celebrity Bulaye',
     category: 'Celebrity Booking & Management',
-    icon: <Star className="w-5 h-5 text-blue-600 fill-blue-600" />,
+    iconName: 'Star',
     url: 'https://celebritybulaye.com',
   },
   {
     id: 'more-businesses',
     name: 'More Businesses',
     category: 'Additional Ventures',
-    icon: <LayoutGrid className="w-5 h-5 text-indigo-600" />,
+    iconName: 'LayoutGrid',
     url: '#',
   },
 ];
 
 export const MyBusiness: React.FC = () => {
+  const { data: remoteBusinesses } = useBusinesses(true);
+  const businesses = remoteBusinesses && remoteBusinesses.length ? remoteBusinesses : defaultBusinessVentures;
+
+  const renderIcon = (name?: string) => {
+    switch (name) {
+      case 'Users':
+        return <Users className="w-5 h-5 text-teal-600" />;
+      case 'Tv':
+        return <Tv className="w-5 h-5 text-red-600" />;
+      case 'Film':
+        return <Film className="w-5 h-5 text-cyan-700" />;
+      case 'Star':
+        return <Star className="w-5 h-5 text-blue-600 fill-blue-600" />;
+      case 'Building':
+        return <Building className="w-5 h-5 text-amber-700" />;
+      case 'Briefcase':
+        return <Briefcase className="w-5 h-5 text-purple-700" />;
+      case 'Globe':
+        return <Globe className="w-5 h-5 text-emerald-600" />;
+      case 'LayoutGrid':
+      default:
+        return <LayoutGrid className="w-5 h-5 text-indigo-600" />;
+    }
+  };
+
   return (
     <section id="businesses" className="py-16 sm:py-20 bg-[#faf8f5] border-b border-[#ebdcc9]">
       <div className="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8">
@@ -76,15 +98,19 @@ export const MyBusiness: React.FC = () => {
               </p>
             </div>
 
-            {/* Business Cards Row (5 cards) */}
+            {/* Business Cards Row */}
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-3.5">
-              {businessVentures.map((biz) => (
+              {businesses.map((biz: any) => (
                 <div
                   key={biz.id}
                   className="group bg-white rounded-lg p-3.5 border border-[#e8ded0] shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between items-center text-center hover:border-[#b8863b]"
                 >
                   <div className="w-10 h-10 rounded-full bg-[#f8f4ed] flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-200">
-                    {biz.icon}
+                    {biz.logoUrl ? (
+                      <img src={biz.logoUrl} alt={biz.name} className="w-6 h-6 object-contain" />
+                    ) : (
+                      renderIcon(biz.iconName)
+                    )}
                   </div>
 
                   <div className="mb-3">
@@ -96,7 +122,7 @@ export const MyBusiness: React.FC = () => {
                     </p>
                   </div>
 
-                  {biz.url.startsWith('http') ? (
+                  {biz.url && biz.url.startsWith('http') ? (
                     <a
                       href={biz.url}
                       target="_blank"
@@ -152,4 +178,3 @@ export const MyBusiness: React.FC = () => {
     </section>
   );
 };
-
