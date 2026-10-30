@@ -13,7 +13,8 @@ export type PageType =
   | 'gallery-social'
   | 'gallery-invitations'
   | 'gallery-videos'
-  | 'gallery-personal';
+  | 'gallery-personal'
+  | 'contact';
 
 interface NavbarProps {
   currentPage?: PageType;
@@ -281,10 +282,17 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             {/* Contact Us */}
             <button
-              onClick={() => handleLinkClick('home', '#contact')}
-              className="px-3 py-1.5 hover:text-[#a87932] transition-colors cursor-pointer"
+              onClick={() => handleLinkClick('contact')}
+              className={`px-3 py-1.5 transition-colors cursor-pointer relative ${
+                currentPage === 'contact'
+                  ? 'text-[#a87932] font-semibold'
+                  : 'hover:text-[#a87932]'
+              }`}
             >
               Contact Us
+              {currentPage === 'contact' && (
+                <span className="absolute bottom-0 left-3 right-3 h-0.5 bg-[#a87932] rounded-full" />
+              )}
             </button>
           </nav>
 
@@ -423,8 +431,12 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
 
           <button
-            onClick={() => handleLinkClick('home', '#contact')}
-            className="block w-full text-left py-2 text-[#2d3748] font-medium hover:text-[#a87932] border-b border-gray-100"
+            onClick={() => handleLinkClick('contact')}
+            className={`block w-full text-left py-2 font-medium border-b border-gray-100 ${
+              currentPage === 'contact'
+                ? 'text-[#a87932] font-bold'
+                : 'text-[#2d3748] hover:text-[#a87932]'
+            }`}
           >
             Contact Us
           </button>

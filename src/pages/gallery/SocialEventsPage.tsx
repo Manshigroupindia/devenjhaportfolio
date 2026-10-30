@@ -19,3 +19,4 @@ export const SocialEventsPage: React.FC<SocialEventsPageProps> = ({
     />
   );
 };
+

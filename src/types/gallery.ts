@@ -39,3 +39,4 @@ export interface GalleryCategoryMeta {
   subtitle: string;
   description: string;
 }
+

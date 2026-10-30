@@ -19,3 +19,4 @@ export const PersonalPicturesPage: React.FC<PersonalPicturesPageProps> = ({
     />
   );
 };
+

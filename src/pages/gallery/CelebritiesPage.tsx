@@ -19,3 +19,4 @@ export const CelebritiesPage: React.FC<CelebritiesPageProps> = ({
     />
   );
 };
+

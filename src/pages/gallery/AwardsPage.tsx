@@ -19,3 +19,4 @@ export const AwardsPage: React.FC<AwardsPageProps> = ({
     />
   );
 };
+

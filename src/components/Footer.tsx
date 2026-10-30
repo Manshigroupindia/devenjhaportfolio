@@ -150,7 +150,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               </li>
               <li>
                 <button
-                  onClick={() => handleLink('home', '#contact')}
+                  onClick={() => handleLink('contact')}
                   className="hover:text-[#b8863b] transition-colors cursor-pointer text-left"
                 >
                   Contact Us

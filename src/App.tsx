@@ -16,6 +16,7 @@ import { SocialEventsPage } from './pages/gallery/SocialEventsPage.tsx';
 import { InvitationsPage } from './pages/gallery/InvitationsPage.tsx';
 import { VideosPage } from './pages/gallery/VideosPage.tsx';
 import { PersonalPicturesPage } from './pages/gallery/PersonalPicturesPage.tsx';
+import { ContactPage } from './pages/ContactPage.tsx';
 import { MediaItem } from './components/MediaCoverage.tsx';
 import { GalleryCategoryKey } from './types/gallery.ts';
 
@@ -35,6 +36,7 @@ export function App() {
     if (hash === '#/gallery/invitations' || hash === '#gallery-invitations') return 'gallery-invitations';
     if (hash === '#/gallery/videos' || hash === '#gallery-videos') return 'gallery-videos';
     if (hash === '#/gallery/personal' || hash === '#gallery-personal') return 'gallery-personal';
+    if (hash === '#/contact' || hash === '#contact' || path.endsWith('/contact')) return 'contact';
 
     return 'home';
   });
@@ -57,6 +59,7 @@ export function App() {
       else if (hash === '#/gallery/invitations' || hash === '#gallery-invitations') setCurrentPage('gallery-invitations');
       else if (hash === '#/gallery/videos' || hash === '#gallery-videos') setCurrentPage('gallery-videos');
       else if (hash === '#/gallery/personal' || hash === '#gallery-personal') setCurrentPage('gallery-personal');
+      else if (hash === '#/contact' || hash === '#contact') setCurrentPage('contact');
       else if (hash === '' || hash === '#' || hash === '#/') setCurrentPage('home');
     };
 
@@ -97,6 +100,9 @@ export function App() {
       case 'gallery-personal':
         window.location.hash = '#/gallery/personal';
         break;
+      case 'contact':
+        window.location.hash = '#/contact';
+        break;
       default:
         window.location.hash = '#/';
         break;
@@ -109,20 +115,7 @@ export function App() {
   };
 
   const handleOpenContact = () => {
-    if (currentPage !== 'home') {
-      navigateToPage('home');
-      setTimeout(() => {
-        const contactEl = document.getElementById('contact');
-        if (contactEl) {
-          contactEl.scrollIntoView({ behavior: 'smooth' });
-        }
-      }, 150);
-    } else {
-      const contactEl = document.getElementById('contact');
-      if (contactEl) {
-        contactEl.scrollIntoView({ behavior: 'smooth' });
-      }
-    }
+    navigateToPage('contact');
   };
 
   return (
@@ -216,6 +209,13 @@ export function App() {
           <PersonalPicturesPage
             onSelectCategory={handleSelectGalleryCategory}
             onNavigateHome={() => navigateToPage('home')}
+          />
+        )}
+
+        {/* Contact Us Page */}
+        {currentPage === 'contact' && (
+          <ContactPage
+            onOpenAppointment={() => setIsAppointmentOpen(true)}
           />
         )}
       </main>

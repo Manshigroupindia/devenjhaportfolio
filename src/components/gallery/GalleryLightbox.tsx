@@ -164,3 +164,4 @@ export const GalleryLightbox: React.FC<GalleryLightboxProps> = ({
     </div>
   );
 };
+

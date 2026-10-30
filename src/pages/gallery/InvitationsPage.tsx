@@ -19,3 +19,4 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
     />
   );
 };
+
