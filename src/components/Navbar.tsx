@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ChevronDown, Menu, X, Globe, PhoneCall } from 'lucide-react';
+import { ReusableSocialGrid } from './common/ReusableSocialGrid.tsx';
 
 export type PageType = 'home' | 'about' | 'media' | 'media-print' | 'media-digital';
 
@@ -17,6 +18,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -24,6 +26,17 @@ export const Navbar: React.FC<NavbarProps> = ({
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setActiveDropdown(null);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   const toggleDropdown = (name: string) => {
@@ -53,6 +66,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   return (
     <header
+      ref={dropdownRef}
       className={`sticky top-0 z-50 w-full transition-all duration-300 ${
         isScrolled
           ? 'bg-white/95 backdrop-blur-md shadow-sm border-b border-[#ebdcc9]'
@@ -198,7 +212,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               )}
             </div>
 
-            {/* Connect Me Dropdown */}
+            {/* Connect Me Dropdown (Features Official Social Platforms) */}
             <div
               className="relative"
               onMouseEnter={() => setActiveDropdown('connect')}
@@ -206,6 +220,8 @@ export const Navbar: React.FC<NavbarProps> = ({
             >
               <button
                 onClick={() => toggleDropdown('connect')}
+                aria-haspopup="true"
+                aria-expanded={activeDropdown === 'connect'}
                 className="flex items-center gap-1 px-3 py-1.5 hover:text-[#a87932] transition-colors focus:outline-none cursor-pointer"
               >
                 <span>Connect Me</span>
@@ -213,37 +229,11 @@ export const Navbar: React.FC<NavbarProps> = ({
               </button>
 
               {activeDropdown === 'connect' && (
-                <div className="absolute top-full left-0 w-56 bg-white rounded-lg shadow-lg border border-[#ede5d8] py-2 z-50 animate-fadeIn">
-                  <a
-                    href="https://peoplesassociation.org"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="block px-4 py-2 text-xs text-[#334155] hover:bg-[#faf7f0] hover:text-[#a87932] transition-colors"
-                  >
-                    People&apos;s Association (NGO)
-                  </a>
-                  <a
-                    href="https://www.youtube.com/c/jantalivenews/"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="block px-4 py-2 text-xs text-[#334155] hover:bg-[#faf7f0] hover:text-[#a87932] transition-colors"
-                  >
-                    Janta Live News
-                  </a>
-                  <a
-                    href="https://celebritybulaye.com"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="block px-4 py-2 text-xs text-[#334155] hover:bg-[#faf7f0] hover:text-[#a87932] transition-colors"
-                  >
-                    Celebrity Bulaye
-                  </a>
-                  <button
-                    onClick={() => handleLinkClick('home', '#social')}
-                    className="block w-full text-left px-4 py-2 text-xs text-[#334155] hover:bg-[#faf7f0] hover:text-[#a87932] transition-colors cursor-pointer"
-                  >
-                    Social Channels &amp; Handles
-                  </button>
+                <div className="absolute top-full right-0 lg:left-0 z-50 pt-2 animate-fadeIn">
+                  <ReusableSocialGrid
+                    variant="dropdown"
+                    onItemClick={() => setActiveDropdown(null)}
+                  />
                 </div>
               )}
             </div>
@@ -341,12 +331,15 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             Gallery
           </button>
-          <button
-            onClick={() => handleLinkClick('home', '#businesses')}
-            className="block w-full text-left py-2 text-[#2d3748] font-medium hover:text-[#a87932] border-b border-gray-100"
-          >
-            Connect Me
-          </button>
+
+          {/* Mobile Connect Me Section */}
+          <div className="border-b border-gray-100 pb-3 pt-1">
+            <ReusableSocialGrid
+              variant="mobile"
+              onItemClick={() => setMobileMenuOpen(false)}
+            />
+          </div>
+
           <button
             onClick={() => handleLinkClick('home', '#contact')}
             className="block w-full text-left py-2 text-[#2d3748] font-medium hover:text-[#a87932] border-b border-gray-100"

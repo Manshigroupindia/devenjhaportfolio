@@ -396,3 +396,4 @@ export const MediaPage: React.FC<MediaPageProps> = ({
     </div>
   );
 };
+
