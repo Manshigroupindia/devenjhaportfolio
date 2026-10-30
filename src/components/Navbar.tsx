@@ -80,21 +80,33 @@ export const Navbar: React.FC<NavbarProps> = ({
     >
       <div className="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-[72px]">
-          {/* Logo */}
+          {/* Logo Brand with original image.png on clean white container */}
           <Link
             to="/"
             onClick={() => {
               setMobileMenuOpen(false);
               setActiveDropdown(null);
             }}
-            className="flex flex-col group cursor-pointer text-left"
+            className="flex items-center gap-2.5 sm:gap-3 group cursor-pointer text-left"
           >
-            <span className="font-serif text-[22px] sm:text-[24px] font-bold text-[#0d1826] tracking-[0.08em] group-hover:text-[#a87932] transition-colors leading-tight">
-              DEVEN JHA
-            </span>
-            <span className="text-[8.5px] sm:text-[9.5px] font-semibold tracking-[0.18em] text-[#64748b] uppercase mt-[1px]">
-              SOCIAL WORKER | ENTREPRENEUR | LEADER
-            </span>
+            {/* White Logo Container */}
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-lg bg-white border border-[#ebdcc9] shadow-xs group-hover:border-[#BD9256] transition-all duration-200 flex items-center justify-center p-1.5 shrink-0 overflow-hidden">
+              <img
+                src="/images/logo.png"
+                alt="Deven Jha Official Logo"
+                className="w-full h-full object-contain transform group-hover:scale-105 transition-transform duration-200"
+              />
+            </div>
+
+            {/* Typography */}
+            <div className="flex flex-col">
+              <span className="font-serif text-[18px] sm:text-[21px] font-bold text-[#0d1826] tracking-[0.06em] group-hover:text-[#a87932] transition-colors leading-tight">
+                DEVEN JHA
+              </span>
+              <span className="text-[7.5px] sm:text-[8.5px] font-semibold tracking-[0.16em] text-[#64748b] uppercase mt-[1px] whitespace-nowrap">
+                SOCIAL WORKER | ENTREPRENEUR | LEADER
+              </span>
+            </div>
           </Link>
 
           {/* Desktop Navigation */}

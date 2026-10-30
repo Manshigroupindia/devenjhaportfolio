@@ -27,12 +27,23 @@ export const Footer: React.FC<FooterProps> = () => {
           
           {/* Col 1: Brand & Bio */}
           <div className="col-span-2 sm:col-span-1 lg:col-span-1">
-            <h3 className="font-serif text-[20px] font-bold text-white tracking-wider mb-0.5">
-              Deven Jha
-            </h3>
-            <p className="text-[8.5px] font-semibold tracking-[0.16em] text-[#b8863b] uppercase mb-3">
-              SOCIAL WORKER | ENTREPRENEUR | LEADER
-            </p>
+            <div className="flex items-center gap-2.5 mb-2.5">
+              <div className="w-9 h-9 rounded-lg bg-white border border-[#23384d] flex items-center justify-center p-1 shrink-0 shadow-xs">
+                <img
+                  src="/images/logo.png"
+                  alt="Deven Jha Official Emblem"
+                  className="w-full h-full object-contain"
+                />
+              </div>
+              <div>
+                <h3 className="font-serif text-[18px] font-bold text-white tracking-wider leading-tight">
+                  Deven Jha
+                </h3>
+                <p className="text-[7.5px] font-semibold tracking-[0.16em] text-[#b8863b] uppercase">
+                  LEADER | ENTREPRENEUR
+                </p>
+              </div>
+            </div>
             <p className="text-[11.5px] text-gray-400 leading-relaxed mb-4">
               Working for a better society, creating opportunities and building a prosperous India.
             </p>
