@@ -104,3 +104,4 @@ export const AboutJourney: React.FC<AboutJourneyProps> = ({ onOpenAppointment })
     </section>
   );
 };
+

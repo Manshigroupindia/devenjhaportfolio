@@ -1,56 +1,97 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Navbar } from './components/Navbar.tsx';
-import { Hero } from './components/Hero.tsx';
-import { AboutJourney } from './components/AboutJourney.tsx';
-import { ImpactStats } from './components/ImpactStats.tsx';
-import { MediaCoverage, MediaItem } from './components/MediaCoverage.tsx';
-import { AppointmentBanner } from './components/AppointmentBanner.tsx';
-import { MyBusiness } from './components/MyBusiness.tsx';
-import { ContactSection } from './components/ContactSection.tsx';
 import { Footer } from './components/Footer.tsx';
 import { BackToTop } from './components/BackToTop.tsx';
 import { AppointmentModal } from './components/AppointmentModal.tsx';
 import { MediaModal } from './components/MediaModal.tsx';
 import { AllMediaModal } from './components/AllMediaModal.tsx';
+import { HomePage } from './pages/HomePage.tsx';
+import { AboutPage } from './pages/AboutPage.tsx';
+import { MediaItem } from './components/MediaCoverage.tsx';
 
 export function App() {
+  const [currentPage, setCurrentPage] = useState<'home' | 'about'>(() => {
+    const hash = window.location.hash.toLowerCase();
+    const path = window.location.pathname.toLowerCase();
+    if (hash === '#/about' || hash === '#about' || path.endsWith('/about')) {
+      return 'about';
+    }
+    return 'home';
+  });
+
   const [isAppointmentOpen, setIsAppointmentOpen] = useState(false);
   const [selectedMedia, setSelectedMedia] = useState<MediaItem | null>(null);
   const [isAllMediaOpen, setIsAllMediaOpen] = useState(false);
 
+  // Sync with browser back/forward history & hash
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.toLowerCase();
+      if (hash === '#/about' || hash === '#about') {
+        setCurrentPage('about');
+      } else if (hash === '' || hash === '#' || hash === '#/') {
+        setCurrentPage('home');
+      }
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
+  const navigateToPage = (page: 'home' | 'about') => {
+    setCurrentPage(page);
+    if (page === 'about') {
+      window.location.hash = '#/about';
+    } else {
+      window.location.hash = '#/';
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleOpenContact = () => {
+    if (currentPage !== 'home') {
+      navigateToPage('home');
+      setTimeout(() => {
+        const contactEl = document.getElementById('contact');
+        if (contactEl) {
+          contactEl.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 150);
+    } else {
+      const contactEl = document.getElementById('contact');
+      if (contactEl) {
+        contactEl.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-[#faf8f5] text-[#1c2430]">
       {/* 1. Premium Sticky Navbar */}
-      <Navbar onOpenAppointment={() => setIsAppointmentOpen(true)} />
+      <Navbar
+        currentPage={currentPage}
+        onNavigate={navigateToPage}
+        onOpenAppointment={() => setIsAppointmentOpen(true)}
+      />
 
       <main className="flex-1">
-        {/* 2. Hero Section */}
-        <Hero onOpenAppointment={() => setIsAppointmentOpen(true)} />
-
-        {/* 3. About My Journey */}
-        <AboutJourney onOpenAppointment={() => setIsAppointmentOpen(true)} />
-
-        {/* 4. Numbers That Reflect Our Journey (Impact Stats) */}
-        <ImpactStats />
-
-        {/* 5. In The Media */}
-        <MediaCoverage
-          onSelectMedia={(item) => setSelectedMedia(item)}
-          onViewAll={() => setIsAllMediaOpen(true)}
-        />
-
-        {/* 6. Take an Appointment Photographic Banner */}
-        <AppointmentBanner onOpenAppointment={() => setIsAppointmentOpen(true)} />
-
-        {/* 7 & 8. My Business & Connect With Me */}
-        <MyBusiness />
-
-        {/* 9. Get In Touch */}
-        <ContactSection />
+        {currentPage === 'home' ? (
+          <HomePage
+            onOpenAppointment={() => setIsAppointmentOpen(true)}
+            onSelectMedia={(item) => setSelectedMedia(item)}
+            onViewAllMedia={() => setIsAllMediaOpen(true)}
+            onNavigateAbout={() => navigateToPage('about')}
+          />
+        ) : (
+          <AboutPage
+            onOpenAppointment={() => setIsAppointmentOpen(true)}
+            onOpenContact={handleOpenContact}
+          />
+        )}
       </main>
 
       {/* 10. Premium Navy Footer */}
-      <Footer />
+      <Footer onNavigate={navigateToPage} />
 
       {/* Floating Back to Top Button */}
       <BackToTop />

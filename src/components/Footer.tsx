@@ -7,9 +7,29 @@ import {
   ArrowUp,
 } from 'lucide-react';
 
-export const Footer: React.FC = () => {
+interface FooterProps {
+  onNavigate?: (page: 'home' | 'about') => void;
+}
+
+export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleLink = (page: 'home' | 'about', hash?: string) => {
+    if (onNavigate) {
+      onNavigate(page);
+    }
+    if (hash) {
+      setTimeout(() => {
+        const elem = document.querySelector(hash);
+        if (elem) {
+          elem.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   return (
@@ -19,7 +39,7 @@ export const Footer: React.FC = () => {
         {/* Main 6 Columns Grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 mb-12">
           
-          {/* Col 1: Brand & Bio (spans 2 cols on mobile/tablet if needed or 1 col on lg) */}
+          {/* Col 1: Brand & Bio */}
           <div className="col-span-2 sm:col-span-1 lg:col-span-1">
             <h3 className="font-serif text-[20px] font-bold text-white tracking-wider mb-0.5">
               Deven Jha
@@ -88,34 +108,52 @@ export const Footer: React.FC = () => {
             </h4>
             <ul className="space-y-2 text-[11.5px] text-gray-400">
               <li>
-                <a href="#" className="hover:text-[#b8863b] transition-colors">
+                <button
+                  onClick={() => handleLink('home')}
+                  className="hover:text-[#b8863b] transition-colors cursor-pointer text-left"
+                >
                   Home
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#about" className="hover:text-[#b8863b] transition-colors">
+                <button
+                  onClick={() => handleLink('about')}
+                  className="hover:text-[#b8863b] transition-colors cursor-pointer text-left"
+                >
                   About Us
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#media" className="hover:text-[#b8863b] transition-colors">
+                <button
+                  onClick={() => handleLink('home', '#media')}
+                  className="hover:text-[#b8863b] transition-colors cursor-pointer text-left"
+                >
                   Media Coverage
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#gallery" className="hover:text-[#b8863b] transition-colors">
+                <button
+                  onClick={() => handleLink('home', '#gallery')}
+                  className="hover:text-[#b8863b] transition-colors cursor-pointer text-left"
+                >
                   Gallery
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#businesses" className="hover:text-[#b8863b] transition-colors">
+                <button
+                  onClick={() => handleLink('home', '#businesses')}
+                  className="hover:text-[#b8863b] transition-colors cursor-pointer text-left"
+                >
                   Connect Me
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#contact" className="hover:text-[#b8863b] transition-colors">
+                <button
+                  onClick={() => handleLink('home', '#contact')}
+                  className="hover:text-[#b8863b] transition-colors cursor-pointer text-left"
+                >
                   Contact Us
-                </a>
+                </button>
               </li>
             </ul>
           </div>
@@ -127,14 +165,20 @@ export const Footer: React.FC = () => {
             </h4>
             <ul className="space-y-2 text-[11.5px] text-gray-400">
               <li>
-                <a href="#media" className="hover:text-[#b8863b] transition-colors">
+                <button
+                  onClick={() => handleLink('home', '#media')}
+                  className="hover:text-[#b8863b] transition-colors cursor-pointer text-left"
+                >
                   Print Media
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#media" className="hover:text-[#b8863b] transition-colors">
+                <button
+                  onClick={() => handleLink('home', '#media')}
+                  className="hover:text-[#b8863b] transition-colors cursor-pointer text-left"
+                >
                   Digital Media
-                </a>
+                </button>
               </li>
             </ul>
           </div>
@@ -146,34 +190,52 @@ export const Footer: React.FC = () => {
             </h4>
             <ul className="space-y-2 text-[11.5px] text-gray-400">
               <li>
-                <a href="#gallery" className="hover:text-[#b8863b] transition-colors">
+                <button
+                  onClick={() => handleLink('home', '#gallery')}
+                  className="hover:text-[#b8863b] transition-colors cursor-pointer text-left"
+                >
                   Awards
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#gallery" className="hover:text-[#b8863b] transition-colors">
+                <button
+                  onClick={() => handleLink('home', '#gallery')}
+                  className="hover:text-[#b8863b] transition-colors cursor-pointer text-left"
+                >
                   Pictures With Celebrities
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#gallery" className="hover:text-[#b8863b] transition-colors">
+                <button
+                  onClick={() => handleLink('home', '#gallery')}
+                  className="hover:text-[#b8863b] transition-colors cursor-pointer text-left"
+                >
                   Social Events
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#gallery" className="hover:text-[#b8863b] transition-colors">
+                <button
+                  onClick={() => handleLink('home', '#gallery')}
+                  className="hover:text-[#b8863b] transition-colors cursor-pointer text-left"
+                >
                   Program Invitations
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#gallery" className="hover:text-[#b8863b] transition-colors">
+                <button
+                  onClick={() => handleLink('home', '#gallery')}
+                  className="hover:text-[#b8863b] transition-colors cursor-pointer text-left"
+                >
                   Videos
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#gallery" className="hover:text-[#b8863b] transition-colors">
+                <button
+                  onClick={() => handleLink('home', '#gallery')}
+                  className="hover:text-[#b8863b] transition-colors cursor-pointer text-left"
+                >
                   Personal Pictures
-                </a>
+                </button>
               </li>
             </ul>
           </div>
@@ -185,29 +247,50 @@ export const Footer: React.FC = () => {
             </h4>
             <ul className="space-y-2 text-[11.5px] text-gray-400">
               <li>
-                <a href="#businesses" className="hover:text-[#b8863b] transition-colors">
+                <a
+                  href="https://peoplesassociation.org"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="hover:text-[#b8863b] transition-colors"
+                >
                   People&apos;s Association
                 </a>
               </li>
               <li>
-                <a href="#businesses" className="hover:text-[#b8863b] transition-colors">
+                <a
+                  href="https://www.youtube.com/c/jantalivenews/"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="hover:text-[#b8863b] transition-colors"
+                >
                   Janta Live
                 </a>
               </li>
               <li>
-                <a href="#businesses" className="hover:text-[#b8863b] transition-colors">
+                <button
+                  onClick={() => handleLink('home', '#businesses')}
+                  className="hover:text-[#b8863b] transition-colors cursor-pointer text-left"
+                >
                   Production House
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#businesses" className="hover:text-[#b8863b] transition-colors">
+                <a
+                  href="https://celebritybulaye.com"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="hover:text-[#b8863b] transition-colors"
+                >
                   Celebrity Bulaye
                 </a>
               </li>
               <li>
-                <a href="#businesses" className="hover:text-[#b8863b] transition-colors">
+                <button
+                  onClick={() => handleLink('home', '#businesses')}
+                  className="hover:text-[#b8863b] transition-colors cursor-pointer text-left"
+                >
                   More Businesses
-                </a>
+                </button>
               </li>
             </ul>
           </div>
@@ -236,7 +319,7 @@ export const Footer: React.FC = () => {
               </li>
             </ul>
 
-            {/* Language dropdown button */}
+            {/* Language indicator */}
             <div className="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-[#142233] border border-[#23354c] rounded text-[11px] text-gray-300">
               <Globe className="w-3 h-3 text-[#b8863b]" />
               <span>Select Language</span>

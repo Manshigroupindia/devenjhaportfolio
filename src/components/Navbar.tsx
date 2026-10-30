@@ -2,10 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { ChevronDown, Menu, X, Globe, PhoneCall } from 'lucide-react';
 
 interface NavbarProps {
+  currentPage?: 'home' | 'about';
+  onNavigate?: (page: 'home' | 'about') => void;
   onOpenAppointment: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ onOpenAppointment }) => {
+export const Navbar: React.FC<NavbarProps> = ({
+  currentPage = 'home',
+  onNavigate,
+  onOpenAppointment,
+}) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
@@ -22,6 +28,22 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAppointment }) => {
     setActiveDropdown(activeDropdown === name ? null : name);
   };
 
+  const handleLinkClick = (page: 'home' | 'about', hash?: string) => {
+    setMobileMenuOpen(false);
+    setActiveDropdown(null);
+    if (onNavigate) {
+      onNavigate(page);
+    }
+    if (hash) {
+      setTimeout(() => {
+        const elem = document.querySelector(hash);
+        if (elem) {
+          elem.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+    }
+  };
+
   return (
     <header
       className={`sticky top-0 z-50 w-full transition-all duration-300 ${
@@ -33,32 +55,43 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAppointment }) => {
       <div className="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-[72px]">
           {/* Logo */}
-          <a href="#" className="flex flex-col group cursor-pointer">
+          <button
+            onClick={() => handleLinkClick('home')}
+            className="flex flex-col group cursor-pointer text-left"
+          >
             <span className="font-serif text-[22px] sm:text-[24px] font-bold text-[#0d1826] tracking-[0.08em] group-hover:text-[#a87932] transition-colors leading-tight">
               DEVEN JHA
             </span>
             <span className="text-[8.5px] sm:text-[9.5px] font-semibold tracking-[0.18em] text-[#64748b] uppercase mt-[1px]">
               SOCIAL WORKER | ENTREPRENEUR | LEADER
             </span>
-          </a>
+          </button>
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center space-x-1 xl:space-x-2 text-[13.5px] font-medium text-[#2d3748]">
             {/* Home */}
-            <a
-              href="#"
-              className="px-3 py-1.5 text-[#a87932] font-semibold border-b-2 border-[#a87932] transition-colors"
+            <button
+              onClick={() => handleLinkClick('home')}
+              className={`px-3 py-1.5 transition-colors cursor-pointer ${
+                currentPage === 'home'
+                  ? 'text-[#a87932] font-semibold border-b-2 border-[#a87932]'
+                  : 'hover:text-[#a87932]'
+              }`}
             >
               Home
-            </a>
+            </button>
 
             {/* About Us */}
-            <a
-              href="#about"
-              className="px-3 py-1.5 hover:text-[#a87932] transition-colors"
+            <button
+              onClick={() => handleLinkClick('about')}
+              className={`px-3 py-1.5 transition-colors cursor-pointer ${
+                currentPage === 'about'
+                  ? 'text-[#a87932] font-semibold border-b-2 border-[#a87932]'
+                  : 'hover:text-[#a87932]'
+              }`}
             >
               About Us
-            </a>
+            </button>
 
             {/* Media Coverage Dropdown */}
             <div
@@ -68,7 +101,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAppointment }) => {
             >
               <button
                 onClick={() => toggleDropdown('media')}
-                className="flex items-center gap-1 px-3 py-1.5 hover:text-[#a87932] transition-colors focus:outline-none"
+                className="flex items-center gap-1 px-3 py-1.5 hover:text-[#a87932] transition-colors focus:outline-none cursor-pointer"
               >
                 <span>Media Coverage</span>
                 <ChevronDown className="w-3.5 h-3.5 opacity-70 transition-transform duration-200" />
@@ -76,24 +109,24 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAppointment }) => {
 
               {activeDropdown === 'media' && (
                 <div className="absolute top-full left-0 w-52 bg-white rounded-lg shadow-lg border border-[#ede5d8] py-2 z-50 animate-fadeIn">
-                  <a
-                    href="#media"
-                    className="block px-4 py-2 text-xs text-[#334155] hover:bg-[#faf7f0] hover:text-[#a87932] transition-colors"
+                  <button
+                    onClick={() => handleLinkClick('home', '#media')}
+                    className="block w-full text-left px-4 py-2 text-xs text-[#334155] hover:bg-[#faf7f0] hover:text-[#a87932] transition-colors cursor-pointer"
                   >
                     Print Media (Newspapers)
-                  </a>
-                  <a
-                    href="#media"
-                    className="block px-4 py-2 text-xs text-[#334155] hover:bg-[#faf7f0] hover:text-[#a87932] transition-colors"
+                  </button>
+                  <button
+                    onClick={() => handleLinkClick('home', '#media')}
+                    className="block w-full text-left px-4 py-2 text-xs text-[#334155] hover:bg-[#faf7f0] hover:text-[#a87932] transition-colors cursor-pointer"
                   >
                     Digital &amp; TV Interviews
-                  </a>
-                  <a
-                    href="#media"
-                    className="block px-4 py-2 text-xs text-[#334155] hover:bg-[#faf7f0] hover:text-[#a87932] transition-colors"
+                  </button>
+                  <button
+                    onClick={() => handleLinkClick('home', '#media')}
+                    className="block w-full text-left px-4 py-2 text-xs text-[#334155] hover:bg-[#faf7f0] hover:text-[#a87932] transition-colors cursor-pointer"
                   >
                     Press Releases &amp; Features
-                  </a>
+                  </button>
                 </div>
               )}
             </div>
@@ -106,7 +139,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAppointment }) => {
             >
               <button
                 onClick={() => toggleDropdown('gallery')}
-                className="flex items-center gap-1 px-3 py-1.5 hover:text-[#a87932] transition-colors focus:outline-none"
+                className="flex items-center gap-1 px-3 py-1.5 hover:text-[#a87932] transition-colors focus:outline-none cursor-pointer"
               >
                 <span>Gallery</span>
                 <ChevronDown className="w-3.5 h-3.5 opacity-70 transition-transform duration-200" />
@@ -114,42 +147,42 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAppointment }) => {
 
               {activeDropdown === 'gallery' && (
                 <div className="absolute top-full left-0 w-56 bg-white rounded-lg shadow-lg border border-[#ede5d8] py-2 z-50 animate-fadeIn">
-                  <a
-                    href="#gallery"
-                    className="block px-4 py-2 text-xs text-[#334155] hover:bg-[#faf7f0] hover:text-[#a87932] transition-colors"
+                  <button
+                    onClick={() => handleLinkClick('home', '#gallery')}
+                    className="block w-full text-left px-4 py-2 text-xs text-[#334155] hover:bg-[#faf7f0] hover:text-[#a87932] transition-colors cursor-pointer"
                   >
                     Awards &amp; Citations
-                  </a>
-                  <a
-                    href="#gallery"
-                    className="block px-4 py-2 text-xs text-[#334155] hover:bg-[#faf7f0] hover:text-[#a87932] transition-colors"
+                  </button>
+                  <button
+                    onClick={() => handleLinkClick('home', '#gallery')}
+                    className="block w-full text-left px-4 py-2 text-xs text-[#334155] hover:bg-[#faf7f0] hover:text-[#a87932] transition-colors cursor-pointer"
                   >
                     Pictures With Celebrities
-                  </a>
-                  <a
-                    href="#gallery"
-                    className="block px-4 py-2 text-xs text-[#334155] hover:bg-[#faf7f0] hover:text-[#a87932] transition-colors"
+                  </button>
+                  <button
+                    onClick={() => handleLinkClick('home', '#gallery')}
+                    className="block w-full text-left px-4 py-2 text-xs text-[#334155] hover:bg-[#faf7f0] hover:text-[#a87932] transition-colors cursor-pointer"
                   >
                     Social &amp; NGO Events
-                  </a>
-                  <a
-                    href="#gallery"
-                    className="block px-4 py-2 text-xs text-[#334155] hover:bg-[#faf7f0] hover:text-[#a87932] transition-colors"
+                  </button>
+                  <button
+                    onClick={() => handleLinkClick('home', '#gallery')}
+                    className="block w-full text-left px-4 py-2 text-xs text-[#334155] hover:bg-[#faf7f0] hover:text-[#a87932] transition-colors cursor-pointer"
                   >
                     Program Invitations
-                  </a>
-                  <a
-                    href="#gallery"
-                    className="block px-4 py-2 text-xs text-[#334155] hover:bg-[#faf7f0] hover:text-[#a87932] transition-colors"
+                  </button>
+                  <button
+                    onClick={() => handleLinkClick('home', '#gallery')}
+                    className="block w-full text-left px-4 py-2 text-xs text-[#334155] hover:bg-[#faf7f0] hover:text-[#a87932] transition-colors cursor-pointer"
                   >
                     Videos &amp; Documentaries
-                  </a>
-                  <a
-                    href="#gallery"
-                    className="block px-4 py-2 text-xs text-[#334155] hover:bg-[#faf7f0] hover:text-[#a87932] transition-colors"
+                  </button>
+                  <button
+                    onClick={() => handleLinkClick('home', '#gallery')}
+                    className="block w-full text-left px-4 py-2 text-xs text-[#334155] hover:bg-[#faf7f0] hover:text-[#a87932] transition-colors cursor-pointer"
                   >
                     Personal Pictures
-                  </a>
+                  </button>
                 </div>
               )}
             </div>
@@ -162,7 +195,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAppointment }) => {
             >
               <button
                 onClick={() => toggleDropdown('connect')}
-                className="flex items-center gap-1 px-3 py-1.5 hover:text-[#a87932] transition-colors focus:outline-none"
+                className="flex items-center gap-1 px-3 py-1.5 hover:text-[#a87932] transition-colors focus:outline-none cursor-pointer"
               >
                 <span>Connect Me</span>
                 <ChevronDown className="w-3.5 h-3.5 opacity-70 transition-transform duration-200" />
@@ -171,40 +204,46 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAppointment }) => {
               {activeDropdown === 'connect' && (
                 <div className="absolute top-full left-0 w-56 bg-white rounded-lg shadow-lg border border-[#ede5d8] py-2 z-50 animate-fadeIn">
                   <a
-                    href="#businesses"
+                    href="https://peoplesassociation.org"
+                    target="_blank"
+                    rel="noreferrer"
                     className="block px-4 py-2 text-xs text-[#334155] hover:bg-[#faf7f0] hover:text-[#a87932] transition-colors"
                   >
                     People&apos;s Association (NGO)
                   </a>
                   <a
-                    href="#businesses"
+                    href="https://www.youtube.com/c/jantalivenews/"
+                    target="_blank"
+                    rel="noreferrer"
                     className="block px-4 py-2 text-xs text-[#334155] hover:bg-[#faf7f0] hover:text-[#a87932] transition-colors"
                   >
                     Janta Live News
                   </a>
                   <a
-                    href="#businesses"
+                    href="https://celebritybulaye.com"
+                    target="_blank"
+                    rel="noreferrer"
                     className="block px-4 py-2 text-xs text-[#334155] hover:bg-[#faf7f0] hover:text-[#a87932] transition-colors"
                   >
                     Celebrity Bulaye
                   </a>
-                  <a
-                    href="#social"
-                    className="block px-4 py-2 text-xs text-[#334155] hover:bg-[#faf7f0] hover:text-[#a87932] transition-colors"
+                  <button
+                    onClick={() => handleLinkClick('home', '#social')}
+                    className="block w-full text-left px-4 py-2 text-xs text-[#334155] hover:bg-[#faf7f0] hover:text-[#a87932] transition-colors cursor-pointer"
                   >
                     Social Channels &amp; Handles
-                  </a>
+                  </button>
                 </div>
               )}
             </div>
 
             {/* Contact Us */}
-            <a
-              href="#contact"
-              className="px-3 py-1.5 hover:text-[#a87932] transition-colors"
+            <button
+              onClick={() => handleLinkClick('home', '#contact')}
+              className="px-3 py-1.5 hover:text-[#a87932] transition-colors cursor-pointer"
             >
               Contact Us
-            </a>
+            </button>
           </nav>
 
           {/* Right actions: Google Translate & Appointment CTA */}
@@ -247,48 +286,46 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAppointment }) => {
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
         <div className="lg:hidden bg-white border-b border-[#ebdcc9] px-4 pt-3 pb-6 space-y-3 animate-fadeIn">
-          <a
-            href="#"
-            onClick={() => setMobileMenuOpen(false)}
-            className="block py-2 text-[#a87932] font-semibold border-b border-gray-100"
+          <button
+            onClick={() => handleLinkClick('home')}
+            className={`block w-full text-left py-2 font-semibold border-b border-gray-100 ${
+              currentPage === 'home' ? 'text-[#a87932]' : 'text-[#2d3748]'
+            }`}
           >
             Home
-          </a>
-          <a
-            href="#about"
-            onClick={() => setMobileMenuOpen(false)}
-            className="block py-2 text-[#2d3748] font-medium hover:text-[#a87932] border-b border-gray-100"
+          </button>
+          <button
+            onClick={() => handleLinkClick('about')}
+            className={`block w-full text-left py-2 font-semibold border-b border-gray-100 ${
+              currentPage === 'about' ? 'text-[#a87932]' : 'text-[#2d3748]'
+            }`}
           >
             About Us
-          </a>
-          <a
-            href="#media"
-            onClick={() => setMobileMenuOpen(false)}
-            className="block py-2 text-[#2d3748] font-medium hover:text-[#a87932] border-b border-gray-100"
+          </button>
+          <button
+            onClick={() => handleLinkClick('home', '#media')}
+            className="block w-full text-left py-2 text-[#2d3748] font-medium hover:text-[#a87932] border-b border-gray-100"
           >
             Media Coverage
-          </a>
-          <a
-            href="#gallery"
-            onClick={() => setMobileMenuOpen(false)}
-            className="block py-2 text-[#2d3748] font-medium hover:text-[#a87932] border-b border-gray-100"
+          </button>
+          <button
+            onClick={() => handleLinkClick('home', '#gallery')}
+            className="block w-full text-left py-2 text-[#2d3748] font-medium hover:text-[#a87932] border-b border-gray-100"
           >
             Gallery
-          </a>
-          <a
-            href="#businesses"
-            onClick={() => setMobileMenuOpen(false)}
-            className="block py-2 text-[#2d3748] font-medium hover:text-[#a87932] border-b border-gray-100"
+          </button>
+          <button
+            onClick={() => handleLinkClick('home', '#businesses')}
+            className="block w-full text-left py-2 text-[#2d3748] font-medium hover:text-[#a87932] border-b border-gray-100"
           >
             Connect Me
-          </a>
-          <a
-            href="#contact"
-            onClick={() => setMobileMenuOpen(false)}
-            className="block py-2 text-[#2d3748] font-medium hover:text-[#a87932] border-b border-gray-100"
+          </button>
+          <button
+            onClick={() => handleLinkClick('home', '#contact')}
+            className="block w-full text-left py-2 text-[#2d3748] font-medium hover:text-[#a87932] border-b border-gray-100"
           >
             Contact Us
-          </a>
+          </button>
 
           <div className="pt-2">
             <button

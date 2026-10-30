@@ -46,3 +46,4 @@ export const AppointmentBanner: React.FC<AppointmentBannerProps> = ({ onOpenAppo
     </section>
   );
 };
+

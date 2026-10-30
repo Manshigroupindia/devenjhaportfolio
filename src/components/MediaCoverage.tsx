@@ -163,3 +163,4 @@ export const MediaCoverage: React.FC<MediaCoverageProps> = ({ onSelectMedia, onV
     </section>
   );
 };
+

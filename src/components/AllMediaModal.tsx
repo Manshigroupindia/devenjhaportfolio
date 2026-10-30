@@ -121,3 +121,4 @@ export const AllMediaModal: React.FC<AllMediaModalProps> = ({ isOpen, onClose })
     </div>
   );
 };
+

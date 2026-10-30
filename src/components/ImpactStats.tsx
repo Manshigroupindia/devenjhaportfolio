@@ -122,3 +122,4 @@ export const ImpactStats: React.FC = () => {
     </section>
   );
 };
+

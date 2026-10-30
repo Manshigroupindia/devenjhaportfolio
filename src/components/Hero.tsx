@@ -3,9 +3,10 @@ import { ArrowRight, MapPin, Mouse } from 'lucide-react';
 
 interface HeroProps {
   onOpenAppointment: () => void;
+  onExploreJourney?: () => void;
 }
 
-export const Hero: React.FC<HeroProps> = ({ onOpenAppointment }) => {
+export const Hero: React.FC<HeroProps> = ({ onOpenAppointment, onExploreJourney }) => {
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-[#fbf8f3] via-[#f7f2e9] to-[#f5efe4] pt-8 pb-12 sm:pt-12 sm:pb-16 lg:pt-16 lg:pb-20 border-b border-[#ebdcc9]">
       {/* Subtle background glow */}
@@ -51,13 +52,23 @@ export const Hero: React.FC<HeroProps> = ({ onOpenAppointment }) => {
 
             {/* CTA Buttons */}
             <div className="flex flex-wrap items-center gap-3.5 mb-8">
-              <a
-                href="#about"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-[#a87932] hover:bg-[#946927] active:scale-[0.98] text-white text-[13.5px] font-semibold rounded-md shadow-md hover:shadow-lg transition-all duration-200"
-              >
-                <span>Explore My Journey</span>
-                <ArrowRight className="w-4 h-4" />
-              </a>
+              {onExploreJourney ? (
+                <button
+                  onClick={onExploreJourney}
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-[#a87932] hover:bg-[#946927] active:scale-[0.98] text-white text-[13.5px] font-semibold rounded-md shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer"
+                >
+                  <span>Explore My Journey</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              ) : (
+                <a
+                  href="#about"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-[#a87932] hover:bg-[#946927] active:scale-[0.98] text-white text-[13.5px] font-semibold rounded-md shadow-md hover:shadow-lg transition-all duration-200"
+                >
+                  <span>Explore My Journey</span>
+                  <ArrowRight className="w-4 h-4" />
+                </a>
+              )}
 
               <a
                 href="#social"
@@ -111,3 +122,4 @@ export const Hero: React.FC<HeroProps> = ({ onOpenAppointment }) => {
     </section>
   );
 };
+
