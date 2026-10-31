@@ -8,6 +8,7 @@ import {
   ArrowUp,
 } from 'lucide-react';
 import { PageType } from './Navbar.tsx';
+import { VisitorCounter } from './common/VisitorCounter.tsx';
 
 interface FooterProps {
   onNavigate?: (page: PageType) => void;
@@ -334,8 +335,13 @@ export const Footer: React.FC<FooterProps> = () => {
         </div>
 
         {/* Divider line */}
-        <div className="border-t border-[#172537] pt-6 flex flex-col md:flex-row items-center justify-between text-xs text-gray-500 gap-4">
-          <p>© 2025 Deven Jha. All Rights Reserved.</p>
+        <div className="border-t border-[#172537] pt-6 flex flex-col lg:flex-row items-center justify-between text-xs text-gray-500 gap-4">
+          <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3">
+            <p>© 2025 Deven Jha. All Rights Reserved.</p>
+            <span className="hidden sm:inline text-gray-700">•</span>
+            {/* Professional Visitor Counter in Footer */}
+            <VisitorCounter variant="footer" />
+          </div>
 
           {/* Manshi Group Website Credit */}
           <div className="text-center">

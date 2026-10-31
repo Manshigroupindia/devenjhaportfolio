@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ChevronDown, Menu, X, Globe, PhoneCall } from 'lucide-react';
 import { ReusableSocialGrid } from './common/ReusableSocialGrid.tsx';
-import { VisitorCounter } from './common/VisitorCounter.tsx';
 
 export type PageType =
   | 'home'
@@ -310,11 +309,8 @@ export const Navbar: React.FC<NavbarProps> = ({
             </Link>
           </nav>
 
-          {/* Right actions: Visitor Counter, Google Translate & Appointment CTA */}
-          <div className="hidden sm:flex items-center gap-2.5 lg:gap-3">
-            {/* Professional Visitor Counter (Tablet & Desktop) */}
-            <VisitorCounter variant="navbar-desktop" />
-
+          {/* Right actions: Google Translate & Appointment CTA */}
+          <div className="hidden sm:flex items-center gap-3">
             {/* Google Translate Wrapper */}
             <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-[#f5ede2]/60 hover:bg-[#f5ede2] border border-[#e4d6c4] rounded-md transition-all text-xs font-medium text-[#4a5568]">
               <Globe className="w-3.5 h-3.5 text-[#a87932]" />
@@ -361,19 +357,9 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
       </div>
 
-      {/* Mobile Compact Sub-bar for Visitor Counter (< sm, non-overflowing) */}
-      <div className="sm:hidden border-t border-[#f0e8db] bg-[#faf8f5]/95 px-3 py-1 flex items-center justify-between text-xs">
-        <VisitorCounter variant="navbar-mobile-strip" />
-        <span className="text-[9.5px] font-semibold text-[#b8863b] uppercase tracking-wider">
-          Official Portfolio
-        </span>
-      </div>
-
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
         <div className="lg:hidden bg-white border-b border-[#ebdcc9] px-4 pt-3 pb-6 space-y-3 animate-fadeIn">
-          {/* Prominent Visitor Counter Card inside Drawer */}
-          <VisitorCounter variant="navbar-drawer" />
           <Link
             to="/"
             onClick={() => setMobileMenuOpen(false)}

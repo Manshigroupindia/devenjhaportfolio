@@ -17,7 +17,7 @@
 import { doc, runTransaction, onSnapshot, getDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase.ts';
 
-const COUNTER_COLLECTION = 'siteStats';
+const COUNTER_COLLECTION = 'system';
 const COUNTER_DOC = 'visitorCounter';
 export const INITIAL_VISITOR_COUNT = 30343;
 

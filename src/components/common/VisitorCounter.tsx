@@ -3,15 +3,37 @@ import { Eye } from 'lucide-react';
 import { useVisitorCounter } from '../../hooks/useVisitorCounter.ts';
 
 interface VisitorCounterProps {
-  variant?: 'navbar-desktop' | 'navbar-mobile-strip' | 'navbar-drawer';
+  variant?: 'footer' | 'navbar-desktop' | 'navbar-mobile-strip' | 'navbar-drawer';
   className?: string;
 }
 
 export const VisitorCounter: React.FC<VisitorCounterProps> = ({
-  variant = 'navbar-desktop',
+  variant = 'footer',
   className = '',
 }) => {
   const { formattedCount, loading } = useVisitorCounter();
+
+  // 1. Dark Navy Footer layout (subtle pill, champagne gold eye, crisp white numbers)
+  if (variant === 'footer') {
+    return (
+      <div
+        className={`inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#121f2f] hover:bg-[#16273b] border border-[#20364e] hover:border-[#b8863b]/60 rounded-full text-xs text-gray-300 shadow-2xs transition-colors select-none ${className}`}
+        title="Official Website Visitor Count"
+      >
+        <Eye className="w-3.5 h-3.5 text-[#b8863b] shrink-0" />
+        {loading ? (
+          <span className="w-11 h-3 bg-gray-700/60 rounded animate-pulse inline-block" />
+        ) : (
+          <span className="font-semibold text-white tabular-nums tracking-tight text-[11.5px]">
+            {formattedCount}
+          </span>
+        )}
+        <span className="text-[10.5px] text-gray-400 font-medium">
+          Visitors
+        </span>
+      </div>
+    );
+  }
 
   // 1. Mobile top sub-bar layout (ultra-compact, prevents any main navbar overflow)
   if (variant === 'navbar-mobile-strip') {
