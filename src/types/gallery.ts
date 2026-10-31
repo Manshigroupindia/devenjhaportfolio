@@ -29,16 +29,24 @@ export interface GalleryImageItem {
 export interface GalleryVideoItem {
   id: string;
   category: 'videos';
+  videoType?: 'youtube' | 'uploaded';
   thumbnail: string;
+  thumbnailUrl?: string;
   title?: string;
   date?: string;
   channel?: string;
   duration?: string;
-  embedUrl: string;
+  embedUrl?: string;
   youtubeUrl?: string;
   youtubeId?: string;
+  youtubeVideoId?: string;
+  videoUrl?: string;
+  cloudinaryPublicId?: string;
+  resourceType?: string;
+  format?: string;
   description?: string;
   order?: number;
+  sortOrder?: number;
   isActive?: boolean;
   createdAt?: string;
   updatedAt?: string;

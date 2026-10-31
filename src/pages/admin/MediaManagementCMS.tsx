@@ -32,6 +32,7 @@ import { doc, setDoc, deleteDoc, collection, query, orderBy, onSnapshot } from '
 import { db } from '../../lib/firebase.ts';
 import { uploadToCloudinary } from '../../lib/cloudinary.ts';
 import { CloudinaryUploadWidget } from '../../components/admin/CloudinaryUploadWidget.tsx';
+import { CloudinaryVideoUploadWidget } from '../../components/admin/CloudinaryVideoUploadWidget.tsx';
 import { BulkGalleryMediaUploader } from '../../components/admin/BulkGalleryMediaUploader.tsx';
 import { GalleryCategoryKey, GalleryImageItem, GalleryVideoItem } from '../../types/gallery.ts';
 
@@ -136,6 +137,8 @@ export const MediaManagementCMS: React.FC = () => {
     location: string;
     photographer: string;
     // Video specific:
+    videoType: 'youtube' | 'uploaded';
+    videoUrl: string;
     embedUrl: string;
     youtubeUrl: string;
     channel: string;
@@ -151,6 +154,8 @@ export const MediaManagementCMS: React.FC = () => {
     date: '',
     location: '',
     photographer: '',
+    videoType: 'youtube',
+    videoUrl: '',
     embedUrl: '',
     youtubeUrl: '',
     channel: '',
@@ -231,9 +236,11 @@ export const MediaManagementCMS: React.FC = () => {
       date: '',
       location: '',
       photographer: '',
+      videoType: 'youtube',
+      videoUrl: '',
       embedUrl: '',
       youtubeUrl: '',
-      channel: 'Janta Live',
+      channel: activeCategoryKey === 'videos' ? 'Official Video' : 'Janta Live',
       duration: '',
     });
     setIsModalOpen(true);
@@ -245,21 +252,25 @@ export const MediaManagementCMS: React.FC = () => {
     const isVid = item.category === 'videos';
     const vid = isVid ? (item as GalleryVideoItem) : null;
     const img = !isVid ? (item as GalleryImageItem) : null;
+    const detectedType: 'youtube' | 'uploaded' =
+      vid?.videoType || (vid?.videoUrl ? 'uploaded' : 'youtube');
 
     setFormData({
       category: item.category,
-      image: img?.image || img?.imageUrl || vid?.thumbnail || '',
-      imageUrl: img?.imageUrl || img?.image || vid?.thumbnail || '',
-      publicId: img?.publicId || '',
+      image: img?.image || img?.imageUrl || vid?.thumbnail || vid?.thumbnailUrl || '',
+      imageUrl: img?.imageUrl || img?.image || vid?.thumbnail || vid?.thumbnailUrl || '',
+      publicId: img?.publicId || vid?.cloudinaryPublicId || '',
       title: item.title || '',
       caption: img?.caption || img?.subtitle || '',
       description: item.description || '',
       date: item.date || '',
       location: img?.location || '',
       photographer: img?.photographer || '',
+      videoType: detectedType,
+      videoUrl: vid?.videoUrl || '',
       embedUrl: vid?.embedUrl || '',
       youtubeUrl: vid?.youtubeUrl || '',
-      channel: vid?.channel || 'Janta Live',
+      channel: vid?.channel || (detectedType === 'uploaded' ? 'Official Video' : 'Janta Live'),
       duration: vid?.duration || '',
     });
     setIsModalOpen(true);
@@ -368,9 +379,18 @@ export const MediaManagementCMS: React.FC = () => {
       setErrorMessage('Please upload or provide an Image URL.');
       return;
     }
-    if (isVideo && !formData.embedUrl.trim() && !formData.youtubeUrl.trim()) {
-      setErrorMessage('Please provide a video URL or YouTube link.');
-      return;
+    if (isVideo) {
+      if (formData.videoType === 'uploaded') {
+        if (!formData.videoUrl.trim()) {
+          setErrorMessage('Please select and upload a video file first.');
+          return;
+        }
+      } else {
+        if (!formData.youtubeUrl.trim() && !formData.embedUrl.trim()) {
+          setErrorMessage('Please provide a valid YouTube video link.');
+          return;
+        }
+      }
     }
 
     const docId = editingItem ? editingItem.id : `gallery-${formData.category}-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
@@ -404,18 +424,36 @@ export const MediaManagementCMS: React.FC = () => {
     }
 
     if (isVideo) {
-      const autoThumb = (youtubeId && !formData.image)
-        ? `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`
-        : formData.image.trim();
+      payload.videoType = formData.videoType;
 
-      payload.thumbnail = autoThumb;
-      payload.embedUrl = finalEmbedUrl;
-      payload.youtubeUrl = formData.youtubeUrl.trim();
-      payload.youtubeId = youtubeId;
-      payload.channel = formData.channel.trim() || 'Janta Live';
-      payload.duration = formData.duration.trim();
-      payload.title = formData.title.trim() || 'Broadcast Video';
-      payload.description = formData.description.trim();
+      if (formData.videoType === 'uploaded') {
+        const autoThumb = formData.image.trim() || formData.videoUrl.trim().replace(/\.[a-zA-Z0-9]+$/, '.jpg');
+        payload.videoUrl = formData.videoUrl.trim();
+        payload.embedUrl = formData.videoUrl.trim();
+        payload.thumbnail = autoThumb;
+        payload.thumbnailUrl = autoThumb;
+        payload.cloudinaryPublicId = formData.publicId.trim();
+        payload.resourceType = 'video';
+        payload.channel = formData.channel.trim() || 'Official Video';
+        payload.duration = formData.duration.trim();
+        payload.title = formData.title.trim();
+        payload.description = formData.description.trim();
+      } else {
+        const autoThumb = (youtubeId && !formData.image)
+          ? `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`
+          : formData.image.trim();
+
+        payload.thumbnail = autoThumb;
+        payload.thumbnailUrl = autoThumb;
+        payload.embedUrl = finalEmbedUrl;
+        payload.youtubeUrl = formData.youtubeUrl.trim();
+        payload.youtubeId = youtubeId;
+        payload.youtubeVideoId = youtubeId;
+        payload.channel = formData.channel.trim() || 'Janta Live';
+        payload.duration = formData.duration.trim();
+        payload.title = formData.title.trim();
+        payload.description = formData.description.trim();
+      }
     } else {
       payload.image = formData.image.trim();
       payload.imageUrl = formData.imageUrl.trim() || formData.image.trim();
@@ -722,9 +760,15 @@ export const MediaManagementCMS: React.FC = () => {
                   {/* Order Tag & Video Badge */}
                   <div className="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10">
                     {isVideo && (
-                      <span className="bg-red-600 text-white text-[9px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-sm">
+                      <span
+                        className={`${
+                          vid?.videoType === 'uploaded' || vid?.videoUrl
+                            ? 'bg-blue-600'
+                            : 'bg-red-600'
+                        } text-white text-[9px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-sm`}
+                      >
                         <Play className="w-2.5 h-2.5 fill-white" />
-                        <span>VIDEO</span>
+                        <span>{vid?.videoType === 'uploaded' || vid?.videoUrl ? 'UPLOADED MP4' : 'YOUTUBE'}</span>
                       </span>
                     )}
                     <span className="bg-[#14283B]/90 backdrop-blur-xs text-white text-[9px] font-bold px-2 py-0.5 rounded-full shadow-sm">
@@ -926,65 +970,186 @@ export const MediaManagementCMS: React.FC = () => {
                   />
                 </div>
               ) : (
-                <div className="space-y-3 bg-[#FAF8F5] p-4 rounded-xl border border-[#ebdcc9]">
+                <div className="space-y-4 bg-[#FAF8F5] p-4 rounded-xl border border-[#ebdcc9]">
+                  {/* Video Option Switcher */}
                   <div>
-                    <label className="block text-xs font-bold text-[#14283B] uppercase mb-1">
-                      YouTube URL or Embed Link <span className="text-red-500">* Required</span>
+                    <label className="block text-xs font-bold text-[#14283B] uppercase mb-1.5">
+                      Select Video Upload Mode <span className="text-red-500">* Required</span>
                     </label>
-                    <input
-                      type="text"
-                      placeholder="https://www.youtube.com/watch?v=..."
-                      value={formData.youtubeUrl}
-                      onChange={(e) => setFormData({ ...formData, youtubeUrl: e.target.value })}
-                      className="w-full px-3 py-2 text-xs bg-white border border-[#d6c7b3] rounded-lg focus:outline-none focus:border-[#BD9256]"
-                    />
-                  </div>
+                    <div className="grid grid-cols-2 gap-2 bg-[#eee5d8]/70 p-1 rounded-lg">
+                      <button
+                        type="button"
+                        onClick={() => setFormData({ ...formData, videoType: 'youtube' })}
+                        className={`py-2 px-3 text-xs font-bold rounded-md flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                          formData.videoType === 'youtube'
+                            ? 'bg-white text-red-600 shadow-sm border border-[#d6c7b3]'
+                            : 'text-gray-600 hover:text-[#14283B]'
+                        }`}
+                      >
+                        <Play className="w-3.5 h-3.5 fill-current" />
+                        <span>Option A: YouTube</span>
+                      </button>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-[11px] font-bold text-[#14283B] uppercase mb-1">
-                        Channel / Source (Optional)
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="e.g. Janta Live News"
-                        value={formData.channel}
-                        onChange={(e) => setFormData({ ...formData, channel: e.target.value })}
-                        className="w-full px-3 py-1.5 text-xs bg-white border border-[#d6c7b3] rounded-lg focus:outline-none focus:border-[#BD9256]"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-[11px] font-bold text-[#14283B] uppercase mb-1">
-                        Video Duration (Optional)
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="e.g. 18:45"
-                        value={formData.duration}
-                        onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
-                        className="w-full px-3 py-1.5 text-xs bg-white border border-[#d6c7b3] rounded-lg focus:outline-none focus:border-[#BD9256]"
-                      />
+                      <button
+                        type="button"
+                        onClick={() => setFormData({ ...formData, videoType: 'uploaded' })}
+                        className={`py-2 px-3 text-xs font-bold rounded-md flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                          formData.videoType === 'uploaded'
+                            ? 'bg-white text-[#BD9256] shadow-sm border border-[#d6c7b3]'
+                            : 'text-gray-600 hover:text-[#14283B]'
+                        }`}
+                      >
+                        <UploadCloud className="w-3.5 h-3.5" />
+                        <span>Option B: Direct Video</span>
+                      </button>
                     </div>
                   </div>
 
-                  <div>
-                    <label className="block text-[11px] font-bold text-[#14283B] uppercase mb-1">
-                      Custom Thumbnail (Optional — auto uses YouTube if blank)
-                    </label>
-                    <CloudinaryUploadWidget
-                      label="Upload Custom Thumbnail"
-                      subfolder="gallery/videos"
-                      currentImageUrl={formData.image}
-                      onImageUploaded={(url, publicId) => {
-                        setFormData({
-                          ...formData,
-                          image: url,
-                          imageUrl: url,
-                          publicId: publicId || '',
-                        });
-                      }}
-                    />
-                  </div>
+                  {/* Option A: YouTube Video Form */}
+                  {formData.videoType === 'youtube' && (
+                    <div className="space-y-3 pt-1">
+                      <div>
+                        <label className="block text-xs font-bold text-[#14283B] uppercase mb-1">
+                          YouTube Video URL or Embed Link <span className="text-red-500">* Required</span>
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="https://www.youtube.com/watch?v=... or https://youtu.be/..."
+                          value={formData.youtubeUrl}
+                          onChange={(e) => setFormData({ ...formData, youtubeUrl: e.target.value })}
+                          className="w-full px-3 py-2 text-xs bg-white border border-[#d6c7b3] rounded-lg focus:outline-none focus:border-[#BD9256]"
+                        />
+                        <p className="text-[11px] text-gray-500 mt-1">
+                          Enter any standard YouTube video URL, live stream, or Shorts link.
+                        </p>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-[11px] font-bold text-[#14283B] uppercase mb-1">
+                            Channel / Source (Optional)
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="e.g. Janta Live News"
+                            value={formData.channel}
+                            onChange={(e) => setFormData({ ...formData, channel: e.target.value })}
+                            className="w-full px-3 py-1.5 text-xs bg-white border border-[#d6c7b3] rounded-lg focus:outline-none focus:border-[#BD9256]"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[11px] font-bold text-[#14283B] uppercase mb-1">
+                            Video Duration (Optional)
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="e.g. 18:45"
+                            value={formData.duration}
+                            onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
+                            className="w-full px-3 py-1.5 text-xs bg-white border border-[#d6c7b3] rounded-lg focus:outline-none focus:border-[#BD9256]"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-bold text-[#14283B] uppercase mb-1">
+                          Custom Thumbnail (Optional — auto uses YouTube if blank)
+                        </label>
+                        <CloudinaryUploadWidget
+                          label="Upload Custom Thumbnail"
+                          subfolder="gallery/videos"
+                          currentImageUrl={formData.image}
+                          onImageUploaded={(url, publicId) => {
+                            setFormData({
+                              ...formData,
+                              image: url,
+                              imageUrl: url,
+                              publicId: publicId || '',
+                            });
+                          }}
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Option B: Direct Video Upload Form */}
+                  {formData.videoType === 'uploaded' && (
+                    <div className="space-y-3 pt-1">
+                      <div>
+                        <label className="block text-xs font-bold text-[#14283B] uppercase mb-1">
+                          Direct Video File (MP4, WebM, MOV) <span className="text-red-500">* Required</span>
+                        </label>
+                        <CloudinaryVideoUploadWidget
+                          currentVideoUrl={formData.videoUrl}
+                          currentThumbnailUrl={formData.image}
+                          onVideoUploaded={(res) => {
+                            setFormData({
+                              ...formData,
+                              videoUrl: res.videoUrl,
+                              embedUrl: res.videoUrl,
+                              image: formData.image || res.thumbnailUrl,
+                              imageUrl: formData.imageUrl || res.thumbnailUrl,
+                              publicId: res.publicId,
+                              duration: formData.duration || res.duration || '',
+                              channel: formData.channel || 'Official Video',
+                            });
+                          }}
+                          onVideoRemoved={() => {
+                            setFormData({
+                              ...formData,
+                              videoUrl: '',
+                              embedUrl: '',
+                            });
+                          }}
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-[11px] font-bold text-[#14283B] uppercase mb-1">
+                            Channel / Attribution (Optional)
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="e.g. Official Archive / Deven Jha Media"
+                            value={formData.channel}
+                            onChange={(e) => setFormData({ ...formData, channel: e.target.value })}
+                            className="w-full px-3 py-1.5 text-xs bg-white border border-[#d6c7b3] rounded-lg focus:outline-none focus:border-[#BD9256]"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[11px] font-bold text-[#14283B] uppercase mb-1">
+                            Duration (Optional — auto-filled on upload)
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="e.g. 03:25"
+                            value={formData.duration}
+                            onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
+                            className="w-full px-3 py-1.5 text-xs bg-white border border-[#d6c7b3] rounded-lg focus:outline-none focus:border-[#BD9256]"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-bold text-[#14283B] uppercase mb-1">
+                          Custom Thumbnail Poster (Optional — auto-generates first frame from video if blank)
+                        </label>
+                        <CloudinaryUploadWidget
+                          label="Upload Custom Video Poster"
+                          subfolder="gallery/videos"
+                          currentImageUrl={formData.image}
+                          onImageUploaded={(url, publicId) => {
+                            setFormData({
+                              ...formData,
+                              image: url,
+                              imageUrl: url,
+                            });
+                          }}
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -1109,7 +1274,15 @@ export const MediaManagementCMS: React.FC = () => {
               <X className="w-5 h-5" />
             </button>
             <div className="aspect-[4/3] bg-black flex items-center justify-center">
-              {'embedUrl' in previewItem && previewItem.embedUrl ? (
+              {'videoUrl' in previewItem && (previewItem as any).videoUrl ? (
+                <video
+                  src={(previewItem as any).videoUrl}
+                  poster={(previewItem as any).thumbnail}
+                  controls
+                  playsInline
+                  className="w-full h-full object-contain"
+                />
+              ) : 'embedUrl' in previewItem && previewItem.embedUrl && !previewItem.embedUrl.endsWith('.mp4') ? (
                 <iframe
                   src={previewItem.embedUrl}
                   title={previewItem.title || 'Video'}

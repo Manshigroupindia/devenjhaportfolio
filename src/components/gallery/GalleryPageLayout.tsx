@@ -99,96 +99,131 @@ export const GalleryPageLayout: React.FC<GalleryPageLayoutProps> = ({
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-                    {currentVideos.slice(0, visibleCount).map((vid) => (
-                      <div
-                        key={vid.id}
-                        onClick={() =>
-                          setActiveVideo({
-                            id: vid.id,
-                            youtubeId: 'stream',
-                            embedUrl: vid.embedUrl,
-                            thumbnail: vid.thumbnail,
-                            title: vid.title,
-                            channel: vid.channel || 'Janta Live',
-                            date: vid.date || 'Recent',
-                            category: 'Digital Broadcast',
-                            duration: vid.duration || '20:00',
-                            description: vid.description,
-                          })
-                        }
-                        className="group bg-white rounded-xl overflow-hidden border border-[#e2d6c5] shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col cursor-pointer hover:border-[#BD9256]"
-                      >
-                        {/* 16:9 Thumbnail with Play overlay */}
-                        <div className="relative aspect-video bg-[#0d1826] overflow-hidden flex items-center justify-center">
-                          {vid.thumbnail ? (
-                            <img
-                              src={vid.thumbnail}
-                              alt={vid.title}
-                              loading="lazy"
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90"
-                              onError={(e) => {
-                                (e.currentTarget as HTMLElement).style.display = 'none';
-                              }}
-                            />
-                          ) : (
-                            <Tv className="w-10 h-10 text-[#BD9256]" />
-                          )}
+                    {currentVideos.slice(0, visibleCount).map((vid) => {
+                      const isUploaded = vid.videoType === 'uploaded' || Boolean(vid.videoUrl);
+                      const thumbSrc =
+                        vid.thumbnail ||
+                        vid.thumbnailUrl ||
+                        (vid.videoUrl ? vid.videoUrl.replace(/\.[a-zA-Z0-9]+$/, '.jpg') : '');
+                      const hasTitle = Boolean(
+                        vid.title &&
+                        vid.title.trim() !== '' &&
+                        vid.title.toLowerCase() !== 'untitled' &&
+                        vid.title.toLowerCase() !== 'broadcast video'
+                      );
+                      const hasDescription = Boolean(vid.description && vid.description.trim() !== '');
+                      const hasDateOrChannel = Boolean(vid.date || vid.channel);
+                      const hasAnyText = hasTitle || hasDescription || hasDateOrChannel;
 
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent" />
+                      return (
+                        <div
+                          key={vid.id}
+                          onClick={() =>
+                            setActiveVideo({
+                              id: vid.id,
+                              youtubeId: vid.youtubeId || vid.youtubeVideoId || (!isUploaded ? 'stream' : undefined),
+                              embedUrl: vid.embedUrl,
+                              videoUrl: vid.videoUrl,
+                              videoType: isUploaded ? 'uploaded' : 'youtube',
+                              thumbnail: thumbSrc,
+                              title: vid.title || (isUploaded ? 'Archival Video' : 'Broadcast Video'),
+                              channel: vid.channel || (isUploaded ? 'Official Video' : 'Janta Live'),
+                              date: vid.date || 'Archival',
+                              category: isUploaded ? 'Official Video' : 'Digital Broadcast',
+                              duration: vid.duration || '',
+                              description: vid.description || '',
+                            })
+                          }
+                          className="group bg-white rounded-xl overflow-hidden border border-[#e2d6c5] shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col cursor-pointer hover:border-[#BD9256]"
+                        >
+                          {/* 16:9 Thumbnail with Play overlay */}
+                          <div className="relative aspect-video bg-[#0d1826] overflow-hidden flex items-center justify-center">
+                            {thumbSrc ? (
+                              <img
+                                src={thumbSrc}
+                                alt={vid.title || 'Video Thumbnail'}
+                                loading="lazy"
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90"
+                                onError={(e) => {
+                                  (e.currentTarget as HTMLElement).style.display = 'none';
+                                }}
+                              />
+                            ) : (
+                              <Tv className="w-10 h-10 text-[#BD9256]" />
+                            )}
 
-                          {/* Central Play Button */}
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[#BD9256] text-white shadow-xl flex items-center justify-center transform group-hover:scale-115 transition-transform duration-300">
-                              <Play className="w-5 h-5 sm:w-6 sm:h-6 fill-white ml-0.5" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent" />
+
+                            {/* Central Play Button */}
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[#BD9256] text-white shadow-xl flex items-center justify-center transform group-hover:scale-115 transition-transform duration-300">
+                                <Play className="w-5 h-5 sm:w-6 sm:h-6 fill-white ml-0.5" />
+                              </div>
                             </div>
-                          </div>
 
-                          {/* Badges */}
-                          {vid.duration && (
-                            <div className="absolute bottom-2.5 right-2.5 bg-black/80 backdrop-blur-xs text-white text-[11px] font-semibold px-2 py-0.5 rounded flex items-center gap-1">
-                              <Clock className="w-3 h-3" />
-                              <span>{vid.duration}</span>
-                            </div>
-                          )}
-
-                          {vid.channel && (
-                            <div className="absolute top-2.5 left-2.5 bg-[#14283B]/90 text-white text-[10px] font-bold px-2.5 py-0.5 rounded border border-[#BD9256]/30">
-                              {vid.channel}
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Video Content */}
-                        <div className="p-5 flex flex-col justify-between flex-1">
-                          <div>
-                            {vid.date && (
-                              <div className="flex items-center gap-1.5 text-xs text-[#777777] mb-2">
-                                <Calendar className="w-3 h-3 text-[#BD9256]" />
-                                <span>{vid.date}</span>
+                            {/* Badges */}
+                            {vid.duration && (
+                              <div className="absolute bottom-2.5 right-2.5 bg-black/80 backdrop-blur-xs text-white text-[11px] font-semibold px-2 py-0.5 rounded flex items-center gap-1">
+                                <Clock className="w-3 h-3" />
+                                <span>{vid.duration}</span>
                               </div>
                             )}
 
-                            <h3 className="font-serif font-bold text-[16px] text-[#14283B] group-hover:text-[#BD9256] transition-colors leading-snug mb-2 line-clamp-2">
-                              {vid.title}
-                            </h3>
-
-                            {vid.description && (
-                              <p className="text-xs text-[#64748b] leading-relaxed line-clamp-2 mb-4">
-                                {vid.description}
-                              </p>
+                            {(vid.channel || isUploaded) && (
+                              <div className="absolute top-2.5 left-2.5 bg-[#14283B]/90 text-white text-[10px] font-bold px-2.5 py-0.5 rounded border border-[#BD9256]/30">
+                                {vid.channel || (isUploaded ? 'Official Video' : 'YouTube')}
+                              </div>
                             )}
                           </div>
 
-                          <div className="pt-3 border-t border-[#f0e8dc] flex items-center justify-between text-xs font-semibold text-[#BD9256]">
-                            <span className="flex items-center gap-1.5">
-                              <Play className="w-3.5 h-3.5 fill-[#BD9256]" />
-                              <span>Watch on Site</span>
-                            </span>
-                            <span className="text-gray-400 text-[11px]">HD Video</span>
-                          </div>
+                          {/* Video Content */}
+                          {hasAnyText ? (
+                            <div className="p-5 flex flex-col justify-between flex-1">
+                              <div>
+                                {vid.date && (
+                                  <div className="flex items-center gap-1.5 text-xs text-[#777777] mb-2">
+                                    <Calendar className="w-3 h-3 text-[#BD9256]" />
+                                    <span>{vid.date}</span>
+                                  </div>
+                                )}
+
+                                {hasTitle && (
+                                  <h3 className="font-serif font-bold text-[16px] text-[#14283B] group-hover:text-[#BD9256] transition-colors leading-snug mb-2 line-clamp-2">
+                                    {vid.title}
+                                  </h3>
+                                )}
+
+                                {hasDescription && (
+                                  <p className="text-xs text-[#64748b] leading-relaxed line-clamp-2 mb-4">
+                                    {vid.description}
+                                  </p>
+                                )}
+                              </div>
+
+                              <div className="pt-3 border-t border-[#f0e8dc] flex items-center justify-between text-xs font-semibold text-[#BD9256]">
+                                <span className="flex items-center gap-1.5">
+                                  <Play className="w-3.5 h-3.5 fill-[#BD9256]" />
+                                  <span>Watch on Site</span>
+                                </span>
+                                <span className="text-gray-400 text-[11px]">
+                                  {isUploaded ? 'HD MP4' : 'HD Video'}
+                                </span>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="px-5 py-3 border-t border-[#f0e8dc] flex items-center justify-between text-xs font-semibold text-[#BD9256]">
+                              <span className="flex items-center gap-1.5">
+                                <Play className="w-3.5 h-3.5 fill-[#BD9256]" />
+                                <span>Watch on Site</span>
+                              </span>
+                              <span className="text-gray-400 text-[11px]">
+                                {isUploaded ? 'HD MP4' : 'HD Video'}
+                              </span>
+                            </div>
+                          )}
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>
