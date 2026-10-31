@@ -17,6 +17,11 @@ import {
   ContactSettingsDoc,
 } from '../types/cms.ts';
 import {
+  GalleryCategoryKey,
+  GalleryImageItem,
+  GalleryVideoItem,
+} from '../types/gallery.ts';
+import {
   defaultHomePageContent,
   defaultAboutPageContent,
   defaultBusinesses,
@@ -363,4 +368,100 @@ export function useContactSettings() {
   }, []);
 
   return { data, loading, error };
+}
+
+/**
+ * Hook for Gallery Media (Category-wise or all with real-time onSnapshot sync)
+ */
+export function useGalleryMedia(category?: GalleryCategoryKey, onlyActive: boolean = true) {
+  const [data, setData] = useState<GalleryImageItem[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let unsubscribe: (() => void) | undefined;
+    try {
+      const q = query(collection(db, 'gallery_media'), orderBy('order', 'asc'));
+      unsubscribe = onSnapshot(
+        q,
+        (snapshot) => {
+          const items: GalleryImageItem[] = [];
+          snapshot.forEach((docSnap) => {
+            const item = { id: docSnap.id, ...docSnap.data() } as GalleryImageItem;
+            // Filter by active if requested
+            if (onlyActive && item.isActive === false) return;
+            // Filter by category if requested
+            if (category && item.category !== category) return;
+            items.push(item);
+          });
+
+          setData(items);
+          setLoading(false);
+          setError(null);
+        },
+        (err) => {
+          console.warn('Gallery media listener notice:', err.message);
+          setLoading(false);
+          setError(err.message);
+        }
+      );
+    } catch (err: any) {
+      console.warn('Error loading gallery media:', err?.message);
+      setLoading(false);
+      setError(err?.message || 'Failed to load gallery');
+    }
+
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  }, [category, onlyActive]);
+
+  return { data, loading, error, setData };
+}
+
+/**
+ * Hook for Gallery Videos (with real-time onSnapshot sync)
+ */
+export function useGalleryVideos(onlyActive: boolean = true) {
+  const [data, setData] = useState<GalleryVideoItem[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let unsubscribe: (() => void) | undefined;
+    try {
+      const q = query(collection(db, 'gallery_media'), orderBy('order', 'asc'));
+      unsubscribe = onSnapshot(
+        q,
+        (snapshot) => {
+          const items: GalleryVideoItem[] = [];
+          snapshot.forEach((docSnap) => {
+            const d = docSnap.data();
+            if (d.category !== 'videos') return;
+            if (onlyActive && d.isActive === false) return;
+            items.push({ id: docSnap.id, ...d } as GalleryVideoItem);
+          });
+
+          setData(items);
+          setLoading(false);
+          setError(null);
+        },
+        (err) => {
+          console.warn('Gallery videos listener notice:', err.message);
+          setLoading(false);
+          setError(err.message);
+        }
+      );
+    } catch (err: any) {
+      console.warn('Error loading gallery videos:', err?.message);
+      setLoading(false);
+      setError(err?.message || 'Failed to load videos');
+    }
+
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  }, [onlyActive]);
+
+  return { data, loading, error, setData };
 }

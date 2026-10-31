@@ -26,7 +26,7 @@ const BASE_FOLDER = import.meta.env.VITE_CLOUDINARY_FOLDER || 'portfolio';
  */
 export async function uploadToCloudinary(
   file: File,
-  subfolder: 'home' | 'about' | 'print-media' | 'business-logos' | 'general' = 'general',
+  subfolder: string = 'general',
   onProgress?: (percent: number) => void
 ): Promise<CloudinaryUploadResult> {
   const targetFolder = `${BASE_FOLDER}/${subfolder}`;

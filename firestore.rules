@@ -33,6 +33,16 @@ service cloud.firestore {
       allow write: if isAuthenticated();
     }
 
+    match /gallery_media/{document=**} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /gallery/{document=**} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
     // Public visitor submissions for contact form & appointment requests
     match /contact_submissions/{submissionId} {
       allow create: if true;

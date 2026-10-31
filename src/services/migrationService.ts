@@ -9,6 +9,7 @@ import {
   defaultSocialProfiles,
   defaultContactSettings,
 } from './defaultData.ts';
+import { GALLERY_IMAGES, GALLERY_VIDEOS } from '../data/galleryData.ts';
 
 export interface MigrationStatus {
   completed: boolean;
@@ -18,6 +19,7 @@ export interface MigrationStatus {
     digitalMedia: number;
     businesses: number;
     socialProfiles: number;
+    galleryMedia?: number;
   };
 }
 
@@ -108,12 +110,42 @@ export async function runMigration(force: boolean = false): Promise<{ success: b
       }, { merge: true });
     }
 
-    // 8. Record Migration Completion Flag
+    // 8. Migrate Gallery Media
+    let galleryCount = 0;
+    for (const [catKey, imageList] of Object.entries(GALLERY_IMAGES)) {
+      for (let i = 0; i < imageList.length; i++) {
+        const item = imageList[i];
+        await setDoc(doc(db, 'gallery_media', item.id), {
+          ...item,
+          category: catKey,
+          order: i + 1,
+          isActive: true,
+          createdAt: timestamp,
+          updatedAt: timestamp,
+        }, { merge: true });
+        galleryCount++;
+      }
+    }
+    for (let i = 0; i < GALLERY_VIDEOS.length; i++) {
+      const vid = GALLERY_VIDEOS[i];
+      await setDoc(doc(db, 'gallery_media', vid.id), {
+        ...vid,
+        category: 'videos',
+        order: i + 1,
+        isActive: true,
+        createdAt: timestamp,
+        updatedAt: timestamp,
+      }, { merge: true });
+      galleryCount++;
+    }
+
+    // 9. Record Migration Completion Flag
     const counts = {
       printMedia: defaultPrintMedia.length,
       digitalMedia: defaultDigitalMedia.length,
       businesses: defaultBusinesses.length,
       socialProfiles: defaultSocialProfiles.length,
+      galleryMedia: galleryCount,
     };
 
     await setDoc(doc(db, 'system', 'migration'), {
@@ -124,7 +156,7 @@ export async function runMigration(force: boolean = false): Promise<{ success: b
 
     return {
       success: true,
-      message: `Successfully migrated all portfolio sections into Firestore (${counts.printMedia} print, ${counts.digitalMedia} digital, ${counts.businesses} businesses, ${counts.socialProfiles} socials).`,
+      message: `Successfully migrated all portfolio sections into Firestore (${counts.printMedia} print, ${counts.digitalMedia} digital, ${counts.businesses} businesses, ${counts.socialProfiles} socials, ${galleryCount} gallery items).`,
     };
   } catch (error: any) {
     console.error('Migration failed:', error);

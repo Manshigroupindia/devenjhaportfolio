@@ -17,6 +17,7 @@ import { HomeCMS } from './pages/admin/HomeCMS.tsx';
 import { AboutCMS } from './pages/admin/AboutCMS.tsx';
 import { PrintMediaCMS } from './pages/admin/PrintMediaCMS.tsx';
 import { DigitalMediaCMS } from './pages/admin/DigitalMediaCMS.tsx';
+import { MediaManagementCMS } from './pages/admin/MediaManagementCMS.tsx';
 import { ConnectMeCMS } from './pages/admin/ConnectMeCMS.tsx';
 import { MyBusinessCMS } from './pages/admin/MyBusinessCMS.tsx';
 import { ContactDetailsCMS } from './pages/admin/ContactDetailsCMS.tsx';
@@ -152,6 +153,8 @@ function AppRoutes() {
           <Route path="about" element={<AboutCMS />} />
           <Route path="print-media" element={<PrintMediaCMS />} />
           <Route path="digital-media" element={<DigitalMediaCMS />} />
+          <Route path="media" element={<MediaManagementCMS />} />
+          <Route path="gallery" element={<Navigate to="/admin/media" replace />} />
           <Route path="connect-me" element={<ConnectMeCMS />} />
           <Route path="my-business" element={<MyBusinessCMS />} />
           <Route path="contact-details" element={<ContactDetailsCMS />} />

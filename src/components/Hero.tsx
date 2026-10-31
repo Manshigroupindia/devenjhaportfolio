@@ -105,13 +105,13 @@ export const Hero: React.FC<HeroProps> = ({ onOpenAppointment, onExploreJourney,
           <div className="lg:col-span-5 relative flex justify-center lg:justify-end">
             <div className="relative w-full max-w-[480px] group">
               {/* Image Frame */}
-              <div className="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-white/80 bg-[#f4ede3] min-h-[420px] flex items-center justify-center">
+              <div className="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-white/80 bg-white">
                 {portraitImage ? (
                   <>
                     <img
                       src={portraitImage}
                       alt={fullName}
-                      className="w-full h-auto object-cover object-center transform group-hover:scale-[1.02] transition-transform duration-500"
+                      className="w-full h-auto block transform group-hover:scale-[1.02] transition-transform duration-500"
                     />
                     {/* Soft gradient bottom vignette */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent pointer-events-none" />

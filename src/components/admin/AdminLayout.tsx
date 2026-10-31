@@ -7,6 +7,7 @@ import {
   User,
   Newspaper,
   Tv,
+  Images,
   Share2,
   Briefcase,
   PhoneCall,
@@ -49,6 +50,11 @@ const navItems: NavItem[] = [
     name: 'Digital Media',
     path: '/admin/digital-media',
     icon: <Tv className="w-4 h-4" />,
+  },
+  {
+    name: 'Media Management',
+    path: '/admin/media',
+    icon: <Images className="w-4 h-4" />,
   },
   {
     name: 'Connect Me',

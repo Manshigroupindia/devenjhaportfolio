@@ -4,7 +4,7 @@ import { uploadToCloudinary } from '../../lib/cloudinary.ts';
 
 interface CloudinaryUploadWidgetProps {
   currentImageUrl?: string;
-  subfolder: 'home' | 'about' | 'print-media' | 'business-logos' | 'general';
+  subfolder?: string;
   label?: string;
   helperText?: string;
   onImageUploaded: (url: string, publicId?: string) => void;

@@ -10,24 +10,38 @@ export interface GalleryImageItem {
   id: string;
   category: GalleryCategoryKey;
   image: string;
-  title: string;
+  imageUrl?: string;
+  publicId?: string;
+  title?: string;
   subtitle?: string;
+  caption?: string;
   date?: string;
   location?: string;
-  description: string;
+  photographer?: string;
+  description?: string;
   aspectRatio?: 'square' | 'portrait' | 'landscape';
+  order?: number;
+  isActive?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface GalleryVideoItem {
   id: string;
   category: 'videos';
   thumbnail: string;
-  title: string;
+  title?: string;
   date?: string;
   channel?: string;
   duration?: string;
   embedUrl: string;
-  description: string;
+  youtubeUrl?: string;
+  youtubeId?: string;
+  description?: string;
+  order?: number;
+  isActive?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface GalleryCategoryMeta {

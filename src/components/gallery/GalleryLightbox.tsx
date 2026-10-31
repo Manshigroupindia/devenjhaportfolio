@@ -75,7 +75,7 @@ export const GalleryLightbox: React.FC<GalleryLightboxProps> = ({
           </button>
 
           <a
-            href={currentItem.image}
+            href={currentItem.imageUrl || currentItem.image}
             target="_blank"
             rel="noreferrer"
             className="p-2 rounded-lg bg-[#162536] hover:bg-[#BD9256] hover:text-white transition-colors"
@@ -126,8 +126,8 @@ export const GalleryLightbox: React.FC<GalleryLightboxProps> = ({
         >
           <div className="p-2 bg-white rounded-lg shadow-2xl border-2 border-[#BD9256]/60">
             <img
-              src={currentItem.image}
-              alt={currentItem.title}
+              src={currentItem.imageUrl || currentItem.image}
+              alt={currentItem.title || 'Gallery Photograph'}
               className="max-h-[66vh] max-w-full object-contain rounded"
             />
           </div>
@@ -137,9 +137,16 @@ export const GalleryLightbox: React.FC<GalleryLightboxProps> = ({
       {/* Bottom Info Bar */}
       <div className="px-6 py-4 bg-[#0d1826]/90 border-t border-[#1f3247] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 z-20">
         <div>
-          <h3 className="font-serif text-base sm:text-lg font-bold text-white">
-            {currentItem.title}
-          </h3>
+          {currentItem.title && currentItem.title.trim() !== '' && currentItem.title.toLowerCase() !== 'untitled' && (
+            <h3 className="font-serif text-base sm:text-lg font-bold text-white">
+              {currentItem.title}
+            </h3>
+          )}
+          {(currentItem.caption || currentItem.subtitle) && (
+            <span className="text-xs font-medium text-[#BD9256] block mt-0.5">
+              {currentItem.caption || currentItem.subtitle}
+            </span>
+          )}
           <div className="flex items-center gap-4 text-xs text-gray-400 mt-1">
             {currentItem.date && (
               <span className="flex items-center gap-1.5 text-gray-300">
@@ -156,9 +163,11 @@ export const GalleryLightbox: React.FC<GalleryLightboxProps> = ({
           </div>
         </div>
 
-        <p className="text-xs text-gray-300 sm:max-w-md hidden md:block">
-          {currentItem.description}
-        </p>
+        {currentItem.description && currentItem.description.trim() !== '' && (
+          <p className="text-xs text-gray-300 sm:max-w-md hidden md:block">
+            {currentItem.description}
+          </p>
+        )}
       </div>
 
     </div>

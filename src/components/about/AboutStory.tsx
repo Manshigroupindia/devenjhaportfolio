@@ -36,13 +36,13 @@ export const AboutStory: React.FC<AboutStoryProps> = ({ content }) => {
               <div className="absolute -inset-3 rounded-2xl bg-[#F8F6F0] border border-[#ebdcc9] -z-10 rotate-[-1.5deg]" />
 
               {/* Main Portrait of Deven Jha */}
-              <div className="relative rounded-xl overflow-hidden shadow-xl border-4 border-[#BD9256]/60 bg-[#f7f2e8] min-h-[400px] flex items-center justify-center">
+              <div className="relative rounded-xl overflow-hidden shadow-xl border-4 border-[#BD9256]/60 bg-white">
                 {portraitImg ? (
                   <>
                     <img
                       src={portraitImg}
                       alt="Devendra Kumar Jha (Deven Jha) - Dedicated to Social Work"
-                      className="w-full h-auto object-cover"
+                      className="w-full h-auto block"
                     />
                     
                     {/* Gold gradient edge */}

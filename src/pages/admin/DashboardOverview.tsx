@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import {
   Newspaper,
   Tv,
+  Images,
   Briefcase,
   Share2,
   Database,
@@ -341,6 +342,21 @@ export const DashboardOverview: React.FC = () => {
               </h4>
               <p className="text-xs text-slate-500 mt-1">
                 Add YouTube broadcast interviews &amp; video documentaries
+              </p>
+            </div>
+            <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-[#b8863b] group-hover:translate-x-1 transition-all shrink-0 mt-1" />
+          </Link>
+
+          <Link
+            to="/admin/media"
+            className="p-5 bg-white rounded-xl border border-[#e5decb] hover:border-[#b8863b] shadow-xs hover:shadow-md transition-all flex items-start justify-between group"
+          >
+            <div>
+              <h4 className="font-bold text-sm text-[#111c2a] group-hover:text-[#a87932] transition-colors">
+                Media &amp; Gallery CMS
+              </h4>
+              <p className="text-xs text-slate-500 mt-1">
+                Manage all 6 gallery subcategories with category bulk uploads
               </p>
             </div>
             <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-[#b8863b] group-hover:translate-x-1 transition-all shrink-0 mt-1" />

@@ -92,13 +92,13 @@ export const AboutHero: React.FC<AboutHeroProps> = ({ onOpenAppointment, content
               <div className="absolute -inset-2.5 rounded-2xl border-2 border-[#BD9256]/40 -z-10 transform -rotate-1 group-hover:rotate-0 transition-transform duration-500" />
               
               {/* Main Photo Card */}
-              <div className="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-white bg-[#f5ede2] min-h-[420px] flex items-center justify-center">
+              <div className="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-white bg-white">
                 {heroImage ? (
                   <>
                     <img
                       src={heroImage}
                       alt="Devendra Kumar Jha (Deven Jha) - Social Worker & Leader"
-                      className="w-full h-auto object-cover object-center transform group-hover:scale-[1.02] transition-transform duration-500"
+                      className="w-full h-auto block transform group-hover:scale-[1.02] transition-transform duration-500"
                     />
                     
                     {/* Subtle vignette */}

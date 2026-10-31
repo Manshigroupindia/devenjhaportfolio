@@ -34,12 +34,12 @@ export const AboutJourney: React.FC<AboutJourneyProps> = ({ onOpenAppointment, c
             <div className="relative w-full max-w-[460px] min-h-[340px]">
               
               {/* Back Image: Group / Community Work */}
-              <div className="w-[62%] sm:w-[65%] rounded-lg overflow-hidden shadow-lg border-4 border-white bg-[#eee6d8] rotate-[-3deg] hover:rotate-0 transition-transform duration-300">
+              <div className="w-[62%] sm:w-[65%] rounded-lg overflow-hidden shadow-lg border-4 border-white bg-white rotate-[-3deg] hover:rotate-0 transition-transform duration-300">
                 {groupImg ? (
                   <img
                     src={groupImg}
                     alt="Social initiatives and community upliftment"
-                    className="w-full h-auto object-cover grayscale contrast-110"
+                    className="w-full h-auto block grayscale contrast-110"
                   />
                 ) : (
                   <div className="aspect-[4/3] w-full animate-pulse bg-[#e6dcce] flex items-center justify-center">
@@ -49,12 +49,12 @@ export const AboutJourney: React.FC<AboutJourneyProps> = ({ onOpenAppointment, c
               </div>
 
               {/* Front Image: Deven Jha Portrait in Suit */}
-              <div className="absolute top-[18%] right-2 w-[68%] sm:w-[70%] rounded-xl overflow-hidden shadow-2xl border-4 border-[#e0cba8] bg-[#f5ede2] rotate-[1.5deg] hover:rotate-0 transition-transform duration-300">
+              <div className="absolute top-[18%] right-2 w-[68%] sm:w-[70%] rounded-xl overflow-hidden shadow-2xl border-4 border-[#e0cba8] bg-white rotate-[1.5deg] hover:rotate-0 transition-transform duration-300">
                 {portraitImg ? (
                   <img
                     src={portraitImg}
                     alt="Devendra Kumar Jha in suit"
-                    className="w-full h-auto object-cover"
+                    className="w-full h-auto block"
                   />
                 ) : (
                   <div className="aspect-[4/5] w-full animate-pulse bg-gradient-to-tr from-[#ecdcc7] via-[#f7f1e7] to-[#ecdcc7] flex flex-col items-center justify-center p-4">
