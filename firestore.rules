@@ -49,6 +49,19 @@ service cloud.firestore {
       allow read, update, delete: if isAuthenticated();
     }
 
+    // Site Statistics & Professional Visitor Counter
+    match /siteStats/{docId} {
+      allow read: if true;
+      // Allow document creation only when initialized with the baseline 30343
+      allow create: if request.resource.data.count == 30343;
+      // Allow update if incrementing by 1 and only modifying count and updatedAt
+      allow update: if isAuthenticated() || (
+        request.resource.data.count == resource.data.count + 1 &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['count', 'updatedAt'])
+      );
+      allow delete: if isAuthenticated();
+    }
+
     // System migration status & bootstrap configuration
     match /system/{docId} {
       allow read: if true;

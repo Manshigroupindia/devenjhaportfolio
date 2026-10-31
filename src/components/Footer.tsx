@@ -334,8 +334,20 @@ export const Footer: React.FC<FooterProps> = () => {
         </div>
 
         {/* Divider line */}
-        <div className="border-t border-[#172537] pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500 gap-4">
+        <div className="border-t border-[#172537] pt-6 flex flex-col md:flex-row items-center justify-between text-xs text-gray-500 gap-4">
           <p>© 2025 Deven Jha. All Rights Reserved.</p>
+
+          {/* Manshi Group Website Credit */}
+          <div className="text-center">
+            <a
+              href="https://www.manshigroup.in/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-400 hover:text-[#b8863b] transition-colors duration-200 inline-block font-medium tracking-wide"
+            >
+              Designed &amp; Developed by Manshi Group Of Services
+            </a>
+          </div>
 
           <div className="flex items-center gap-4 text-gray-400 text-xs">
             <button
@@ -351,16 +363,14 @@ export const Footer: React.FC<FooterProps> = () => {
             >
               Terms &amp; Conditions
             </button>
+            <button
+              onClick={scrollToTop}
+              aria-label="Scroll to top"
+              className="w-8 h-8 rounded-full bg-[#1b2b40] hover:bg-[#b8863b] text-gray-300 hover:text-white flex items-center justify-center transition-colors shadow-sm cursor-pointer ml-1"
+            >
+              <ArrowUp className="w-4 h-4" />
+            </button>
           </div>
-
-          {/* Back to top button */}
-          <button
-            onClick={scrollToTop}
-            aria-label="Scroll to top"
-            className="w-8 h-8 rounded-full bg-[#1b2b40] hover:bg-[#b8863b] text-gray-300 hover:text-white flex items-center justify-center transition-colors shadow-sm cursor-pointer"
-          >
-            <ArrowUp className="w-4 h-4" />
-          </button>
         </div>
 
       </div>

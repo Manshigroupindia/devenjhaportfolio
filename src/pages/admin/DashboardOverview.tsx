@@ -15,6 +15,7 @@ import {
   Layers,
   Sparkles,
   ExternalLink,
+  Eye,
 } from 'lucide-react';
 import {
   usePrintMedia,
@@ -22,6 +23,7 @@ import {
   useBusinesses,
   useSocialProfiles,
 } from '../../hooks/useCMSContent.ts';
+import { useVisitorCounter } from '../../hooks/useVisitorCounter.ts';
 import { checkMigrationStatus, runMigration, MigrationStatus } from '../../services/migrationService.ts';
 
 export const DashboardOverview: React.FC = () => {
@@ -29,6 +31,7 @@ export const DashboardOverview: React.FC = () => {
   const { data: digitalItems } = useDigitalMedia(false);
   const { data: businessItems } = useBusinesses(false);
   const { data: socialItems } = useSocialProfiles(false);
+  const { formattedCount: visitorCount } = useVisitorCounter();
 
   const [migrationStatus, setMigrationStatus] = useState<MigrationStatus>({ completed: false });
   const [migrating, setMigrating] = useState(false);
@@ -95,7 +98,22 @@ export const DashboardOverview: React.FC = () => {
       )}
 
       {/* Summary Metrics Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6">
+        <div className="bg-white rounded-xl p-5 border border-[#e5decb] shadow-xs group">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 group-hover:text-[#a87932] transition-colors">
+              Visitors
+            </span>
+            <div className="w-8 h-8 rounded-lg bg-[#faf6ee] text-[#b8863b] flex items-center justify-center group-hover:scale-110 transition-transform">
+              <Eye className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="font-serif text-2xl sm:text-3xl font-bold text-[#111c2a] tabular-nums">
+            {visitorCount}
+          </div>
+          <p className="text-[11px] text-slate-500 mt-1">Verified Sessions</p>
+        </div>
+
         <Link
           to="/admin/print-media"
           className="bg-white rounded-xl p-5 border border-[#e5decb] shadow-xs hover:shadow-md hover:border-[#b8863b] transition-all group"
