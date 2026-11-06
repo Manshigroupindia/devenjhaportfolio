@@ -43,9 +43,27 @@ service cloud.firestore {
       allow write: if isAuthenticated();
     }
 
-    // Public visitor submissions for contact form & appointment requests
+    // Public visitor submissions for contact form & legacy inquiries
     match /contact_submissions/{submissionId} {
       allow create: if true;
+      allow read, update, delete: if isAuthenticated();
+    }
+
+    // Appointment Availability (Monthly Calendar & Slot Management)
+    match /appointmentAvailability/{dateId} {
+      allow read: if true;
+      allow create, delete: if isAuthenticated();
+      // Allow update if authenticated admin OR public reserving a slot during transaction
+      allow update: if isAuthenticated() || (
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['slots', 'isAvailable', 'updatedAt'])
+      );
+    }
+
+    // Appointment Records (Strict privacy protection)
+    match /appointments/{bookingId} {
+      // Public visitors can submit verified appointments
+      allow create: if true;
+      // Only authenticated admins can browse, view details, mark completed or cancel
       allow read, update, delete: if isAuthenticated();
     }
 

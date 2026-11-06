@@ -311,9 +311,9 @@ export const Navbar: React.FC<NavbarProps> = ({
           </nav>
 
           {/* Right actions: Google Translate & Appointment CTA */}
-          <div className="hidden sm:flex items-center gap-3">
-            {/* Google Translate Wrapper */}
-            <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-[#f5ede2]/60 hover:bg-[#f5ede2] border border-[#e4d6c4] rounded-md transition-all text-xs font-medium text-[#4a5568]">
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Google Translate Wrapper (Preserved on desktop, kept active in DOM on mobile) */}
+            <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-[#f5ede2]/60 hover:bg-[#f5ede2] border border-[#e4d6c4] rounded-md transition-all text-xs font-medium text-[#4a5568] max-sm:fixed max-sm:top-0 max-sm:left-0 max-sm:opacity-0 max-sm:pointer-events-none max-sm:-z-50 max-sm:w-0 max-sm:h-0 max-sm:overflow-hidden">
               <Globe className="w-3.5 h-3.5 text-[#a87932]" />
               <div id="google_translate_element" className="translate-widget" />
             </div>
@@ -329,7 +329,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             <button
               onClick={onOpenAppointment}
-              className="xl:hidden inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#b8863b] hover:bg-[#a37430] text-white text-xs font-semibold rounded-md shadow-xs transition"
+              className="hidden sm:inline-flex xl:hidden items-center gap-1.5 px-3.5 py-2 bg-[#b8863b] hover:bg-[#a37430] text-white text-xs font-semibold rounded-md shadow-xs transition"
             >
               <PhoneCall className="w-3.5 h-3.5" />
               Appointment
@@ -468,7 +468,10 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* Mobile Language Switcher */}
           <div className="pt-1 pb-1">
-            <LanguageSwitcher variant="mobile-drawer" />
+            <LanguageSwitcher
+              variant="mobile-drawer"
+              onLanguageChanged={() => setMobileMenuOpen(false)}
+            />
           </div>
 
           <Link

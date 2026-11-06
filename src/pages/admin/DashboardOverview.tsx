@@ -409,6 +409,21 @@ export const DashboardOverview: React.FC = () => {
             </div>
             <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-[#b8863b] group-hover:translate-x-1 transition-all shrink-0 mt-1" />
           </Link>
+
+          <Link
+            to="/admin/appointments"
+            className="p-5 bg-white rounded-xl border border-[#e5decb] hover:border-[#b8863b] shadow-xs hover:shadow-md transition-all flex items-start justify-between group"
+          >
+            <div>
+              <h4 className="font-bold text-sm text-[#111c2a] group-hover:text-[#a87932] transition-colors">
+                Appointment Management
+              </h4>
+              <p className="text-xs text-slate-500 mt-1">
+                Configure calendar availability, manage hourly slots &amp; visitor bookings
+              </p>
+            </div>
+            <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-[#b8863b] group-hover:translate-x-1 transition-all shrink-0 mt-1" />
+          </Link>
         </div>
       </div>
     </div>

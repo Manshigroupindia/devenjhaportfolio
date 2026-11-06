@@ -21,6 +21,7 @@ import { MediaManagementCMS } from './pages/admin/MediaManagementCMS.tsx';
 import { ConnectMeCMS } from './pages/admin/ConnectMeCMS.tsx';
 import { MyBusinessCMS } from './pages/admin/MyBusinessCMS.tsx';
 import { ContactDetailsCMS } from './pages/admin/ContactDetailsCMS.tsx';
+import { AppointmentManagementCMS } from './pages/admin/AppointmentManagementCMS.tsx';
 
 import { Navbar } from './components/Navbar.tsx';
 import { Footer } from './components/Footer.tsx';
@@ -158,6 +159,8 @@ function AppRoutes() {
           <Route path="connect-me" element={<ConnectMeCMS />} />
           <Route path="my-business" element={<MyBusinessCMS />} />
           <Route path="contact-details" element={<ContactDetailsCMS />} />
+          <Route path="appointments" element={<AppointmentManagementCMS />} />
+          <Route path="appointment" element={<Navigate to="/admin/appointments" replace />} />
         </Route>
 
         {/* ================= PUBLIC WEBSITE ROUTES ================= */}

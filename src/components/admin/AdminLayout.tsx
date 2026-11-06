@@ -11,6 +11,7 @@ import {
   Share2,
   Briefcase,
   PhoneCall,
+  Calendar,
   LogOut,
   ExternalLink,
   Menu,
@@ -65,6 +66,11 @@ const navItems: NavItem[] = [
     name: 'My Business',
     path: '/admin/my-business',
     icon: <Briefcase className="w-4 h-4" />,
+  },
+  {
+    name: 'Appointment Management',
+    path: '/admin/appointments',
+    icon: <Calendar className="w-4 h-4" />,
   },
   {
     name: 'Contact Details',

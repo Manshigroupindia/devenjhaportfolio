@@ -42,6 +42,7 @@ export function getActiveLanguage(): string {
 
 /**
  * Programmatically switch language by updating Google Translate's select combo & cookies.
+ * Works across both desktop and mobile without creating duplicate instances.
  */
 export function setLanguage(langCode: string): void {
   try {
@@ -52,13 +53,14 @@ export function setLanguage(langCode: string): void {
     if (combo) {
       combo.value = isEnglish ? '' : langCode;
       combo.dispatchEvent(new Event('change'));
+      combo.dispatchEvent(new Event('input'));
     }
 
     // 2. Set or clear googtrans cookies for persistent translation
     const host = window.location.hostname;
     const cookiePath = '/';
     if (isEnglish) {
-      // Clear cookie to revert back to original language
+      // Clear cookie to revert back to original English
       document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${cookiePath};`;
       if (host) {
         document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${cookiePath}; domain=${host};`;
@@ -74,10 +76,20 @@ export function setLanguage(langCode: string): void {
       }
     }
 
-    // 3. Fallback: if combo not found, reload to let Google Translate read cookie
-    if (!combo) {
-      window.location.reload();
-    }
+    // 3. Fallback verification:
+    // If the combo was missing or did not alter the DOM, reload with cookie to ensure 100% translation
+    setTimeout(() => {
+      const isTranslated =
+        document.documentElement.classList.contains('translated-ltr') ||
+        document.documentElement.classList.contains('translated-rtl') ||
+        document.body.classList.contains('translated-ltr');
+
+      if (!isEnglish && !isTranslated) {
+        window.location.reload();
+      } else if (isEnglish && isTranslated) {
+        window.location.reload();
+      }
+    }, 250);
   } catch (err) {
     console.warn('Language switch notice:', err);
   }
@@ -95,6 +107,7 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
   onLanguageChanged,
 }) => {
   const [activeLang, setActiveLang] = useState<string>('en');
+  const [isExpanded, setIsExpanded] = useState<boolean>(false);
 
   useEffect(() => {
     setActiveLang(getActiveLanguage());
@@ -116,67 +129,79 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
     }
   };
 
-  // Find active language display name
   const currentLangObj =
     SUPPORTED_LANGUAGES.find((l) => l.code === activeLang) || SUPPORTED_LANGUAGES[0];
 
-  // 1. Mobile Navigation Drawer Layout
+  // 1. Mobile Navigation Drawer Layout (Expandable accordion)
   if (variant === 'mobile-drawer') {
-    const quickLanguages = SUPPORTED_LANGUAGES.slice(0, 5); // English, Hindi, Bengali, Marathi, Punjabi
-
     return (
-      <div
-        className={`bg-[#FAF8F5] border border-[#ebdcc9] rounded-xl p-3 select-none ${className}`}
-      >
-        <div className="flex items-center justify-between mb-2.5">
-          <div className="flex items-center gap-1.5 min-w-0">
-            <Globe className="w-3.5 h-3.5 text-[#a87932] shrink-0" />
-            <span className="text-[11.5px] font-bold text-[#14283B] uppercase tracking-wide truncate">
-              Language / भाषा
-            </span>
+      <div className={`border-b border-gray-100 pb-2 select-none ${className}`}>
+        <button
+          type="button"
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="w-full flex items-center justify-between py-2 text-left font-semibold text-[#2d3748] hover:text-[#a87932] transition-colors cursor-pointer"
+          aria-expanded={isExpanded}
+        >
+          <div className="flex items-center gap-2">
+            <Globe className="w-4 h-4 text-[#a87932] shrink-0" />
+            <span className="text-[14px]">Language</span>
           </div>
-          <span className="text-[10px] font-semibold text-[#a87932] bg-white px-2 py-0.5 rounded border border-[#ebdcc9] shrink-0">
-            {currentLangObj.native}
-          </span>
-        </div>
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-[#a87932] bg-[#FAF8F5] px-2.5 py-1 rounded border border-[#ebdcc9] shrink-0">
+            <span>{currentLangObj.native}</span>
+            <ChevronDown
+              className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                isExpanded ? 'rotate-180' : ''
+              }`}
+            />
+          </div>
+        </button>
 
-        {/* Quick select pills */}
-        <div className="flex flex-wrap items-center gap-1.5 mb-2.5">
-          {quickLanguages.map((lang) => {
-            const isSelected = activeLang === lang.code;
-            return (
-              <button
-                key={lang.code}
-                type="button"
-                onClick={() => handleSelectLanguage(lang.code)}
-                className={`px-2.5 py-1 rounded text-[11px] font-medium transition-all cursor-pointer ${
-                  isSelected
-                    ? 'bg-[#b8863b] text-white shadow-xs font-semibold'
-                    : 'bg-white text-[#475569] border border-[#e2d9cc] hover:border-[#b8863b] hover:text-[#14283B]'
-                }`}
-              >
-                {lang.native}
-              </button>
-            );
-          })}
-        </div>
+        {isExpanded && (
+          <div className="pt-2 pb-1 space-y-2.5 animate-fadeIn">
+            {/* Quick language pills */}
+            <div className="flex flex-wrap gap-1.5">
+              {SUPPORTED_LANGUAGES.slice(0, 5).map((l) => {
+                const isSelected = activeLang === l.code;
+                return (
+                  <button
+                    key={l.code}
+                    type="button"
+                    onClick={() => handleSelectLanguage(l.code)}
+                    className={`px-2.5 py-1 rounded text-[11px] font-medium transition cursor-pointer ${
+                      isSelected
+                        ? 'bg-[#b8863b] text-white shadow-xs font-semibold'
+                        : 'bg-white text-[#475569] border border-[#e2d9cc] hover:border-[#b8863b]'
+                    }`}
+                  >
+                    {l.native}
+                  </button>
+                );
+              })}
+            </div>
 
-        {/* Dropdown for complete list */}
-        <div className="relative">
-          <select
-            value={activeLang}
-            onChange={(e) => handleSelectLanguage(e.target.value)}
-            className="w-full pl-2.5 pr-8 py-1.5 bg-white border border-[#e2d9cc] rounded-lg text-xs font-medium text-[#1e293b] focus:outline-none focus:border-[#b8863b] cursor-pointer appearance-none"
-            aria-label="Select full website language"
-          >
-            {SUPPORTED_LANGUAGES.map((lang) => (
-              <option key={lang.code} value={lang.code}>
-                {lang.native} ({lang.name})
-              </option>
-            ))}
-          </select>
-          <ChevronDown className="w-3.5 h-3.5 text-gray-400 absolute right-2.5 top-2.5 pointer-events-none" />
-        </div>
+            {/* Complete Language Grid */}
+            <div className="grid grid-cols-2 gap-1.5 pt-1">
+              {SUPPORTED_LANGUAGES.map((l) => {
+                const isSelected = activeLang === l.code;
+                return (
+                  <button
+                    key={l.code}
+                    type="button"
+                    onClick={() => handleSelectLanguage(l.code)}
+                    className={`flex items-center justify-between px-2.5 py-1.5 rounded text-left text-xs transition cursor-pointer ${
+                      isSelected
+                        ? 'bg-[#b8863b]/10 text-[#a87932] font-bold border border-[#b8863b]/30'
+                        : 'bg-[#faf8f5] text-slate-700 hover:bg-[#f3ede3] border border-[#ebdcc9]'
+                    }`}
+                  >
+                    <span className="truncate">{l.native}</span>
+                    <span className="text-[10px] text-gray-400 shrink-0 ml-1">({l.name})</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -222,4 +247,3 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
     </div>
   );
 };
-
