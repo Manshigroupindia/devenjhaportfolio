@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ChevronDown, Menu, X, Globe, PhoneCall } from 'lucide-react';
 import { ReusableSocialGrid } from './common/ReusableSocialGrid.tsx';
+import { LanguageSwitcher } from './common/LanguageSwitcher.tsx';
 
 export type PageType =
   | 'home'
@@ -463,6 +464,11 @@ export const Navbar: React.FC<NavbarProps> = ({
               variant="mobile"
               onItemClick={() => setMobileMenuOpen(false)}
             />
+          </div>
+
+          {/* Mobile Language Switcher */}
+          <div className="pt-1 pb-1">
+            <LanguageSwitcher variant="mobile-drawer" />
           </div>
 
           <Link

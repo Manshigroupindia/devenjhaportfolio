@@ -52,8 +52,8 @@ service cloud.firestore {
     // Site Statistics & Professional Visitor Counter
     match /siteStats/{docId} {
       allow read: if true;
-      // Allow document creation only when initialized with the baseline 30343
-      allow create: if request.resource.data.count == 30343;
+      // Allow document creation only when initialized with the baseline 454895
+      allow create: if request.resource.data.count == 454895;
       // Allow update if incrementing by 1 and only modifying count and updatedAt
       allow update: if isAuthenticated() || (
         request.resource.data.count == resource.data.count + 1 &&

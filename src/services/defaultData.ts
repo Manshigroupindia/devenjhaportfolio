@@ -472,13 +472,14 @@ export const defaultSocialProfiles: SocialProfileDoc[] = [
 ];
 
 export const defaultContactSettings: ContactSettingsDoc = {
-  phone: '+91 98765 43210',
-  email: 'info@devenjha.com',
-  whatsapp: '+91 98765 43210',
-  cityState: 'New Delhi, India',
-  addressNote: 'New Delhi, India (Exact address available on request)',
-  mapsQueryUrl: 'https://maps.google.com/?q=New+Delhi',
-  mapsPreviewImage: '',
+  phone: '+91 87505 05355',
+  email: 'contact@devenjha.com',
+  whatsapp: '+91 8750505355',
+  cityState: 'Noida / Delhi NCR, India',
+  addressNote: 'Office No 2B, 2nd Floor, Bhawani Market, Sector 27, Noida',
+  mapsQueryUrl:
+    'https://www.google.co.in/maps/place/Deven+Jha+Productions/@28.5715302,77.3256853,97m/data=!3m2!1e3!5s0x390ce44ebe14790b:0x904ae8a03f3a87fe!4m14!1m7!3m6!1s0x390ce5b7235861bb:0xffa109cf8ccd818b!2sJanta+Live+News!8m2!3d28.5715945!4d77.3255587!16s%2Fg%2F11rxzks9x4!3m5!1s0x390ce5942ce6b08f:0xfdc8fd8ba01f039!8m2!3d28.5713107!4d77.3263617!16s%2Fg%2F11sv33qq_0?entry=ttu&g_ep=EgoyMDI2MTAyOC4wIKXMDSoASAFQAw%3D%3D',
+  mapsPreviewImage: '/images/map-preview.png',
   officeHours: 'Monday – Saturday: 10:00 AM – 6:00 PM IST',
 };
 

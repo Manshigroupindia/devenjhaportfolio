@@ -4,9 +4,11 @@ import { useContactSettings } from '../../hooks/useCMSContent.ts';
 
 export const OfficeMapSection: React.FC = () => {
   const { data: contactSettings } = useContactSettings();
-  const directionsUrl = contactSettings.mapsQueryUrl || 'https://maps.google.com/?q=New+Delhi,+India';
-  const embedMapUrl =
-    'https://maps.google.com/maps?q=New%20Delhi,%20India&t=&z=12&ie=UTF8&iwloc=&output=embed';
+  const locationLabel = contactSettings.addressNote || contactSettings.cityState || 'New Delhi, India';
+  const directionsUrl =
+    contactSettings.mapsQueryUrl ||
+    `https://maps.google.com/?q=${encodeURIComponent(locationLabel)}`;
+  const embedMapUrl = `https://maps.google.com/maps?q=${encodeURIComponent(locationLabel)}&t=&z=14&ie=UTF8&iwloc=&output=embed`;
 
   return (
     <section className="py-16 sm:py-20 bg-[#FAF8F5] border-t border-b border-[#ebdcc9]">
@@ -46,7 +48,7 @@ export const OfficeMapSection: React.FC = () => {
               <div className="flex items-center gap-2">
                 <MapPin className="w-4 h-4 text-[#BD9256] shrink-0" />
                 <span className="font-semibold text-[#14283B]">
-                  New Delhi, National Capital Territory, India
+                  {locationLabel}
                 </span>
               </div>
               <a
@@ -70,10 +72,10 @@ export const OfficeMapSection: React.FC = () => {
                   CENTRAL HEADQUARTERS
                 </span>
                 <h3 className="font-serif text-xl sm:text-2xl font-bold text-[#14283B] mb-2">
-                  New Delhi Office
+                  {contactSettings.cityState ? `${contactSettings.cityState.split('/')[0].split(',')[0].trim()} Office` : 'Executive Office'}
                 </h3>
                 <p className="text-xs text-[#777777] leading-relaxed">
-                  Situated centrally in New Delhi, coordinating social initiatives, media affairs, and enterprise activities nationwide.
+                  Headquarters coordinating nationwide social initiatives, media affairs, youth development and enterprise activities.
                 </p>
               </div>
 
@@ -83,10 +85,10 @@ export const OfficeMapSection: React.FC = () => {
                   <Building2 className="w-4 h-4 text-[#BD9256] shrink-0 mt-0.5" />
                   <div>
                     <span className="text-xs font-bold text-[#14283B] block">
-                      New Delhi, India
+                      {locationLabel}
                     </span>
                     <span className="text-[11px] text-[#888888] italic block mt-0.5">
-                      Exact address available on confirmed appointment request
+                      Visiting hours: {contactSettings.officeHours || 'Monday – Saturday: 10:00 AM – 6:00 PM IST'}
                     </span>
                   </div>
                 </div>

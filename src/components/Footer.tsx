@@ -9,12 +9,16 @@ import {
 } from 'lucide-react';
 import { PageType } from './Navbar.tsx';
 import { VisitorCounter } from './common/VisitorCounter.tsx';
+import { useContactSettings } from '../hooks/useCMSContent.ts';
+import { LanguageSwitcher } from './common/LanguageSwitcher.tsx';
 
 interface FooterProps {
   onNavigate?: (page: PageType) => void;
 }
 
 export const Footer: React.FC<FooterProps> = () => {
+  const { data: contactSettings } = useContactSettings();
+
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -309,27 +313,43 @@ export const Footer: React.FC<FooterProps> = () => {
             <ul className="space-y-2.5 text-[11.5px] text-gray-400 mb-4">
               <li className="flex items-center gap-2">
                 <Phone className="w-3.5 h-3.5 text-[#b8863b] shrink-0" />
-                <a href="tel:+919876543210" className="hover:text-white transition-colors">
-                  +91 98765 43210
+                <a
+                  href={`tel:${(contactSettings.phone || '+91 87505 05355').replace(/\s+/g, '')}`}
+                  className="hover:text-white transition-colors"
+                >
+                  {contactSettings.phone || '+91 87505 05355'}
                 </a>
               </li>
               <li className="flex items-center gap-2">
                 <Mail className="w-3.5 h-3.5 text-[#b8863b] shrink-0" />
-                <a href="mailto:info@devenjha.com" className="hover:text-white transition-colors">
-                  info@devenjha.com
+                <a
+                  href={`mailto:${contactSettings.email || 'contact@devenjha.com'}`}
+                  className="hover:text-white transition-colors"
+                >
+                  {contactSettings.email || 'contact@devenjha.com'}
                 </a>
               </li>
-              <li className="flex items-center gap-2">
-                <MapPin className="w-3.5 h-3.5 text-[#b8863b] shrink-0" />
-                <span>New Delhi, India</span>
+              <li className="flex items-start gap-2">
+                <MapPin className="w-3.5 h-3.5 text-[#b8863b] shrink-0 mt-0.5" />
+                {contactSettings.mapsQueryUrl ? (
+                  <a
+                    href={contactSettings.mapsQueryUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="hover:text-white transition-colors leading-relaxed"
+                  >
+                    {contactSettings.addressNote || contactSettings.cityState || 'Noida / Delhi NCR, India'}
+                  </a>
+                ) : (
+                  <span className="leading-relaxed">
+                    {contactSettings.addressNote || contactSettings.cityState || 'Noida / Delhi NCR, India'}
+                  </span>
+                )}
               </li>
             </ul>
 
-            {/* Language indicator */}
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-[#142233] border border-[#23354c] rounded text-[11px] text-gray-300">
-              <Globe className="w-3 h-3 text-[#b8863b]" />
-              <span>Select Language</span>
-            </div>
+            {/* Functional Language Switcher in Footer */}
+            <LanguageSwitcher variant="footer" />
           </div>
 
         </div>

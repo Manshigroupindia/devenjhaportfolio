@@ -5,7 +5,7 @@
  * at `siteStats/visitorCounter`.
  * 
  * Tracking Architecture & Deduplication:
- * 1. Initial count baseline: 30,343.
+ * 1. Initial count baseline: 454,895.
  * 2. Deduplication: Tracks browser sessions using `sessionStorage` and an in-memory
  *    concurrency lock. This prevents duplicate increments from React StrictMode
  *    double-mounting, internal route navigation, or page reloads within the same session.
@@ -19,7 +19,7 @@ import { db } from '../lib/firebase.ts';
 
 const COUNTER_COLLECTION = 'system';
 const COUNTER_DOC = 'visitorCounter';
-export const INITIAL_VISITOR_COUNT = 30343;
+export const INITIAL_VISITOR_COUNT = 454895;
 
 // Session storage key to identify an already counted browsing session
 const SESSION_STORAGE_KEY = 'deven_jha_visitor_session_counted';
@@ -65,7 +65,7 @@ export async function recordVisitorSession(): Promise<number | null> {
       const now = new Date().toISOString();
 
       if (!snap.exists()) {
-        // Document does not exist yet: initialize starting at baseline 30343
+        // Document does not exist yet: initialize starting at baseline 454895
         const initialData = {
           count: INITIAL_VISITOR_COUNT,
           createdAt: now,
@@ -76,9 +76,10 @@ export async function recordVisitorSession(): Promise<number | null> {
       }
 
       const data = snap.data();
-      const currentCount = typeof data?.count === 'number' && !isNaN(data.count)
-        ? data.count
-        : INITIAL_VISITOR_COUNT;
+      const currentCount =
+        typeof data?.count === 'number' && !isNaN(data.count) && data.count >= INITIAL_VISITOR_COUNT
+          ? data.count
+          : INITIAL_VISITOR_COUNT;
 
       const nextCount = currentCount + 1;
       transaction.update(counterRef, {

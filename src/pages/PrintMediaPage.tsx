@@ -66,16 +66,17 @@ export const PrintMediaPage: React.FC<PrintMediaPageProps> = ({ onNavigateBack }
           </Link>
 
           <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#BD9256]/20 border border-[#BD9256]/40 rounded-full mb-3">
-              <Newspaper className="w-3.5 h-3.5 text-[#BD9256]" />
-              <span className="text-[11px] font-bold tracking-[0.2em] text-[#BD9256] uppercase">
-                NEWSPAPER &amp; MAGAZINE ARCHIVES
+            {/* Primary Large Heading */}
+            <h1 className="font-serif text-[38px] sm:text-[50px] lg:text-[60px] font-bold text-white tracking-tight leading-none mb-3 uppercase">
+              MEDIA COVERAGE
+            </h1>
+
+            {/* Sub-label underneath with downward arrow */}
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-[#BD9256]/20 border border-[#BD9256]/40 rounded-full mb-4">
+              <span className="text-[12px] sm:text-[13px] font-bold tracking-[0.2em] text-[#BD9256] uppercase">
+                ↓ PRINT MEDIA
               </span>
             </div>
-
-            <h1 className="font-serif text-[32px] sm:text-[42px] lg:text-[48px] font-bold text-white leading-tight mb-3">
-              Print Media <span className="font-serif italic text-[#BD9256]">Coverage</span>
-            </h1>
 
             <p className="text-sm sm:text-base text-gray-300 leading-relaxed max-w-2xl">
               Stories, publications and recognition in leading national dailies and magazines, chronicling over two decades of social service and public engagement.
